@@ -154,7 +154,7 @@ Install the latest checksummed release without a Go or Node.js toolchain:
 
 ```bash
 diffmind_install_tmp=$(mktemp -d)
-curl -fsSL https://raw.githubusercontent.com/mohammad-safakhou/diffmind/master/install.sh \
+curl -fsSL https://raw.githubusercontent.com/safa-safakhou/diffmind/master/install.sh \
   -o "$diffmind_install_tmp/install.sh"
 # Review the downloaded script before running it.
 DIFFMIND_INSTALL_DIR="$HOME/.local/bin" sh "$diffmind_install_tmp/install.sh"
@@ -169,7 +169,7 @@ The installer verifies the archive checksum before installation. Set
 To build from source instead:
 
 ```bash
-git clone https://github.com/mohammad-safakhou/diffmind.git
+git clone https://github.com/safa-safakhou/diffmind.git
 cd diffmind
 git switch master
 # Already have this checkout? Install its committed implementation from here.
