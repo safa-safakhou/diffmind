@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -495,6 +496,8 @@ func (s *Server) automaticRefreshHistory(pid string) ([]store.RefreshJob, error)
 	if err != nil {
 		return nil, err
 	}
+	// A manual retry can finish an older job after newer jobs were created.
+	sort.SliceStable(history, func(i, j int) bool { return history[i].UpdatedAt.After(history[j].UpdatedAt) })
 	ingestion, err := s.store.GetIngestion(pid)
 	if errors.Is(err, store.ErrNotFound) {
 		return history, nil
