@@ -125,3 +125,7 @@ func githubResponseError(code int) error {
 		return fmt.Errorf("GitHub request failed (HTTP %d). Check the approved API endpoint or retry later.", code)
 	}
 }
+
+func githubConnectionError() error {
+	return fmt.Errorf("GitHub request could not complete. Check the approved API endpoint, connection and redirect policy.")
+}

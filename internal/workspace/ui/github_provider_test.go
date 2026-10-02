@@ -1,10 +1,13 @@
 package ui
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -99,7 +102,7 @@ func TestGitHubClientsRejectRedirectsWithoutForwardingCredentials(t *testing.T) 
 	defer redirect.Close()
 	var result []githubPull
 	err := githubJSON(context.Background(), githubHTTPClient(time.Second), "secret", redirect.URL, &result)
-	if err == nil || !strings.Contains(err.Error(), "another origin") || leaked.Load() != 0 {
+	if err == nil || !strings.Contains(err.Error(), "redirect policy") || leaked.Load() != 0 {
 		t.Fatalf("redirect err=%v leaked requests=%d", err, leaked.Load())
 	}
 	t.Setenv("GITHUB_TOKEN", "secret")
@@ -141,5 +144,53 @@ func TestGitHubAPIConfigurationValidation(t *testing.T) {
 	_, state, _ := githubRepositoryEndpoint(context.Background(), store.Repo{GitURL: "https://github.com.evil.test/org/repo", GitProvider: "github"})
 	if state != "provider_unavailable" {
 		t.Fatalf("legacy guessed endpoint state=%s", state)
+	}
+}
+
+func TestChangingRepositoryURLRequiresAPIEndpointReview(t *testing.T) {
+	s := newAuthTestServer(t)
+	project, _ := s.store.CreateProject(store.Project{Name: "provider edit"})
+	repo, _ := s.store.CreateRepo(project.ID, store.Repo{Name: "service", GitURL: "https://github.old.test/acme/service.git", GitProvider: "github", GitAPIBase: "https://github.old.test/api/v3"})
+	update := func(body string) *store.Repo {
+		t.Helper()
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPatch, "/", bytes.NewBufferString(body))
+		r.SetPathValue("pid", project.ID)
+		r.SetPathValue("rid", repo.ID)
+		s.handlePatchRepo(w, r)
+		if w.Code != 200 {
+			t.Fatalf("patch=%d %s", w.Code, w.Body.String())
+		}
+		updated, _ := s.store.GetRepo(project.ID, repo.ID)
+		return updated
+	}
+	same := update(`{"git_url":"https://github.old.test/acme/service.git"}`)
+	if same.GitAPIBase == "" {
+		t.Fatal("unchanged URL lost approved endpoint")
+	}
+	changed := update(`{"git_url":"https://github.new.test/acme/service.git"}`)
+	if changed.GitAPIBase != "" {
+		t.Fatal("new source inherited old API approval")
+	}
+	reviewed := update(`{"git_url":"https://github.new.test/acme/service.git","git_api_base":"https://github.new.test/api/v3"}`)
+	if reviewed.GitAPIBase != "https://github.new.test/api/v3" {
+		t.Fatalf("reviewed endpoint=%s", reviewed.GitAPIBase)
+	}
+}
+
+func TestCustomAPIHostnameSelectsMatchingCredential(t *testing.T) {
+	t.Setenv("GITHUB_TOKEN", "")
+	t.Setenv("GH_TOKEN", "")
+	bin := t.TempDir()
+	script := filepath.Join(bin, "gh")
+	if err := os.WriteFile(script, []byte("#!/bin/sh\nprintf '%s' \"$*\"\n"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", bin)
+	if got := githubAPIToken(context.Background(), "https://code.company.test/api/v3/repos/org/service"); got != "auth token --hostname code.company.test" {
+		t.Fatalf("custom credentials selected %q", got)
+	}
+	if got := githubAPIToken(context.Background(), "https://api.github.com/repos/org/service"); got != "auth token" {
+		t.Fatalf("public credentials selected %q", got)
 	}
 }

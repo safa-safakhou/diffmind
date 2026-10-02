@@ -140,3 +140,17 @@ test('PR providers distinguish local-only, query failure and successfully empty 
   assert.match(root.textContent, /Pull requests could not be loaded/)
   assert.doesNotMatch(root.textContent, /No open pull requests match this view/)
 })
+
+
+test('late provider responses cannot replace a different workspace', async (t) => {
+  const { root, show } = await dom(t)
+  let older
+  const response = (name) => ({ ok: true, status: 200, text: async () => JSON.stringify({ checked_count: 0, repositories: [{ repo_id: name, repo_name: name, status: 'local_only', open_count: 0, pull_requests: [] }] }) })
+  globalThis.fetch = async (url) => url.includes('/older/') ? new Promise((resolve) => { older = resolve }) : response('Current workspace repository')
+  await show(<PullRequestsView pid="older" />)
+  await show(<PullRequestsView pid="current" />)
+  assert.match(root.textContent, /Current workspace repository/)
+  await act(async () => older(response('Previous workspace repository'))); await settle()
+  assert.match(root.textContent, /Current workspace repository/)
+  assert.doesNotMatch(root.textContent, /Previous workspace repository/)
+})

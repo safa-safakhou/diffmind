@@ -727,6 +727,7 @@ export function ImportOrgModal({ open = true, busy, onClose, onImport, projectNa
         <p class="muted small">Preview does not clone, register or analyze repositories. If the repository list or import settings change, preview again before importing.</p>
         <ul>{(preview.result.results || []).map((repo) => <li key={repo.path || repo.git_url || repo.name}><strong>{repo.name}</strong> · {repo.path || repo.git_url} · {repo.error || repo.status}
           <div>{repo.source_type === 'local' ? 'Analyze in place; no Git pull' : 'Managed Git source'}{repo.default_branch && ` · Branch: ${repo.default_branch}`}</div>
+          {!repo.analysis_paths && repo.source_type === 'git' && <div>Analysis path configuration is unknown until checkout.</div>}
           {repo.analysis_paths && <div>Analysis paths: include {(repo.analysis_paths.include || []).join(', ') || 'all supported sources'}; exclude {(repo.analysis_paths.exclude || []).join(', ') || 'no additional exclusions'}</div>}
           </li>)}</ul>
       </section>}

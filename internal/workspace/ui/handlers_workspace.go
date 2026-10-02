@@ -526,13 +526,28 @@ func githubAuthHost(gitURL string) string {
 }
 
 func githubToken(ctx context.Context, raw string) string {
+	return githubTokenForHost(ctx, githubTokenHost(raw))
+}
+
+func githubAPIToken(ctx context.Context, raw string) string {
+	u, err := url.Parse(firstNonEmpty(raw, "https://api.github.com"))
+	if err != nil {
+		return ""
+	}
+	host := u.Hostname()
+	if strings.EqualFold(host, "api.github.com") {
+		host = "github.com"
+	}
+	return githubTokenForHost(ctx, host)
+}
+
+func githubTokenForHost(ctx context.Context, host string) string {
 	if token := strings.TrimSpace(os.Getenv("GITHUB_TOKEN")); token != "" {
 		return token
 	}
 	if token := strings.TrimSpace(os.Getenv("GH_TOKEN")); token != "" {
 		return token
 	}
-	host := githubTokenHost(raw)
 	if host == "" {
 		host = "github.com"
 	}
@@ -794,7 +809,7 @@ func githubLiveStatus(ctx context.Context, repo store.Repo) repoLive {
 	if state != "ready" {
 		return repoLive{Provider: firstNonEmpty(repo.GitProvider, "git"), Status: state, Error: message, CheckedAt: now}
 	}
-	token := githubToken(ctx, base)
+	token := githubAPIToken(ctx, base)
 	client := githubHTTPClient(8 * time.Second)
 	prs, prErr := githubCount(ctx, client, token, base+"/pulls?state=open&per_page=1")
 	issues, issueErr := githubCount(ctx, client, token, base+"/issues?state=open&per_page=1")
@@ -824,7 +839,7 @@ func githubCount(ctx context.Context, client *http.Client, token, url string) (i
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return 0, err
+		return 0, githubConnectionError()
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
@@ -848,7 +863,7 @@ func githubActionsState(ctx context.Context, client *http.Client, token, base st
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", githubConnectionError()
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
