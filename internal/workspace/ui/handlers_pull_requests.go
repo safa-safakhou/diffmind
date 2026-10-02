@@ -9,6 +9,7 @@ import (
 	"math"
 	"net/http"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -16,6 +17,7 @@ import (
 	"time"
 
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/archgraph"
+	"github.com/mohammad-safakhou/diffmind/internal/workspace/model"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/store"
 )
 
@@ -69,6 +71,7 @@ type githubPull struct {
 	} `json:"user"`
 	Head struct {
 		Ref string `json:"ref"`
+		SHA string `json:"sha"`
 	} `json:"head"`
 	Base struct {
 		Ref string `json:"ref"`
@@ -138,24 +141,54 @@ type codebaseImpact struct {
 }
 
 type impactedService struct {
-	Name   string `json:"name"`
-	Team   string `json:"team,omitempty"`
-	Depth  int    `json:"depth"`
-	Reason string `json:"reason"`
+	Name     string   `json:"name"`
+	Team     string   `json:"team,omitempty"`
+	Depth    int      `json:"depth"`
+	Tier     string   `json:"tier"`
+	Reason   string   `json:"reason"`
+	Evidence []string `json:"evidence,omitempty"`
+}
+
+type changedEntrypoint struct {
+	ID    string `json:"id"`
+	Kind  string `json:"kind"`
+	Name  string `json:"name"`
+	File  string `json:"file"`
+	Match string `json:"match"`
+}
+
+type entrypointDependency struct {
+	Entrypoint   string `json:"entrypoint"`
+	Target       string `json:"target"`
+	Kind         string `json:"kind"`
+	Reachability string `json:"reachability,omitempty"`
+}
+
+type graphRevision struct {
+	Commit string `json:"commit,omitempty"`
+	Branch string `json:"branch,omitempty"`
+	Dirty  bool   `json:"dirty,omitempty"`
 }
 
 type companyImpact struct {
-	Available        bool                `json:"available"`
-	RootService      string              `json:"root_service,omitempty"`
-	RunID            string              `json:"run_id,omitempty"`
-	DirectServices   int                 `json:"direct_services"`
-	IndirectServices int                 `json:"indirect_services"`
-	Teams            []string            `json:"teams,omitempty"`
-	Resources        []string            `json:"resources,omitempty"`
-	Services         []impactedService   `json:"services,omitempty"`
-	Flow             *archgraph.FlowView `json:"flow,omitempty"`
-	Confidence       string              `json:"confidence"`
-	Notes            []string            `json:"notes,omitempty"`
+	Available              bool                   `json:"available"`
+	RootService            string                 `json:"root_service,omitempty"`
+	RunID                  string                 `json:"run_id,omitempty"`
+	DirectServices         int                    `json:"direct_services"`
+	IndirectServices       int                    `json:"indirect_services"`
+	Teams                  []string               `json:"teams,omitempty"`
+	Resources              []string               `json:"resources,omitempty"`
+	Services               []impactedService      `json:"services,omitempty"`
+	PotentialServices      []impactedService      `json:"potential_services,omitempty"`
+	PotentialResources     []string               `json:"potential_resources,omitempty"`
+	ChangedEntrypoints     []changedEntrypoint    `json:"changed_entrypoints,omitempty"`
+	EntrypointDependencies []entrypointDependency `json:"entrypoint_dependencies,omitempty"`
+	Flow                   *archgraph.FlowView    `json:"flow,omitempty"`
+	Confidence             string                 `json:"confidence"`
+	Freshness              string                 `json:"freshness"`
+	GraphRevision          graphRevision          `json:"graph_revision,omitempty"`
+	ScoreEligible          bool                   `json:"score_eligible"`
+	Notes                  []string               `json:"notes,omitempty"`
 }
 
 type pullRequestImpactResponse struct {
@@ -275,10 +308,10 @@ func (s *Server) handlePullRequestImpact(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	codebase := analyzeCodebaseImpact(pull, files, truncated)
-	company := s.pullRequestCompanyImpact(pid, r.URL.Query().Get("run_id"), *repo)
+	company := s.pullRequestCompanyImpact(pid, r.URL.Query().Get("run_id"), *repo, pull, files)
 	companyScore := companyImpactScore(company)
 	overall := minInt(100, int(math.Round(float64(codebase.RiskScore)*0.62+float64(companyScore)*0.38)))
-	if !company.Available {
+	if !company.Available || !company.ScoreEligible {
 		overall = codebase.RiskScore
 	}
 	writeJSON(w, http.StatusOK, pullRequestImpactResponse{
@@ -588,8 +621,8 @@ func signalLabel(kind string) (string, string) {
 	}
 }
 
-func (s *Server) pullRequestCompanyImpact(pid, requestedRun string, repo store.Repo) companyImpact {
-	result := companyImpact{Confidence: "unavailable", Notes: []string{}}
+func (s *Server) pullRequestCompanyImpact(pid, requestedRun string, repo store.Repo, pull githubPull, files []githubPullFile) companyImpact {
+	result := companyImpact{Confidence: "unavailable", Freshness: "unknown", Notes: []string{}}
 	runID := strings.TrimSpace(requestedRun)
 	if runID == "" {
 		if run := s.latestCompletedWorkspaceRun(pid); run != nil {
@@ -615,35 +648,324 @@ func (s *Server) pullRequestCompanyImpact(pid, requestedRun string, repo store.R
 	if !ok {
 		return result
 	}
-	result.Available, result.RootService, result.RunID, result.Flow, result.Confidence = true, root, runID, flow, "graph_estimate"
-	teamSet, resourceSet := map[string]bool{}, map[string]bool{}
+	rootNode := graphService(graph, root)
+	result.Available, result.RootService, result.RunID, result.Flow = true, root, runID, flow
+	result.GraphRevision = serviceGraphRevision(rootNode)
+	result.Freshness = pullRequestGraphFreshness(result.GraphRevision, pull.Head.SHA)
+	result.ChangedEntrypoints = changedEntrypoints(rootNode, files, pull.Head.SHA)
+	result.EntrypointDependencies = dependenciesForChangedEntrypoints(rootNode, result.ChangedEntrypoints)
+	exactCallers := exactChangedSurfaceCallers(graph, root, result.ChangedEntrypoints)
+	teamSet, potentialTeamSet, resourceSet := map[string]bool{}, map[string]bool{}, map[string]bool{}
 	for _, service := range flow.Services {
-		if service.Team != "" {
-			teamSet[service.Team] = true
-		}
 		if service.Name == root {
 			continue
 		}
-		reason := "indirect dependency path"
-		if service.Depth == 1 {
-			reason = "direct dependency"
+		if evidence := exactCallers[service.Name]; len(evidence) > 0 {
+			if service.Team != "" {
+				teamSet[service.Team] = true
+			}
 			result.DirectServices++
-		} else {
-			result.IndirectServices++
+			result.Services = append(result.Services, impactedService{
+				Name: service.Name, Team: service.Team, Depth: service.Depth, Tier: "exact_endpoint_caller",
+				Reason: "caller matches a changed entrypoint", Evidence: evidence,
+			})
+			continue
 		}
-		result.Services = append(result.Services, impactedService{Name: service.Name, Team: service.Team, Depth: service.Depth, Reason: reason})
+		if service.Team != "" {
+			potentialTeamSet[service.Team] = true
+		}
+		result.PotentialServices = append(result.PotentialServices, impactedService{
+			Name: service.Name, Team: service.Team, Depth: service.Depth, Tier: "potential_service_level_caller",
+			Reason: "dependency path exists, but no changed endpoint or resource was matched",
+		})
 	}
 	for _, node := range flow.Nodes {
 		if node.Kind != "service" && node.Kind != "external" && node.Label != "" {
 			resourceSet[node.Kind+": "+node.Label] = true
 		}
 	}
-	result.Teams, result.Resources = sortedKeys(teamSet), sortedKeys(resourceSet)
-	if len(result.Services) == 0 {
-		result.Notes = append(result.Notes, "no downstream service dependency is currently proven by the graph")
+	result.Teams, result.PotentialResources = sortedKeys(teamSet), sortedKeys(resourceSet)
+	result.Resources = []string{}
+	result.ScoreEligible = result.Freshness == "fresh" && len(result.Services) > 0
+	switch {
+	case result.Freshness != "fresh":
+		result.Confidence = "stale_graph_estimate"
+		result.Notes = append(result.Notes, fmt.Sprintf("graph snapshot is %s relative to PR head; refresh the repository analysis before treating graph results as current", result.Freshness))
+	case len(result.Services) > 0:
+		result.Confidence = "changed_surface_evidence"
+	default:
+		result.Confidence = "service_level_candidates"
 	}
-	result.Notes = append(result.Notes, "blast radius is estimated from repository ownership and current graph dependency direction")
+	if len(result.Services) == 0 {
+		result.Notes = append(result.Notes, "no exact caller of a changed entrypoint or resource is proven by the graph")
+	}
+	if len(result.PotentialServices) > 0 {
+		result.Notes = append(result.Notes, fmt.Sprintf("%d service-level dependency candidate(s) are shown separately and are not proven PR impacts", len(result.PotentialServices)))
+	}
+	if len(potentialTeamSet) > 0 {
+		result.Notes = append(result.Notes, fmt.Sprintf("candidate paths span %d additional team(s)", len(potentialTeamSet)))
+	}
+	result.Notes = append(result.Notes, "the technical graph is repository-wide context; only exact changed-surface matches count toward PR risk")
 	return result
+}
+
+var diffHunkPattern = regexp.MustCompile(`^@@ -([0-9]+)(?:,[0-9]+)? \+([0-9]+)(?:,[0-9]+)? @@`)
+var routeParameterPattern = regexp.MustCompile(`\$?\{[^}]+\}|:[A-Za-z_][A-Za-z0-9_]*`)
+
+type changedLines struct {
+	old map[int]bool
+	new map[int]bool
+	ok  bool
+}
+
+func parseChangedLines(patch string) changedLines {
+	result := changedLines{old: map[int]bool{}, new: map[int]bool{}}
+	oldLine, newLine := 0, 0
+	for _, line := range strings.Split(patch, "\n") {
+		if match := diffHunkPattern.FindStringSubmatch(line); len(match) == 3 {
+			oldLine, _ = strconv.Atoi(match[1])
+			newLine, _ = strconv.Atoi(match[2])
+			result.ok = true
+			continue
+		}
+		if !result.ok || strings.HasPrefix(line, "\\ No newline") {
+			continue
+		}
+		switch {
+		case strings.HasPrefix(line, "+"):
+			result.new[newLine] = true
+			newLine++
+		case strings.HasPrefix(line, "-"):
+			result.old[oldLine] = true
+			oldLine++
+		default:
+			oldLine++
+			newLine++
+		}
+	}
+	return result
+}
+
+func graphService(graph *ArchGraph, name string) *archgraph.ServiceNode {
+	if graph == nil {
+		return nil
+	}
+	for _, service := range graph.Services {
+		if service != nil && service.Name == name {
+			return service
+		}
+	}
+	return nil
+}
+
+func changedEntrypoints(service *archgraph.ServiceNode, files []githubPullFile, headSHA string) []changedEntrypoint {
+	if service == nil {
+		return nil
+	}
+	byPath := map[string]changedLines{}
+	for _, file := range files {
+		byPath[filepath.ToSlash(file.Filename)] = parseChangedLines(file.Patch)
+	}
+	var result []changedEntrypoint
+	collections := [][]archgraph.EntitySummary{service.HTTPRoutes, service.RPCEndpoints, service.QueueConsumers, service.ScheduledJobs, service.Webhooks, service.CLICommands}
+	for _, collection := range collections {
+		for _, entity := range collection {
+			// PR patches use head coordinates for added lines. A graph from an
+			// older revision (including the base branch) cannot use those lines.
+			// GitHub's PR diff starts at the merge base, which need not be Base.SHA.
+			revision := entityGraphRevision(entity)
+			atHead := pullRequestGraphFreshness(revision, headSHA) == "fresh"
+			for _, location := range entitySourceLocations(entity) {
+				lines, changed := byPath[filepath.ToSlash(location.File)]
+				if !changed {
+					continue
+				}
+				match := "file_scope"
+				if lines.ok && atHead && location.StartLine > 0 {
+					if !locationIntersectsChangedLines(location, lines.new) {
+						continue
+					}
+					match = "changed_line"
+				}
+				result = append(result, changedEntrypoint{ID: entity.ID, Kind: entity.Kind, Name: entity.Name, File: location.File, Match: match})
+				break
+			}
+		}
+	}
+	sort.Slice(result, func(i, j int) bool { return result[i].Name < result[j].Name })
+	return result
+}
+
+func entitySourceLocations(entity archgraph.EntitySummary) []model.Location {
+	value := entity.Details["source_locations"]
+	switch locations := value.(type) {
+	case []model.Location:
+		return locations
+	case []any:
+		result := make([]model.Location, 0, len(locations))
+		for _, raw := range locations {
+			if item, ok := raw.(map[string]any); ok {
+				result = append(result, model.Location{File: stringValue(item["file"]), StartLine: intValue(item["start_line"]), EndLine: intValue(item["end_line"])})
+			}
+		}
+		return result
+	default:
+		return nil
+	}
+}
+
+func locationIntersectsChangedLines(location model.Location, lines map[int]bool) bool {
+	end := location.EndLine
+	if end < location.StartLine {
+		end = location.StartLine
+	}
+	for line := location.StartLine; line <= end; line++ {
+		if lines[line] {
+			return true
+		}
+	}
+	return false
+}
+
+func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changedEntrypoint) map[string][]string {
+	operations, ids := map[string]string{}, map[string]string{}
+	for _, entrypoint := range changed {
+		if entrypoint.Match != "changed_line" {
+			continue
+		}
+		if key := normalizedOperation(entrypoint.Name); key != "" {
+			operations[key] = entrypoint.Name
+		}
+		if entrypoint.ID != "" {
+			ids[entrypoint.ID] = entrypoint.Name
+		}
+	}
+	result := map[string][]string{}
+	for _, edge := range graph.Edges {
+		if edge == nil || edge.To != root || graphService(graph, edge.From) == nil {
+			continue
+		}
+		for _, detail := range edge.Details {
+			matched := ids[detail.ID]
+			if matched == "" {
+				matched = operations[normalizedOperation(detail.Name)]
+			}
+			if matched != "" {
+				result[edge.From] = appendUnique(result[edge.From], matched)
+			}
+		}
+	}
+	return result
+}
+
+func normalizedOperation(value string) string {
+	fields := strings.Fields(strings.TrimSpace(value))
+	if len(fields) < 2 {
+		return ""
+	}
+	method := strings.ToUpper(fields[0])
+	path := fields[1]
+	path = routeParameterPattern.ReplaceAllString(path, "{}")
+	return method + " " + path
+}
+
+func appendUnique(values []string, value string) []string {
+	for _, existing := range values {
+		if existing == value {
+			return values
+		}
+	}
+	return append(values, value)
+}
+
+func dependenciesForChangedEntrypoints(service *archgraph.ServiceNode, changed []changedEntrypoint) []entrypointDependency {
+	if service == nil {
+		return nil
+	}
+	names := map[string]string{}
+	for _, entrypoint := range changed {
+		if entrypoint.Match == "changed_line" && entrypoint.ID != "" {
+			names[entrypoint.ID] = entrypoint.Name
+		}
+	}
+	var result []entrypointDependency
+	for _, connection := range service.Connections {
+		entrypoint := names[connection.FromID]
+		if entrypoint == "" {
+			continue
+		}
+		result = append(result, entrypointDependency{Entrypoint: entrypoint, Target: connection.ToName, Kind: connection.Kind, Reachability: connection.Reachability})
+	}
+	sort.Slice(result, func(i, j int) bool {
+		if result[i].Entrypoint != result[j].Entrypoint {
+			return result[i].Entrypoint < result[j].Entrypoint
+		}
+		return result[i].Target < result[j].Target
+	})
+	return result
+}
+
+func serviceGraphRevision(service *archgraph.ServiceNode) graphRevision {
+	if service == nil {
+		return graphRevision{}
+	}
+	collections := [][]archgraph.EntitySummary{service.HTTPRoutes, service.RPCEndpoints, service.QueueConsumers, service.ScheduledJobs, service.Webhooks, service.CLICommands, service.Dependencies}
+	var result graphRevision
+	for _, collection := range collections {
+		for _, entity := range collection {
+			revision := entityGraphRevision(entity)
+			if revision.Dirty {
+				return graphRevision{Dirty: true}
+			}
+			if revision.Commit == "" {
+				continue
+			}
+			if result.Commit != "" && result.Commit != revision.Commit {
+				return graphRevision{}
+			}
+			result = revision
+		}
+	}
+	return result
+}
+
+func entityGraphRevision(entity archgraph.EntitySummary) graphRevision {
+	revision, _ := entity.Details["repository_revision"].(map[string]any)
+	return graphRevision{Commit: stringValue(revision["commit"]), Branch: stringValue(revision["branch"]), Dirty: boolValue(revision["dirty"])}
+}
+
+func pullRequestGraphFreshness(revision graphRevision, headSHA string) string {
+	if revision.Dirty {
+		return "dirty"
+	}
+	if revision.Commit != "" && headSHA != "" {
+		if revision.Commit == headSHA {
+			return "fresh"
+		}
+		return "stale"
+	}
+	return "unknown"
+}
+
+func stringValue(value any) string {
+	valueString, _ := value.(string)
+	return valueString
+}
+
+func intValue(value any) int {
+	switch number := value.(type) {
+	case int:
+		return number
+	case float64:
+		return int(number)
+	default:
+		return 0
+	}
+}
+
+func boolValue(value any) bool {
+	valueBool, _ := value.(bool)
+	return valueBool
 }
 
 func graphServiceForRepo(graph *ArchGraph, repo store.Repo) string {
@@ -700,7 +1022,7 @@ func riskLevel(score int) string {
 	}
 }
 func companyImpactScore(c companyImpact) int {
-	if !c.Available {
+	if !c.Available || !c.ScoreEligible || (c.DirectServices == 0 && c.IndirectServices == 0 && len(c.Resources) == 0) {
 		return 0
 	}
 	return minInt(100, 8+c.DirectServices*12+c.IndirectServices*5+len(c.Teams)*8+len(c.Resources)*2)

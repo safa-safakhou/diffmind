@@ -150,7 +150,7 @@ export function PullRequestsView({ pid }) {
         <Metric value={activeRepos.length} label="Repos with PRs in scope" tone="cyan" />
         <Metric value={data?.repo_count ?? '—'} label="Repositories checked" />
         <Metric value={impact ? `${impact.risk_score}/100` : '—'} label="Selected risk" tone={impact?.risk_level} />
-        <Metric value={impact?.company?.available ? companyCount : '—'} label="Impacted services" tone={companyCount > 3 ? 'high' : 'green'} />
+        <Metric value={impact?.company?.available ? companyCount : '—'} label="Exact caller matches" tone={companyCount > 3 ? 'high' : 'green'} />
       </section>
 
       <div class="pr-workspace">
@@ -294,31 +294,57 @@ function ImpactDetail({ impact }) {
       </section>
 
       <section class="pr-impact-section company">
-        <SectionTitle title="Company impact" subtitle="Reverse dependency blast radius from the latest completed graph" />
+        <SectionTitle title="Company impact" subtitle="PR-correlated callers, separated from repository-wide dependency candidates" />
         {!company.available ? (
           <div class="pr-company-empty"><strong>Company impact unavailable</strong><p>{(company.notes || []).join(' ')}</p></div>
         ) : (
           <>
             <div class="pr-company-summary">
               <div><span>Changed service</span><strong>{company.root_service}</strong></div>
-              <div><span>Directly affected</span><strong>{company.direct_services}</strong></div>
-              <div><span>Indirectly affected</span><strong>{company.indirect_services}</strong></div>
-              <div><span>Teams in radius</span><strong>{company.teams?.length || 0}</strong></div>
-              <div><span>Resources touched</span><strong>{company.resources?.length || 0}</strong></div>
+              <div><span>Exact endpoint callers</span><strong>{company.direct_services}</strong></div>
+              <div><span>Exact indirect paths</span><strong>{company.indirect_services}</strong></div>
+              <div><span>Service-level candidates</span><strong>{company.potential_services?.length || 0}</strong></div>
+              <div><span>Graph freshness</span><strong>{company.freshness || 'unknown'}</strong></div>
             </div>
+            {(company.changed_entrypoints || []).length > 0 && (
+              <div class="pr-signals">
+                <div class="pr-signal-intro"><strong>Changed entrypoints in the graph snapshot</strong><span>Changed-line matches require a clean PR-head snapshot. File-scope matches are candidates only.</span></div>
+                {(company.changed_entrypoints || []).map((entrypoint) => <div class="pr-signal" key={entrypoint.id}><b>{entrypoint.name}</b><span>{entrypoint.match}</span></div>)}
+              </div>
+            )}
             <BlastRadiusMap company={company} />
+            {(company.potential_services || []).length > 0 && (
+              <details class="pr-files">
+                <summary>Service-level candidates <span>{company.potential_services.length}</span></summary>
+                <div class="pr-file-list">
+                  {company.potential_services.map((service) => (
+                    <div class="pr-file" key={service.name}><code>{service.name}</code><span class="file-category">hop {service.depth}</span><span>{service.reason}</span></div>
+                  ))}
+                </div>
+              </details>
+            )}
+            {(company.entrypoint_dependencies || []).length > 0 && (
+              <details class="pr-files">
+                <summary>Current changed-entrypoint flows <span>{company.entrypoint_dependencies.length}</span></summary>
+                <div class="pr-file-list">
+                  {company.entrypoint_dependencies.map((dependency) => (
+                    <div class="pr-file" key={`${dependency.entrypoint}/${dependency.target}`}><code>{dependency.entrypoint}</code><span>→ {dependency.target}</span><span class="file-category">{dependency.kind}</span></div>
+                  ))}
+                </div>
+              </details>
+            )}
             <div class="pr-tags">{(company.teams || []).map((team) => <span key={team}>Team · {team}</span>)}{(company.resources || []).slice(0, 12).map((resource) => <span key={resource}>{resource}</span>)}</div>
             {company.flow && (
               <details class="pr-technical-graph">
                 <summary>Technical dependency graph <span>Services, queues, resources, and protocols</span></summary>
                 <div class="pr-graph-explainer">
-                  <p>This is the detailed evidence behind the blast-radius summary. It is not a PR call graph. Solid blue paths are synchronous dependencies; green dashed paths are asynchronous message flows through queues or topics. Drag to pan and scroll to zoom.</p>
+                  <p>This repository-wide dependency context is not a PR call graph. Nodes without an exact changed-surface match are candidates, not confirmed impacts. Solid blue paths are synchronous dependencies; green dashed paths are asynchronous message flows through queues or topics. Drag to pan and scroll to zoom.</p>
                   <div class="pr-graph-legend"><span><i class="solid" />Synchronous dependency</span><span><i class="async" />Async message path</span><span><i class="service" />Service</span><span><i class="resource" />Queue or resource</span></div>
                 </div>
                 <div class="pr-flow"><FlowRibbon flow={company.flow} /></div>
               </details>
             )}
-            <p class="pr-confidence">Confidence: graph estimate. {(company.notes || []).join(' ')}</p>
+            <p class="pr-confidence">Confidence: {company.confidence}. {(company.notes || []).join(' ')}</p>
           </>
         )}
       </section>
@@ -337,7 +363,7 @@ function BlastRadiusMap({ company }) {
     <div class="pr-blast-radius">
       <div class="pr-blast-explainer">
         <strong>How to read this blast radius</strong>
-        <p>The PR changes the service at hop 0. Hop 1 services directly depend on it; hop 2+ services are reached through another dependency. This means “review and test this path,” not “this service will definitely break.”</p>
+        <p>Only callers whose operation matches a changed entrypoint appear here. Repository-wide dependencies without that evidence are listed separately as service-level candidates.</p>
       </div>
       <div class="pr-hop-map">
         <div class="pr-hop-column root">
@@ -348,7 +374,7 @@ function BlastRadiusMap({ company }) {
           <div class="pr-hop-stage" key={depth}>
             <div class="pr-hop-arrow" aria-hidden="true"><span>→</span></div>
             <div class="pr-hop-column">
-              <div class="pr-hop-title"><strong>Hop {depth}</strong><span>{depth === 1 ? 'Directly affected' : 'Indirectly affected'}</span></div>
+              <div class="pr-hop-title"><strong>Hop {depth}</strong><span>{depth === 1 ? 'Exact caller match' : 'Evidence-linked indirect path'}</span></div>
               <div class="pr-hop-services">
                 {services.map((service) => (
                   <div class="pr-hop-service" key={service.name}>
