@@ -249,3 +249,18 @@ concurrent admission, dynamic increase/decrease, cancelled waiters, direct sync/
 analysis, fleet refresh, webhook redelivery, role/token isolation, revision
 conflicts, corruption, dashboard component tests, and real-analyzer backup
 recovery with a one-operation project cap.
+
+### Automatic refresh eligibility
+
+Startup and scheduled fleet refresh use persisted completed jobs and completed
+manual ingestions to check whether each project is overdue. Recent success skips
+work until its interval expires, including after reconnect. Explicit manual
+refresh bypasses this delay. The refresh status lists `skipped: not_due` or
+`failure_backoff` and `next_eligible_at` for projects whose work was deferred.
+
+Each job still has at most three automatic attempts. After an exhausted failed
+job, subsequent automatic jobs wait twice the configured interval (at least two
+minutes), doubling for consecutive failed jobs up to six hours. A successful
+manual refresh or ingestion resets that sequence. This is a bounded recovery
+policy, not a measured optimal cadence. The backend still stops when its owning
+local agent disconnects; shared deployments continue while their server runs.

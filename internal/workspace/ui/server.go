@@ -93,7 +93,7 @@ func New(st *store.Store, runs *runmgr.Manager, diffmindRunsDir, host string, po
 	if log == nil {
 		log = util.NewLogger(util.LevelInfo)
 	}
-	server := &Server{store: st, query: querysvc.New(st), runs: runs, diffmindRunsDir: diffmindRunsDir, host: host, port: port, log: log, auditLogPath: filepath.Join(st.HomeDir(), "audit", "http.jsonl"), liveStatusCache: map[string]liveStatusCacheEntry{}, archGraphCache: map[string]archGraphCacheEntry{}, ingestionActive: map[string]bool{}, projectOps: map[string]bool{}}
+	server := &Server{store: st, query: querysvc.New(st).WithRunsDir(diffmindRunsDir), runs: runs, diffmindRunsDir: diffmindRunsDir, host: host, port: port, log: log, auditLogPath: filepath.Join(st.HomeDir(), "audit", "http.jsonl"), liveStatusCache: map[string]liveStatusCacheEntry{}, archGraphCache: map[string]archGraphCacheEntry{}, ingestionActive: map[string]bool{}, projectOps: map[string]bool{}}
 	server.recoverInterruptedIngestions()
 	server.ingestionCancel = map[string]context.CancelCauseFunc{}
 	server.operationsConfig = OperationsConfig{Workers: 2, Capacity: 256, RepositoryWorkers: 4}
