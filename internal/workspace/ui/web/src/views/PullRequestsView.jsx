@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'preact/hooks'
+import { useEffect, useMemo, useState, useRef } from 'preact/hooks'
 import { getPullRequestImpact, getPullRequests } from '../lib/api.js'
 import { navigate } from '../lib/router.js'
 import { FlowRibbon } from './FlowRibbon.jsx'
@@ -44,6 +44,7 @@ const CATEGORY_HELP = {
 
 export function PullRequestsView({ pid }) {
   const [data, setData] = useState(null)
+  const generation = useRef(0)
   const [selected, setSelected] = useState(null)
   const [impact, setImpact] = useState(null)
   const [repoFilter, setRepoFilter] = useState('')
@@ -57,21 +58,27 @@ export function PullRequestsView({ pid }) {
   const [impactError, setImpactError] = useState('')
 
   const refresh = async () => {
+    const request = ++generation.current
     setLoading(true)
     setError('')
     try {
       const next = await getPullRequests(pid)
+      if (request !== generation.current) return
       setData(next)
       const all = flattenPulls(next)
       setSelected((current) => all.find((pr) => samePR(pr, current)) || all[0] || null)
     } catch (e) {
-      setError(e.message)
+      if (request === generation.current) setError(e.message)
     } finally {
-      setLoading(false)
+      if (request === generation.current) setLoading(false)
     }
   }
 
-  useEffect(() => { refresh() }, [pid])
+  useEffect(() => {
+    setData(null); setSelected(null); setImpact(null); setRepoFilter(''); setTeamFilter(''); setRepoSearch(''); setQuery('')
+    refresh()
+    return () => { generation.current++ }
+  }, [pid])
   useEffect(() => {
     if (!selected) {
       setImpact(null)
@@ -86,7 +93,7 @@ export function PullRequestsView({ pid }) {
       .catch((e) => { if (!cancelled) setImpactError(e.message) })
       .finally(() => { if (!cancelled) setImpactLoading(false) })
     return () => { cancelled = true }
-  }, [pid, selected?.repo_id, selected?.number])
+  }, [pid, selected?.repo_id, selected?.number, selected?.updated_at])
 
   const repositories = data?.repositories || []
   const teams = useMemo(() => Array.from(new Set(repositories.map((repo) => repo.team || 'default'))).sort(), [data])
@@ -94,7 +101,7 @@ export function PullRequestsView({ pid }) {
     const q = repoSearch.trim().toLowerCase()
     return repositories.filter((repo) => {
       if (teamFilter && (repo.team || 'default') !== teamFilter) return false
-      if (openOnly && repo.open_count === 0) return false
+      if (openOnly && repo.status === 'ok' && repo.open_count === 0) return false
       if (q && !`${repo.repo_name} ${repo.team || 'default'}`.toLowerCase().includes(q)) return false
       return true
     })
@@ -121,7 +128,11 @@ export function PullRequestsView({ pid }) {
     setSelected((current) => pulls.find((pr) => samePR(pr, current)) || pulls[0])
   }, [repoFilter, teamFilter, repoSearch, openOnly, query, data])
 
+  const checkedCount = data?.checked_count ?? repositories.filter((repo) => repo.status === 'ok').length
+  const unavailable = scopedRepos.filter((repo) => repo.status !== 'ok')
+  const emptyMessage = error ? 'Pull requests could not be loaded. Retry the provider query.' : unavailable.length ? 'Some repository providers are unavailable. Review their status before interpreting this view.' : checkedCount === 0 ? 'No repository provider has been queried successfully yet.' : 'No open pull requests match this view.'
   const activeRepos = scopedRepos.filter((repo) => repo.open_count > 0)
+  const onlyUnavailable = scopedRepos.length > 0 && scopedRepos.every((repo) => repo.status !== 'ok')
   const scopedOpen = scopedRepos.reduce((sum, repo) => sum + repo.open_count, 0)
   const visibleRepos = scopedRepos.slice(0, 100)
   const visiblePulls = pulls.slice(0, 100)
@@ -144,11 +155,11 @@ export function PullRequestsView({ pid }) {
         </div>
       </header>
 
-      {error && <div class="banner error pr-banner">{error}</div>}
+      {error && <div class="banner error pr-banner" role="alert">{error}</div>}
       <section class="pr-kpis">
-        <Metric value={data ? scopedOpen : '—'} label="Open PRs in scope" tone="blue" />
+        <Metric value={data && checkedCount > 0 && !onlyUnavailable ? scopedOpen : '—'} label="Observed open PRs in scope" tone="blue" />
         <Metric value={activeRepos.length} label="Repos with PRs in scope" tone="cyan" />
-        <Metric value={data?.repo_count ?? '—'} label="Repositories checked" />
+        <Metric value={data ? checkedCount : '—'} label="Repositories checked" />
         <Metric value={impact ? `${impact.risk_score}/100` : '—'} label="Selected risk" tone={impact?.risk_level} />
         <Metric value={impact?.company?.available ? companyCount : '—'} label="Exact caller matches" tone={companyCount > 3 ? 'high' : 'green'} />
       </section>
@@ -180,12 +191,13 @@ export function PullRequestsView({ pid }) {
           </button>
           {visibleRepos.map((repo) => (
             <button key={repo.repo_id} class={'pr-repo-row ' + (repoFilter === repo.repo_id ? 'active' : '')} onClick={() => setRepoFilter(repo.repo_id)}>
-              <span><b>{repo.repo_name}</b><small>{repo.team || 'default'} · {repo.status}</small></span>
-              <strong>{repo.open_count}</strong>
+              <span><b>{repo.repo_name}</b><small>{repo.team || 'default'} · {repo.status === 'ok' ? 'Provider queried' : repo.status.replaceAll('_', ' ')}</small></span>
+              <strong>{repo.status === 'ok' ? repo.open_count : '—'}</strong>
             </button>
           ))}
           {scopedRepos.length > visibleRepos.length && <div class="pr-limit-note">Showing the first {visibleRepos.length} of {scopedRepos.length} repositories. Choose a team or search by repository name to narrow the list.</div>}
           {!loading && scopedRepos.length === 0 && <div class="pr-provider-note">No repositories match this team and repository scope.</div>}
+          {unavailable.map((repo) => <div class="pr-provider-note" key={repo.repo_id}><strong>{repo.repo_name}</strong>: {repo.message || repo.error || 'Provider query unavailable.'}</div>)}
           {(data?.error_count || 0) > 0 && <div class="pr-provider-note">{data.error_count} repositories could not be read. Check GitHub authentication and repository URLs.</div>}
         </aside>
 
@@ -196,7 +208,7 @@ export function PullRequestsView({ pid }) {
           </div>
           <div class="pr-list">
             {loading && <LoadingBlock label="Loading open pull requests from GitHub…" />}
-            {!loading && pulls.length === 0 && <EmptyBlock label="No open pull requests match this view." />}
+            {!loading && pulls.length === 0 && <EmptyBlock label={emptyMessage} />}
             {visiblePulls.map((pr) => (
               <button key={`${pr.repo_id}/${pr.number}`} class={'pr-card ' + (samePR(pr, selected) ? 'active' : '')} onClick={() => setSelected(pr)}>
                 <div class="pr-card-top"><span>{pr.repo_name} <b>#{pr.number}</b></span>{pr.draft && <em>Draft</em>}</div>

@@ -210,7 +210,7 @@ export function ProjectWorkspace({ pid }) {
     setNotice(`DiffMind deterministic run started for ${repo.name}. Status refreshes every 2 seconds while it is running.`)
     setDiffMindRepo(null)
     setTimeout(refresh, 500)
-  })
+  }, true)
   const doDelete = async (repo) => runAction('delete:' + repo.id, async () => { await deleteRepo(pid, repo.id); setDeleteTarget(null); await refresh() })
   const doImport = async (body) => {
     setBusy('import')
@@ -232,10 +232,10 @@ export function ProjectWorkspace({ pid }) {
     setBatchOpen(false)
     setNotice(`Batch DiffMind started for ${res.count || 0} repositories with concurrency ${res.concurrency || body.concurrency || 4}.`)
     setTimeout(refresh, 500)
-  })
-  const runAction = async (key, fn) => {
+  }, true)
+  const runAction = async (key, fn, propagate = false) => {
     setBusy(key); setError('')
-    try { await fn() } catch (e) { setError(e.message) }
+    try { await fn() } catch (e) { if (propagate) throw e; setError(e.message) }
     finally { setBusy('') }
   }
 
@@ -343,7 +343,7 @@ export function ProjectWorkspace({ pid }) {
       </footer>
 
       {addOpen && <AddRepoModal pid={pid} onClose={() => setAddOpen(false)} onDone={() => { setAddOpen(false); refresh() }} />}
-      {caps?.can_configure && <ImportOrgModal key={pid} open={importOpen} busy={busy === 'import'} onClose={() => setImportOpen(false)} onImport={doImport} />}
+      {caps?.can_configure && <ImportOrgModal projectName={workspace?.project?.name || pid} key={pid} open={importOpen} busy={busy === 'import'} onClose={() => setImportOpen(false)} onImport={doImport} />}
       {batchOpen && <BatchDiffMindModal repoCount={repos.length} busy={busy === 'batch-diffmind'} onClose={() => setBatchOpen(false)} onRun={doBatchDiffMind} />}
       {yamlRepo && <YamlModal pid={pid} repo={yamlRepo} onClose={() => setYamlRepo(null)} onSaved={() => { setYamlRepo(null); refresh() }} />}
       {diffmindRepo && <DiffMindRunModal repo={diffmindRepo} busy={busy === 'diffmind:' + diffmindRepo.id} onClose={() => setDiffMindRepo(null)} onRun={(options) => doDiffMind(diffmindRepo, options)} />}
@@ -617,7 +617,7 @@ function AddRepoModal({ pid, onClose, onDone }) {
   )
 }
 
-export function ImportOrgModal({ open = true, busy, onClose, onImport }) {
+export function ImportOrgModal({ open = true, busy, onClose, onImport, projectName }) {
   const [provider, setProvider] = useState('github')
   const [org, setOrg] = useState('')
   const [root, setRoot] = useState('')
@@ -625,6 +625,7 @@ export function ImportOrgModal({ open = true, busy, onClose, onImport }) {
   const [include, setInclude] = useState('')
   const [exclude, setExclude] = useState('')
   const [team, setTeam] = useState('default')
+  const [defaultBranch, setDefaultBranch] = useState('')
   const [limit, setLimit] = useState('')
   const [clone, setClone] = useState(true)
   const [cloneTransport, setCloneTransport] = useState('auto')
@@ -634,7 +635,7 @@ export function ImportOrgModal({ open = true, busy, onClose, onImport }) {
   const [runPipeline, setRunPipeline] = useState(true)
   const [error, setError] = useState('')
   const [preview, setPreview] = useState(null)
-  const draftKey = JSON.stringify([provider, org, root, apiBase, include, exclude, team, limit, clone, cloneTransport, concurrency, recursive, maxDepth, runPipeline])
+  const draftKey = JSON.stringify([provider, org, root, apiBase, include, exclude, team, defaultBranch, limit, clone, cloneTransport, concurrency, recursive, maxDepth, runPipeline])
   const reviewed = preview?.key === draftKey
   const errorField = error.startsWith('Root directory:') ? 'root' : /^invalid (include|exclude) regex/.exec(error)?.[1]
   const fieldError = (name) => errorField === name ? { invalid: true, describedBy: 'import-error' } : {}
@@ -649,6 +650,7 @@ export function ImportOrgModal({ open = true, busy, onClose, onImport }) {
         org,
         root,
         api_base: apiBase,
+        default_branch: defaultBranch,
         include,
         exclude,
         team,
@@ -677,6 +679,7 @@ export function ImportOrgModal({ open = true, busy, onClose, onImport }) {
         <div class="option-grid">
           <TextField label="GitHub org" value={org} onInput={setOrg} placeholder="company" />
           <TextField label="API base" value={apiBase} onInput={setAPIBase} placeholder="https://api.github.com" />
+          <TextField label="Branch override" value={defaultBranch} onInput={setDefaultBranch} placeholder="Each repository default branch" />
           <TextField label="Team" value={team} onInput={setTeam} />
         </div>
       ) : (
@@ -717,9 +720,15 @@ export function ImportOrgModal({ open = true, busy, onClose, onImport }) {
       {error && <div id="import-error" class="banner error" role="alert">{error}</div>}
       {preview && <section aria-label="Import preview" aria-live="polite">
         <h3>{preview.result.count || 0} repositories found</h3>
+        {projectName && <p>Workspace: {projectName}</p>}
+        <p>Repository filters: include {include || 'all'}, exclude {exclude || 'none'}. Limit: {limit || 'all'}.</p>
+        <p class="muted small">Analysis also excludes unsupported file types, tests and generated/build directories. Listed path rules are additional repository configuration boundaries.</p>
         {!reviewed && <p class="banner">Settings changed. Preview again before importing.</p>}
         <p class="muted small">Preview does not clone, register or analyze repositories. If the repository list or import settings change, preview again before importing.</p>
-        <ul>{(preview.result.results || []).map((repo) => <li key={repo.path || repo.git_url || repo.name}><strong>{repo.name}</strong> · {repo.path || repo.git_url} · {repo.error || repo.status}</li>)}</ul>
+        <ul>{(preview.result.results || []).map((repo) => <li key={repo.path || repo.git_url || repo.name}><strong>{repo.name}</strong> · {repo.path || repo.git_url} · {repo.error || repo.status}
+          <div>{repo.source_type === 'local' ? 'Analyze in place; no Git pull' : 'Managed Git source'}{repo.default_branch && ` · Branch: ${repo.default_branch}`}</div>
+          {repo.analysis_paths && <div>Analysis paths: include {(repo.analysis_paths.include || []).join(', ') || 'all supported sources'}; exclude {(repo.analysis_paths.exclude || []).join(', ') || 'no additional exclusions'}</div>}
+          </li>)}</ul>
       </section>}
       <div class="actions">
         <button class="btn ghost" disabled={busy || (provider === 'github' ? !org.trim() : !root.trim())} onClick={() => submit(true)}>{busy ? 'Working…' : 'Preview repositories'}</button>

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"math"
 	"net/http"
 	"path/filepath"
@@ -47,6 +46,7 @@ type pullRequestRepo struct {
 	Team         string               `json:"team,omitempty"`
 	Provider     string               `json:"provider"`
 	Status       string               `json:"status"`
+	Message      string               `json:"message,omitempty"`
 	Error        string               `json:"error,omitempty"`
 	OpenCount    int                  `json:"open_count"`
 	Truncated    bool                 `json:"truncated,omitempty"`
@@ -54,11 +54,13 @@ type pullRequestRepo struct {
 }
 
 type pullRequestsResponse struct {
-	TotalOpen    int               `json:"total_open"`
-	RepoCount    int               `json:"repo_count"`
-	ErrorCount   int               `json:"error_count"`
-	GeneratedAt  time.Time         `json:"generated_at"`
-	Repositories []pullRequestRepo `json:"repositories"`
+	CheckedCount     int               `json:"checked_count"`
+	UnavailableCount int               `json:"unavailable_count"`
+	TotalOpen        int               `json:"total_open"`
+	RepoCount        int               `json:"repo_count"`
+	ErrorCount       int               `json:"error_count"`
+	GeneratedAt      time.Time         `json:"generated_at"`
+	Repositories     []pullRequestRepo `json:"repositories"`
 }
 
 type githubPull struct {
@@ -230,6 +232,11 @@ func (s *Server) handlePullRequests(w http.ResponseWriter, r *http.Request) {
 	response := pullRequestsResponse{RepoCount: len(results), GeneratedAt: time.Now().UTC(), Repositories: results}
 	for _, result := range results {
 		response.TotalOpen += result.OpenCount
+		if result.Status == "ok" {
+			response.CheckedCount++
+		} else if result.Status != "error" {
+			response.UnavailableCount++
+		}
 		if result.Status == "error" {
 			response.ErrorCount++
 		}
@@ -243,16 +250,17 @@ func githubOpenPullRequests(ctx context.Context, repo workspaceRepo) pullRequest
 		Provider: firstNonEmpty(repo.GitProvider, repo.SourceType, "git"), Status: "unavailable",
 		PullRequests: []pullRequestSummary{},
 	}
-	githubSource := githubSourceForRepo(ctx, repo.Repo)
-	owner, name, ok := githubOwnerRepo(githubSource)
-	if !ok {
+	base, state, message := githubRepositoryEndpoint(ctx, repo.Repo)
+	if state != "ready" {
+		result.Status = state
+		result.Message = message
 		return result
 	}
 	result.Provider = "github"
-	client := &http.Client{Timeout: 20 * time.Second}
-	token := githubToken(ctx, githubSource)
+	client := githubHTTPClient(20 * time.Second)
+	token := githubToken(ctx, base)
 	for page := 1; page <= 10; page++ {
-		endpoint := fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls?state=open&per_page=100&page=%d&sort=updated&direction=desc", owner, name, page)
+		endpoint := fmt.Sprintf("%s/pulls?state=open&per_page=100&page=%d&sort=updated&direction=desc", base, page)
 		var pulls []githubPull
 		if err := githubJSON(ctx, client, token, endpoint, &pulls); err != nil {
 			result.Status = "error"
@@ -288,15 +296,14 @@ func (s *Server) handlePullRequestImpact(w http.ResponseWriter, r *http.Request)
 		s.writeStoreErr(w, err)
 		return
 	}
-	githubSource := githubSourceForRepo(r.Context(), *repo)
-	owner, name, ok := githubOwnerRepo(githubSource)
-	if !ok {
-		writeErr(w, http.StatusBadRequest, errors.New("repository is not connected to GitHub"))
+	endpoint, state, message := githubRepositoryEndpoint(r.Context(), *repo)
+	if state != "ready" {
+		writeErr(w, http.StatusBadRequest, errors.New(message))
 		return
 	}
-	client := &http.Client{Timeout: 30 * time.Second}
-	token := githubToken(r.Context(), githubSource)
-	base := fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls/%d", owner, name, number)
+	client := githubHTTPClient(30 * time.Second)
+	token := githubToken(r.Context(), endpoint)
+	base := fmt.Sprintf("%s/pulls/%d", endpoint, number)
 	var pull githubPull
 	if err := githubJSON(r.Context(), client, token, base, &pull); err != nil {
 		writeErr(w, http.StatusBadGateway, err)
@@ -352,12 +359,7 @@ func githubJSON(ctx context.Context, client *http.Client, token, endpoint string
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		var ghErr githubErrorResponse
-		if json.Unmarshal(body, &ghErr) == nil && ghErr.Message != "" {
-			return fmt.Errorf("github returned %s: %s", resp.Status, ghErr.Message)
-		}
-		return fmt.Errorf("github returned %s", resp.Status)
+		return githubResponseError(resp.StatusCode)
 	}
 	return json.NewDecoder(resp.Body).Decode(dst)
 }
