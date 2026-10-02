@@ -24,8 +24,10 @@ Concrete experience problems also appeared. The dashboard closed the dry-run pre
 
 The live study contains **143 retained timestamped events and 22 screenshots**. It is an AI-observer walkthrough with real runtime interactions, rather than a recruited-human usability study. No product source, personal agent configuration or existing company workspace was changed. Only research documentation and evidence were added to this repository. GitHub was read without posting comments, checks or reviews. Test processes were stopped.
 
-The original audit and live-study reports describe the observed state without selecting fixes. At the user's subsequent request, the coordinated plan adds proposed solutions and a verified Linear backlog. Product implementation has not begun as part of this planning task.
+The original audit and live-study reports describe the observed state without selecting fixes. At the user's subsequent request, the coordinated plan adds proposed solutions and a verified Linear backlog. The planning phase did not implement product changes; subsequent implementation is recorded below.
 
 ## Implementation
 
 [Integrated implementation batch 1](implementation-batch-1/README.md) records the changes, task dispositions, exact candidate and browser/MCP/source-scope regression evidence.
+
+[Integrated implementation batch 2](implementation-batch-2/README.md) records committed import consistency, shared live freshness, overdue reconnects, bounded failure recovery and access continuity, with remaining acceptance criteria.

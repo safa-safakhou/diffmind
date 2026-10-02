@@ -1,0 +1,7 @@
+{"at":"2026-10-02T19:19:06.679Z","elapsed_ms":115,"task":"ui_server_started","url":"http://127.0.0.1:42895"}
+{"at":"2026-10-02T19:19:06.949Z","elapsed_ms":385,"task":"browser_console_error","message":"Failed to load resource: the server responded with a status of 400 (Bad Request)"}
+{"at":"2026-10-02T19:19:07.082Z","elapsed_ms":518,"task":"browser_console_error","message":"Failed to load resource: the server responded with a status of 409 (Conflict)"}
+{"at":"2026-10-02T19:19:07.134Z","elapsed_ms":570,"task":"screenshot","file":"review-conflict.png"}
+{"at":"2026-10-02T19:19:07.134Z","elapsed_ms":570,"task":"review_rejected","registered":0,"draft_retained":true,"repreview_required":true}
+{"at":"2026-10-02T19:19:07.140Z","elapsed_ms":576,"task":"review_commit","count":2,"status":200}
+{"at":"2026-10-02T19:19:07.155Z","elapsed_ms":591,"task":"ui_server_stopped","exit_code":0}
