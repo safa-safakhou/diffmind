@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-02",
+  "project_state": "In Progress",
+  "verified": true,
+  "progressed_tasks": 4,
+  "completed_tasks_in_this_batch": 0,
+  "tasks": [
+    {
+      "id": "MNI-177",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-177/define-one-approved-scope-contract-for-discovery-and-automation",
+      "verified": true
+    },
+    {
+      "id": "MNI-178",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-178/standardize-actionable-feedback-and-recovery-across-ui-and-agents",
+      "verified": true
+    },
+    {
+      "id": "MNI-185",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-185/distinguish-empty-loading-denied-failed-and-partial-workspace-states",
+      "verified": true
+    },
+    {
+      "id": "MNI-192",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-192/align-existing-repository-provider-settings-with-pr-retrieval-states",
+      "verified": true
+    }
+  ]
+}

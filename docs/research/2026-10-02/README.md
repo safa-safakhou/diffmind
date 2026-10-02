@@ -31,3 +31,5 @@ The original audit and live-study reports describe the observed state without se
 [Integrated implementation batch 1](implementation-batch-1/README.md) records the changes, task dispositions, exact candidate and browser/MCP/source-scope regression evidence.
 
 [Integrated implementation batch 2](implementation-batch-2/README.md) records committed import consistency, shared live freshness, overdue reconnects, bounded failure recovery and access continuity, with remaining acceptance criteria.
+
+[Integrated implementation batch 3](implementation-batch-3/README.md) records explicit source review, approved provider continuity, honest PR states, form recovery and real public/provider/MCP checks.
