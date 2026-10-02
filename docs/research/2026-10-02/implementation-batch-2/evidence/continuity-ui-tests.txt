@@ -1,0 +1,54 @@
+
+> diffmind-dashboard@0.1.0 test
+> node --test src/lib/*.test.js && node scripts/test-components.mjs
+
+✔ project creation respects scoped administration (0.398696ms)
+✔ member drafts preserve exact subjects and reject unsafe grants (0.552042ms)
+✔ access route preserves project identity (0.266509ms)
+✔ comparison defaults select available snapshots and respect pinned IDs (4.284136ms)
+✔ comparison routes preserve explicit direction and escaped identifiers (0.245035ms)
+✔ semantic keys display safely without requiring a known schema (0.102866ms)
+✔ only recoverable jobs with saved requests offer resume (0.516674ms)
+✔ progress includes terminal checkpoints, not just successful analyses (0.13533ms)
+✔ pack provenance includes source lines and declaration limits (0.485908ms)
+✔ legacy objects and malformed evidence do not invent provenance (0.379353ms)
+✔ quota requests preserve revision and explicit inherit, with bounded integer caps (0.86677ms)
+✔ operation actions respect roles and persisted lifecycle (0.96178ms)
+✔ operation labels distinguish retry and draining cancellation (0.099558ms)
+✔ operations routes decode project identity (0.491838ms)
+✔ token issuance is bounded and never grants admin (1.060671ms)
+✔ expiry boundary and revocation take effect in the token list (0.118908ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.612534
+✔ first use stays dismissible; project load failure is not an empty workspace (10.268488ms)
+✔ import retains reviewed candidates and draft, invalidates changed scope and shows local errors (4.910954ms)
+✔ all extracted evidence remains reachable past the initial display limit (1.733024ms)
+✔ contract comparison pins direction, exposes evidence, and never claims complete compatibility (1.272496ms)
+✔ access checks retain prior data on transient failure and clear it on denial (1.044343ms)
+✔ admin saves bounded limits with revision and reloads effective usage (8.21863ms)
+✔ reader sees limits without editing controls (0.898994ms)
+✔ invalid drafts never reach the server (1.000249ms)
+✔ conflicting saves retain drafts, require reload and do not silently overwrite (2.2262ms)
+✔ unavailable policy fails closed in the screen (0.949052ms)
+✔ token screen issues once, hides secrets, confirms/cancels revocation and retains history (43.174958ms)
+✔ revoking the newly issued token removes its displayed secret (2.389282ms)
+▶ legacy mode and unavailable registries cannot issue via the screen
+  ✔ legacy (1.004951ms)
+  ✔ unavailable (0.72969ms)
+✔ legacy mode and unavailable registries cannot issue via the screen (2.056186ms)
+✔ issuance errors do not leak a secret or claim success (1.407621ms)
+✔ failed revocation preserves the active record and permits a retry (2.277951ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 493.020376

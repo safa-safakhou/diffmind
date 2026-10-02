@@ -1,0 +1,33 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {root,chromium,Observer,launchUI} from './helpers.mjs';
+const obs=new Observer('review-live'); let server,browser;
+try {
+ const fixture=fs.mkdtempSync(path.join(root,'repos-'));
+ const add=name=>fs.mkdirSync(path.join(fixture,name,'.git'),{recursive:true});add('one');
+ server=await launchUI(fs.mkdtempSync(path.join(root,'home-')),obs);
+ const request=async(route,body)=>{const res=await fetch(server.url+route,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return {status:res.status,data:await res.json()}};
+ const project=await request('/api/projects',{name:'Review consistency'});const pid=project.data.id;assert.ok(pid);
+ browser=await chromium.launch({headless:true});const page=await browser.newPage();obs.watch(page);
+ await page.goto(`${server.url}/#/projects/${pid}`);
+ await page.getByRole('button',{name:'Import repositories',exact:true}).click();
+ await page.getByRole('button',{name:'Local directory',exact:true}).click();
+ await page.getByLabel('Root directory',{exact:true}).fill('/missing/review-test');
+ await page.getByRole('button',{name:'Preview repositories',exact:true}).click();
+ await page.getByRole('alert').filter({hasText:'Root directory:'}).waitFor();
+ assert.equal(await page.getByLabel('Root directory',{exact:true}).getAttribute('aria-invalid'),'true');
+ assert.equal(await page.getByLabel('Root directory',{exact:true}).getAttribute('aria-describedby'),'import-error');
+ await page.getByLabel('Root directory',{exact:true}).fill(fixture);
+ await page.getByRole('button',{name:'Preview repositories',exact:true}).click();
+ await page.getByRole('heading',{name:'1 repositories found'}).waitFor();add('two');
+ await page.getByRole('button',{name:'Import and build graph',exact:true}).click();
+ await page.getByRole('alert').filter({hasText:'Repository scope changed'}).waitFor();
+ assert.equal(await page.getByRole('button',{name:'Import and build graph',exact:true}).isDisabled(),true);
+ assert.equal(await page.getByLabel('Root directory',{exact:true}).inputValue(),fixture);
+ const repos=await (await fetch(`${server.url}/api/projects/${pid}/repos`)).json(); assert.equal(repos.repos.length,0);
+ await obs.screenshot(page,'review-conflict');obs.log('review_rejected',{registered:repos.repos.length,draft_retained:true,repreview_required:true});
+ const preview=await request(`/api/projects/${pid}/repo-imports`,{provider:'local',root:fixture,dry_run:true});assert.equal(preview.status,200);assert.ok(preview.data.preview_digest);
+ const commit=await request(`/api/projects/${pid}/repo-imports`,{provider:'local',root:fixture,preview_digest:preview.data.preview_digest});assert.equal(commit.status,200);assert.equal(commit.data.count,2);
+ obs.log('review_commit',{count:commit.data.count,status:commit.status});
+} finally {if(browser)await browser.close();if(server)await server.stop()}
