@@ -1,0 +1,60 @@
+
+> diffmind-dashboard@0.1.0 test
+> node --test src/lib/*.test.js && node scripts/test-components.mjs
+
+✔ project creation respects scoped administration (0.340583ms)
+✔ member drafts preserve exact subjects and reject unsafe grants (0.436625ms)
+✔ access route preserves project identity (0.158792ms)
+✔ comparison defaults select available snapshots and respect pinned IDs (1.055958ms)
+✔ comparison routes preserve explicit direction and escaped identifiers (0.206792ms)
+✔ semantic keys display safely without requiring a known schema (0.083792ms)
+✔ only recoverable jobs with saved requests offer resume (0.388459ms)
+✔ progress includes terminal checkpoints, not just successful analyses (0.083458ms)
+✔ pack provenance includes source lines and declaration limits (0.429666ms)
+✔ legacy objects and malformed evidence do not invent provenance (0.295083ms)
+✔ quota requests preserve revision and explicit inherit, with bounded integer caps (0.737541ms)
+✔ operation actions respect roles and persisted lifecycle (0.697ms)
+✔ operation labels distinguish retry and draining cancellation (0.068167ms)
+✔ operations routes decode project identity (0.43625ms)
+✔ disconnection preserves provenance and pauses every action; denial loses graph claims (0.375875ms)
+✔ partial and failed maintenance preserve the saved graph explanation (0.157875ms)
+✔ token issuance is bounded and never grants admin (0.785417ms)
+✔ expiry boundary and revocation take effect in the token list (0.085916ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.200875
+✔ first use stays dismissible; project load failure is not an empty workspace (5.915542ms)
+✔ import retains reviewed candidates and draft, invalidates changed scope and shows local errors (3.598042ms)
+✔ all extracted evidence remains reachable past the initial display limit (1.366875ms)
+✔ contract comparison pins direction, exposes evidence, and never claims complete compatibility (0.803792ms)
+✔ access checks retain prior data on transient failure and clear it on denial (0.64925ms)
+✔ PR providers distinguish local-only, query failure and successfully empty results (2.236167ms)
+✔ late provider responses cannot replace a different workspace (1.003334ms)
+✔ readiness notice separates saved graph from partial, failed and completed work (0.425625ms)
+✔ a late workspace read cannot replace the newly selected project (2.97425ms)
+✔ admin saves bounded limits with revision and reloads effective usage (5.568375ms)
+✔ reader sees limits without editing controls (1.0085ms)
+✔ invalid drafts never reach the server (0.736083ms)
+✔ conflicting saves retain drafts, require reload and do not silently overwrite (1.280208ms)
+✔ unavailable policy fails closed in the screen (0.573208ms)
+✔ token screen issues once, hides secrets, confirms/cancels revocation and retains history (18.88175ms)
+✔ revoking the newly issued token removes its displayed secret (1.854542ms)
+▶ legacy mode and unavailable registries cannot issue via the screen
+  ✔ legacy (1.029708ms)
+  ✔ unavailable (0.654583ms)
+✔ legacy mode and unavailable registries cannot issue via the screen (2.033875ms)
+✔ issuance errors do not leak a secret or claim success (2.302333ms)
+✔ failed revocation preserves the active record and permits a retry (1.50875ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 301.754917

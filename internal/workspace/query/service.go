@@ -24,9 +24,11 @@ var (
 )
 
 type Service struct {
-	store   *store.Store
-	access  func(string) error
-	runsDir string
+	store                *store.Store
+	access               func(string) error
+	runsDir              string
+	readinessPermissions func(string) (ReadinessActions, error)
+	readinessGraph       func(string) (*store.RunManifest, error)
 }
 
 func New(st *store.Store) *Service {

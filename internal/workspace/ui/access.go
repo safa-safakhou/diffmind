@@ -61,16 +61,16 @@ func (s *Server) projectRole(identity Identity, pid string) (Role, error) {
 
 func (s *Server) queryFor(r *http.Request) *query.Service {
 	identity := identityFromContext(r.Context())
-	if !s.projectAccessScoped || identity.Role == RoleAdmin {
-		return s.query
-	}
 	return query.NewWithAccess(s.store, func(pid string) error {
 		_, err := s.projectRole(identity, pid)
 		if err != nil && !errors.Is(err, store.ErrNotFound) {
 			return errProjectAccessUnavailable
 		}
 		return err
-	}).WithRunsDir(s.diffmindRunsDir)
+	}).WithRunsDir(s.diffmindRunsDir).WithReadinessGraphLoader(s.readinessGraphRun).WithReadinessPermissions(func(pid string) (query.ReadinessActions, error) {
+		role, err := s.projectRole(identity, pid)
+		return query.ReadinessActions{Refresh: role == RoleAdmin || role == RoleEditor, Configure: role == RoleAdmin || (!s.projectAccessScoped && role == RoleEditor)}, err
+	})
 }
 
 // routedMux places authorization inside ServeMux routing, where decoded

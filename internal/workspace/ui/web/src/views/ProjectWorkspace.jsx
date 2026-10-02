@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import { navigate } from '../lib/router.js'
 import { createRepo, createRun, deleteRepo, getDiffMindConfigurationYaml, getIngestion, getRunArchGraph, getRunArchGraphResource, getRunArchGraphService, getRunArchGraphTrace, getWorkspace, importRepos, putDiffMindConfigurationYaml, startDiffMindBatch, startIngestion, startRepoDiffMind, syncRepo } from '../lib/api.js'
 import { Modal, ConfirmDialog } from '../components/Modal.jsx'
@@ -10,14 +10,21 @@ import { cancelIngestion, resumeIngestion } from '../lib/api.js'
 import { ingestionCanResume, ingestionProgress } from '../lib/ingestion.js'
 import { useProjectCapabilities } from '../lib/access.js'
 import { enqueueRefresh } from '../lib/api.js'
+import { connectionReadiness, readinessMessage } from '../lib/readiness.js'
 
 export function ProjectWorkspace({ pid }) {
   const { data: retainedCaps, error: accessError, unavailable: accessUnavailable } = useProjectCapabilities(pid)
-  const caps = accessError ? null : retainedCaps
   const [workspace, setWorkspace] = useState(null)
   const [ingestion, setIngestion] = useState(null)
   const [selected, setSelected] = useState(null)
   const [error, setError] = useState('')
+  const [connectionError, setConnectionError] = useState('')
+  const [connectionDenied, setConnectionDenied] = useState(false)
+  const caps = accessError || connectionError ? null : retainedCaps
+  const readiness = connectionReadiness(workspace?.readiness, { loading: !retainedCaps || !workspace, error: accessError || connectionError, denied: accessUnavailable || connectionDenied })
+  const currentProject = useRef(pid)
+  currentProject.current = pid
+  const refreshSequence = useRef(0)
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState('')
   const [pendingDiffMind, setPendingDiffMind] = useState({})
@@ -36,11 +43,14 @@ export function ProjectWorkspace({ pid }) {
   const [packsOpen, setPacksOpen] = useState(false)
 
   const refresh = async () => {
+    const sequence = ++refreshSequence.current
+    const isCurrent = () => currentProject.current === pid && refreshSequence.current === sequence
     try {
       const [next, nextIngestion] = await Promise.all([
         getWorkspace(pid, { graph: false }),
         getIngestion(pid),
       ])
+      if (!isCurrent()) return
       setWorkspace(next)
       setIngestion(nextIngestion)
       setSelected((cur) => {
@@ -73,11 +83,11 @@ export function ProjectWorkspace({ pid }) {
       if (nextIngestion?.status !== 'running') {
         setNotice((message) => message.startsWith('Repository ingestion started.') ? '' : message)
       }
-      setError('')
+      setError(''); setConnectionError(''); setConnectionDenied(false)
     }
-    catch (e) { setError(e.message) }
+    catch (e) { if (isCurrent()) { setError(e.message); setConnectionError(e.message); setConnectionDenied([401, 403, 404].includes(e.status)) } }
   }
-  useEffect(() => { refresh() }, [pid])
+  useEffect(() => { setWorkspace(null); setIngestion(null); setSelected(null); setGraphData(null); setGraphRunID(''); setError(''); setConnectionError(''); setConnectionDenied(false); refresh(); return () => { refreshSequence.current++ } }, [pid])
   useEffect(() => {
     const run = workspace?.latest_run
     if (!run?.id || run.status !== 'completed') {
@@ -239,7 +249,7 @@ export function ProjectWorkspace({ pid }) {
     finally { setBusy('') }
   }
 
-  if (accessUnavailable) return <div class="page"><button class="btn ghost" onClick={() => navigate('/')}>Projects</button><p class="banner error" role="alert">This workspace is unavailable or your access has changed. Ask an administrator to check your access, or return to Projects.</p></div>
+  if (accessUnavailable || connectionDenied) return <div class="page"><button class="btn ghost" onClick={() => navigate('/')}>Projects</button><p class="banner error" role="alert">This workspace is unavailable or your access has changed. Ask an administrator to check your access, or return to Projects.</p></div>
   return (
     <div class="workspace">
       <header class="workspace-topbar">
@@ -258,21 +268,22 @@ export function ProjectWorkspace({ pid }) {
           </button>
           <button class="btn ghost" onClick={refresh}>Reload view</button>
           {ingestionIsRunning && caps?.can_refresh && <button class="btn danger" disabled={busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { await cancelIngestion(pid); await refresh() })}>Cancel ingestion</button>}
-          {caps?.can_configure && ingestionCanResume(ingestion) && <button class="btn" disabled={busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { await resumeIngestion(pid); await refresh() })}>Resume / retry</button>}
-          {caps?.can_refresh && <button class="btn" disabled={!repos.length || ingestionIsRunning || hasRunningDiffMind || graphIsRunning || busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { if (caps?.mode === 'scoped') { await enqueueRefresh(pid); await refresh(); setNotice('Refresh queued. Open Operations to follow it.') } else { await startIngestion(pid); await refresh() } })}>Update context</button>}
-          {caps?.can_configure && <button class="btn ghost" disabled={ingestionIsRunning} onClick={() => setImportOpen(true)}>{ingestionIsRunning ? 'Importing & building...' : 'Import repositories'}</button>}
+          {caps?.can_configure && ingestionCanResume(ingestion) && <button class="btn" disabled={!readiness?.actions?.configure || busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { await resumeIngestion(pid); await refresh() })}>Resume / retry</button>}
+          {caps?.can_refresh && <button class="btn" disabled={!readiness?.actions?.refresh || !repos.length || ingestionIsRunning || hasRunningDiffMind || graphIsRunning || busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { if (caps?.mode === 'scoped') { await enqueueRefresh(pid); await refresh(); setNotice('Refresh queued. Open Operations to follow it.') } else { await startIngestion(pid); await refresh() } })}>Update context</button>}
+          {caps?.can_configure && <button class="btn ghost" disabled={!readiness?.actions?.configure || ingestionIsRunning} onClick={() => setImportOpen(true)}>{ingestionIsRunning ? 'Importing & building...' : 'Import repositories'}</button>}
           {caps?.can_configure && <details><summary class="btn ghost">Advanced actions</summary>
-          <button class="btn ghost" disabled={ingestionIsRunning} onClick={() => setAddOpen(true)}>Add repo</button>
-          <button class="btn ghost" disabled={!caps?.can_configure || !repos.length || hasRunningDiffMind || ingestionIsRunning || busy === 'batch-diffmind'} onClick={() => setBatchOpen(true)}>{busy === 'batch-diffmind' ? 'Starting batch...' : 'Run DiffMind all'}</button>
-          <button class="btn ghost" disabled={!caps?.can_configure || busy === 'graph' || graphIsRunning || ingestionIsRunning} onClick={graphRun}>{graphIsRunning ? 'Building graph...' : busy === 'graph' ? 'Starting...' : 'Build graph'}</button>
+          <button class="btn ghost" disabled={!readiness?.actions?.configure || ingestionIsRunning} onClick={() => setAddOpen(true)}>Add repo</button>
+          <button class="btn ghost" disabled={!readiness?.actions?.configure || !caps?.can_configure || !repos.length || hasRunningDiffMind || ingestionIsRunning || busy === 'batch-diffmind'} onClick={() => setBatchOpen(true)}>{busy === 'batch-diffmind' ? 'Starting batch...' : 'Run DiffMind all'}</button>
+          <button class="btn ghost" disabled={!readiness?.actions?.configure || !caps?.can_configure || busy === 'graph' || graphIsRunning || ingestionIsRunning} onClick={graphRun}>{graphIsRunning ? 'Building graph...' : busy === 'graph' ? 'Starting...' : 'Build graph'}</button>
           </details>}
         </div>
       </header>
 
       <section class="workspace-alerts" aria-live="polite">
+        <ReadinessNotice readiness={readiness} />
         {!workspace && !error && <p role="status">Loading workspace…</p>}
         {!workspace && error && <button class="btn ghost" onClick={refresh}>Retry loading workspace</button>}
-        {workspace?.evidence && <p class="muted small">{workspace.evidence.graph_state === 'saved' ? `Saved graph ${workspace.evidence.saved_run_id}` : 'No saved graph yet'} · Repository analyses: {workspace.evidence.fresh} fresh, {workspace.evidence.stale} stale, {workspace.evidence.dirty} with local changes, {workspace.evidence.unknown} unknown. Static source evidence; coverage remains unverified.</p>}
+        {workspace?.evidence && <p class="muted small">Repository analyses: {workspace.evidence.fresh} fresh, {workspace.evidence.stale} stale, {workspace.evidence.dirty} with local changes, {workspace.evidence.unknown} unknown. Static source evidence; coverage remains unverified.</p>}
         {caps && !caps.can_refresh && <p class="muted small">You have read-only access. Ask a project editor to update context.</p>}
         {accessError && !accessUnavailable && <div class="workspace-error banner" role="status">Unable to check workspace access. Showing the last loaded view; actions are paused until access can be checked.</div>}
         {error && <div class="workspace-error banner error">{error}</div>}
@@ -292,7 +303,7 @@ export function ProjectWorkspace({ pid }) {
       {packsOpen && (
         <Modal title="Knowledge packs" onClose={() => setPacksOpen(false)} wide>
           <p class="muted">Teach DiffMind your organization’s repository conventions with deterministic, versioned extraction rules.</p>
-          <PacksTab pid={pid} capabilities={caps} />
+          <PacksTab pid={pid} capabilities={caps && { ...caps, can_configure: caps.can_configure && readiness?.actions?.configure }} />
         </Modal>
       )}
       <aside class="workspace-left">
@@ -327,7 +338,7 @@ export function ProjectWorkspace({ pid }) {
           onYaml={selectedRepo ? () => setYamlRepo(selectedRepo) : null}
           onDelete={selectedRepo && caps?.can_delete ? () => setDeleteTarget(selectedRepo) : null}
           busy={busy}
-          locked={ingestionIsRunning || !caps?.can_configure}
+          locked={!readiness?.actions?.configure || ingestionIsRunning || !caps?.can_configure}
         />
       </aside>
 
@@ -358,6 +369,10 @@ export function ProjectWorkspace({ pid }) {
       )}
     </div>
   )
+}
+
+export function ReadinessNotice({ readiness }) {
+  return <p role="status" aria-label="Workspace readiness">{readinessMessage(readiness)}{readiness?.graph === 'queryable' && <span> {readiness.saved_at ? `Saved at ${readiness.saved_at}.` : 'Saved time unknown.'}</span>}</p>
 }
 
 function GraphQualityBanner({ quality }) {

@@ -1,0 +1,175 @@
+{
+  "task": "MNI-175",
+  "client_date": "2026-10-03",
+  "recorded_at_utc": "2026-10-02T22:51:56.364644+00:00",
+  "base_revision": "7e5ab06fc835fa2309691c275192bcbd04c76b04",
+  "branch": "codex/shared-readiness",
+  "platform": {
+    "os": "Darwin",
+    "arch": "arm64",
+    "go": "go version go1.26.6 darwin/arm64"
+  },
+  "candidate": {
+    "binary_sha256": "0c034dc8cc4be641a7aecadbe5f9baf742b70a56c2ad592359aab65edb3b4856",
+    "build": "go build -o /tmp/diffmind-readiness-candidate ./cmd/diffmind",
+    "production_frontend_embedded": true,
+    "source_inputs": [
+      {
+        "path": "cmd/diffmind/agent_test.go",
+        "sha256": "dc603056f7fce9ac550df64d287c9e5e77540ec602dcce0693a46d7348b49d43"
+      },
+      {
+        "path": "internal/workspace/agentapi/catalog.go",
+        "sha256": "7bf6ce0c53411ad3a9256ea81ad3dccea548fb6c83f58bf71061bf54041dc25f"
+      },
+      {
+        "path": "internal/workspace/mcpserver/server.go",
+        "sha256": "5d6a748157f182c474025d44a95d4ea74305f93de9e9f6774bf91c182f526f39"
+      },
+      {
+        "path": "internal/workspace/mcpserver/server_test.go",
+        "sha256": "6477809015a3fe2367e1ac51debad8bc740d47b1eb8d63e075ce6a09754ceb08"
+      },
+      {
+        "path": "internal/workspace/query/readiness.go",
+        "sha256": "372db4d0c4fee139a19a0013f245474d26fa7be62fd0adc694d55dedfb79dfa9"
+      },
+      {
+        "path": "internal/workspace/query/readiness_test.go",
+        "sha256": "2b269c912e56c89830a9df4b1fcc0e2dfde69c593da921187c8f77ae5d64f72d"
+      },
+      {
+        "path": "internal/workspace/query/service.go",
+        "sha256": "68e4e1f5dd63cfb93e974d9a94b4f6ac5adeeef53e2f98ef7b281615a2b581e7"
+      },
+      {
+        "path": "internal/workspace/ui/access.go",
+        "sha256": "ef6470273853ca2f7c0e0fac87736b7d807a03662fcafa0eb9632cf5dc7f51c5"
+      },
+      {
+        "path": "internal/workspace/ui/access_test.go",
+        "sha256": "87bf941019ab1869a7f48dd58bdcd719371dd62bc289378ab7316e05cea51615"
+      },
+      {
+        "path": "internal/workspace/ui/handlers_query_v1.go",
+        "sha256": "0f2e3e9c5fb9b119a67ef3af866b55e373fd4797dd74c4f340dd7348a6c1875a"
+      },
+      {
+        "path": "internal/workspace/ui/handlers_workspace.go",
+        "sha256": "a9618739bbd8de779d96dd0f7bbe00a8f68395949450f135f290af8d5e83f8c7"
+      },
+      {
+        "path": "internal/workspace/ui/mcp_http_test.go",
+        "sha256": "5f7e2c052e4efe2606f114b276831c49fd0b1ae6034d809025f5a13aac392340"
+      },
+      {
+        "path": "internal/workspace/ui/readiness_test.go",
+        "sha256": "68702e9131ccb488655ee5e1029d6e7b2e7724fe8d5457bcd9f5495f9f907bf1"
+      },
+      {
+        "path": "internal/workspace/ui/server.go",
+        "sha256": "c11d6bed6c14318348cd082fd9aeeed7fcc97da7014dd83c5911803fec6bb877"
+      },
+      {
+        "path": "internal/workspace/ui/tokens_test.go",
+        "sha256": "b11a2354ba0c2027148dd100f5b5fb381a995c5e554a2dc79c41a237d24b3af9"
+      },
+      {
+        "path": "internal/workspace/ui/web/dist/assets/index-CgTs4wfv.js",
+        "sha256": "588ce8c4126bd6eb54d43b12b3b92634b4e54fcb6fb6074fbfc8a5ae26bed075"
+      },
+      {
+        "path": "internal/workspace/ui/web/dist/index.html",
+        "sha256": "93d3f2e3777465e2e1a6336d2ecea982d4bcd7a750bfce9394e91cea9acd7120"
+      },
+      {
+        "path": "internal/workspace/ui/web/src/lib/readiness.js",
+        "sha256": "a0c0b116daa307ee88264c7d4fc0339e32df389ff0c72aa2fb698dd7d2e3379e"
+      },
+      {
+        "path": "internal/workspace/ui/web/src/lib/readiness.test.js",
+        "sha256": "0c9922a2a77a754d0bde94f6cbd00faac8f3a0bbacd836aec3bb69e806a682b5"
+      },
+      {
+        "path": "internal/workspace/ui/web/src/views/Journeys.test.jsx",
+        "sha256": "01ff35f206866f3feb5c797844888e94874ed81cfe1aad63a16f8e7784909f17"
+      },
+      {
+        "path": "internal/workspace/ui/web/src/views/ProjectWorkspace.jsx",
+        "sha256": "577ba0f5a6c8b53f9e7476dd799385673672b2ce417cac0acea91a310d0fa277"
+      }
+    ]
+  },
+  "checks": {
+    "full_go_suite": {
+      "passed": true,
+      "test_packages": 65
+    },
+    "race_packages": [
+      "query",
+      "ui",
+      "mcpserver",
+      "agentapi"
+    ],
+    "frontend": {
+      "library_tests": 18,
+      "component_tests": 21,
+      "passed": true
+    },
+    "live_trial": {
+      "passed": true,
+      "company_repository_copies": 2,
+      "original_worktrees_unchanged": true,
+      "browser": "headless installed Google Chrome",
+      "query_only_stdio": true,
+      "http_remote_mcp_role_parity": true,
+      "partial_analyzer_failure": true,
+      "failed_analyzer_and_unavailable_analysis_artifacts": true,
+      "saved_graph_retained": true,
+      "transport_503_injected": true,
+      "membership_revocation_actual": true,
+      "javascript_exceptions": 0
+    }
+  },
+  "retained_files": [
+    {
+      "path": "evidence/frontend-build.txt",
+      "sha256": "8c121532767d5caac20252200a40d1508b54198158d46c12435ebc4893cc06a6"
+    },
+    {
+      "path": "evidence/frontend-tests.txt",
+      "sha256": "b2125d78037b61b177e031c9e4d5383cee907b623215641cf5502ed844baa579"
+    },
+    {
+      "path": "evidence/go-all-tests.txt",
+      "sha256": "d3e339bdaf097aec5c6156d553258ae9d1537ba05487a702467d681cdd6eecdf"
+    },
+    {
+      "path": "evidence/go-race-tests.txt",
+      "sha256": "bc685123343b64a9360479978b40c2cc87bc42ee756907ef078651f88ecbf81d"
+    },
+    {
+      "path": "evidence/live-observations.json",
+      "sha256": "2d43dd2e6d5016827524cf4ebaeed22c8dda444703b4867ae57c3cbb8193a402"
+    },
+    {
+      "path": "evidence/mcp-tests.txt",
+      "sha256": "beff61e371f9e76bddad3c04d57f926d2f13cc2f5657e33e4de9d504dad69230"
+    },
+    {
+      "path": "evidence/partial-notice.png",
+      "sha256": "39332eeb37627e995e063a8db8cded4b2200fa2046e973d394ec811ac2d2eb4d"
+    },
+    {
+      "path": "harness/live.mjs.txt",
+      "sha256": "f845b3d508a9aff2c56798a80526e9d3e84719ec7e4a059284e492f46b7e5849"
+    }
+  ],
+  "private_artifacts": "Company source, extracted graphs, raw runtime logs and credentials remain in the private disposable trial directory, outside this repository.",
+  "limits": [
+    "Automated observer; no independent-human study.",
+    "No enterprise provider credential/deployment trial.",
+    "No large-corpus performance or dependency-completeness claim.",
+    "No release-readiness or installed-host-adoption claim."
+  ]
+}

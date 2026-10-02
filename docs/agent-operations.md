@@ -215,3 +215,7 @@ PRs. Authentication, access and rate-limit failures give safe next steps without
 reflecting provider response bodies. Public GitHub remains the automatic endpoint
 for public GitHub repository URLs; existing custom sources without an approved
 API endpoint require configuration rather than a guessed endpoint.
+
+## Shared readiness before work
+
+Call native MCP `get_readiness` (or management `inspect_workspace` with operation `get_readiness`) before setup, refresh or investigation. It works before a graph exists and separates the saved run and its input provenance from current work, checkout freshness, coverage limits and currently permitted actions. HTTP clients use `GET /api/v1/projects/{pid}/readiness`; browser workspace metadata includes the same contract. Query-only connections never advertise mutation authority. Follow `next_action`, recheck after acceptance or connection failures, and pin `saved_run_id` for evidence queries. See [the complete state table](shared-readiness.md).

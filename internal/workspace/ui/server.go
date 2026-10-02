@@ -213,6 +213,7 @@ func (s *Server) routes(raw *http.ServeMux) {
 	mux.HandleFunc("POST /api/v1/projects/{pid}/webhooks/github", s.handleGitHubWebhook)
 	mux.HandleFunc("GET /api/v1/session", s.handleSession)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/capabilities", s.handleCapabilities)
+	mux.HandleFunc("GET /api/v1/projects/{pid}/readiness", s.handleReadiness)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/access", s.handleGetAccess)
 	mux.HandleFunc("PUT /api/v1/projects/{pid}/access", s.handlePutAccess)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/limits", s.handleGetLimits)

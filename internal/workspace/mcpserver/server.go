@@ -4,12 +4,15 @@ package mcpserver
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/archgraph"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/query"
+	"github.com/mohammad-safakhou/diffmind/internal/workspace/store"
 )
 
 type Server struct {
@@ -81,7 +84,7 @@ type contractDiffInput struct {
 }
 
 func (s *Server) MCPServer() *mcp.Server {
-	server := mcp.NewServer(&mcp.Implementation{Name: "diffmind", Title: "DiffMind Architecture Graph", Version: s.version, WebsiteURL: "https://github.com/mohammad-safakhou/diffmind"}, &mcp.ServerOptions{Instructions: "DiffMind provides saved static architecture evidence, not proof of runtime behavior or complete dependency coverage. Start with list_projects; use the configured or sole accessible project, and ask the user to choose when several projects are available. If no projects exist, explain that context must be set up; discover available management operations only when setup is requested. Query-only hosts cannot create or refresh context. Get a graph summary before investigating; pin completed run IDs when comparing evidence. Use exact service names returned by list_services and follow pagination. Empty results mean no extracted evidence, not proof of no dependencies or breaking changes. compare_contracts compares only extracted supported request fields. Ordinary query tools are read-only. If management tools are available, discover their catalog and use only the user's approved repository scope; do not import a company or change settings merely to answer a query. For approved imports, preview first and pass the returned preview_digest with the identical scope; on 409 request a fresh preview. A 202 response is acceptance, not completion: poll ingestion or job status, inspect failures, then query a completed graph run. A usable older graph can coexist with failed maintenance or a stale checkout."})
+	server := mcp.NewServer(&mcp.Implementation{Name: "diffmind", Title: "DiffMind Architecture Graph", Version: s.version, WebsiteURL: "https://github.com/mohammad-safakhou/diffmind"}, &mcp.ServerOptions{Instructions: "DiffMind provides saved static architecture evidence, not proof of runtime behavior or complete dependency coverage. Start with list_projects; use the configured or sole accessible project, and ask the user to choose when several projects are available. If no projects exist, explain that context must be set up; discover available management operations only when setup is requested. Query-only hosts cannot create or refresh context. Call get_readiness before investigating or setup; it separates saved evidence from current work and permitted actions. Get a graph summary before investigating; pin completed run IDs when comparing evidence. Use exact service names returned by list_services and follow pagination. Empty results mean no extracted evidence, not proof of no dependencies or breaking changes. compare_contracts compares only extracted supported request fields. Ordinary query tools are read-only. If management tools are available, discover their catalog and use only the user's approved repository scope; do not import a company or change settings merely to answer a query. For approved imports, preview first and pass the returned preview_digest with the identical scope; on 409 request a fresh preview. A 202 response is acceptance, not completion: poll ingestion or job status, inspect failures, then query a completed graph run. A usable older graph can coexist with failed maintenance or a stale checkout."})
 	readOnly := &mcp.ToolAnnotations{Title: "List DiffMind projects", ReadOnlyHint: true, OpenWorldHint: boolPtr(false)}
 	mcp.AddTool(server, &mcp.Tool{Name: "list_projects", Title: "List projects", Description: "List DiffMind projects accessible to this connection and whether each has a queryable architecture graph.", Annotations: readOnly},
 		func(_ context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
@@ -89,6 +92,43 @@ func (s *Server) MCPServer() *mcp.Server {
 			return nil, map[string]any{"projects": projects}, err
 		})
 
+	mcp.AddTool(server, tool("get_readiness", "Get workspace readiness", "Observe saved graph validity, current work, checkout freshness, coverage limits and next permitted action, including projects with no graph. Query-only connections stay read-only."),
+		func(ctx context.Context, call *mcp.CallToolRequest, in struct {
+			Project string `json:"project,omitempty"`
+		}) (*mcp.CallToolResult, any, error) {
+			project, err := s.project(in.Project)
+			if err != nil {
+				if errors.Is(err, store.ErrNotFound) {
+					return readinessFailure("available", "denied", "Workspace unavailable or not found; request access or select a visible project.")
+				}
+				return nil, nil, err
+			}
+			if s.management != nil {
+				req, err := agentapi.Request(ctx, agentapi.Input{Operation: "get_readiness", Selectors: map[string]string{"pid": project}}, true)
+				if err != nil {
+					return nil, nil, err
+				}
+				result, err := s.management(ctx, call, req)
+				if err != nil {
+					return readinessFailure("disconnected", "unknown", "Backend connection unavailable; reconnect and inspect readiness before acting.")
+				}
+				if result.Status >= 400 {
+					if result.Status == 401 || result.Status == 403 || result.Status == 404 {
+						return readinessFailure("available", "denied", "Workspace unavailable or not found; request access or select a visible project.")
+					}
+					return readinessFailure("available", "unknown", "Readiness could not be checked; reload before acting.")
+				}
+				return nil, result.Data, nil
+			}
+			out, err := s.query.Readiness(project)
+			if err != nil {
+				if errors.Is(err, store.ErrNotFound) {
+					return readinessFailure("available", "denied", "Workspace unavailable or not found; request access or select a visible project.")
+				}
+				return readinessFailure("available", "unknown", "Readiness could not be checked; reload before acting.")
+			}
+			return nil, out, nil
+		})
 	mcp.AddTool(server, tool("get_graph_summary", "Get graph summary", "Return counts, teams, connectivity, and quality warnings for a project's architecture graph."),
 		func(_ context.Context, _ *mcp.CallToolRequest, in projectInput) (*mcp.CallToolResult, any, error) {
 			project, err := s.project(in.Project)
@@ -242,3 +282,10 @@ func tool(name, title, description string) *mcp.Tool {
 }
 
 func boolPtr(v bool) *bool { return &v }
+
+func readinessFailure(runtime, access, message string) (*mcp.CallToolResult, any, error) {
+	state := query.UnavailableReadiness(runtime, access)
+	// Keep IsError for existing clients, with structured recovery for new clients.
+	body, _ := json.Marshal(map[string]any{"error": message, "readiness": state})
+	return &mcp.CallToolResult{IsError: true, Content: []mcp.Content{&mcp.TextContent{Text: string(body)}}, StructuredContent: state}, nil, nil
+}
