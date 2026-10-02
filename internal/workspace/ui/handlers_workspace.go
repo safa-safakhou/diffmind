@@ -757,7 +757,7 @@ func (s *Server) cachedLiveStatusForRepos(repos []workspaceRepo) map[string]repo
 	s.liveStatusMu.Lock()
 	defer s.liveStatusMu.Unlock()
 	for _, repo := range repos {
-		key := repo.ID + "|" + repo.GitURL + "|" + repo.Path
+		key := repo.ID + "|" + repo.GitURL + "|" + repo.Path + "|" + repo.GitAPIBase
 		if cached, ok := s.liveStatusCache[key]; ok && now.Before(cached.expiresAt) {
 			out[repo.ID] = cached.value
 			continue
@@ -772,7 +772,7 @@ func (s *Server) cachedLiveStatusForRepos(repos []workspaceRepo) map[string]repo
 }
 
 func (s *Server) cachedLiveStatus(ctx context.Context, repo store.Repo) repoLive {
-	key := repo.ID + "|" + repo.GitURL + "|" + repo.Path
+	key := repo.ID + "|" + repo.GitURL + "|" + repo.Path + "|" + repo.GitAPIBase
 	now := time.Now().UTC()
 	s.liveStatusMu.Lock()
 	if cached, ok := s.liveStatusCache[key]; ok && now.Before(cached.expiresAt) {
@@ -790,17 +790,16 @@ func (s *Server) cachedLiveStatus(ctx context.Context, repo store.Repo) repoLive
 
 func githubLiveStatus(ctx context.Context, repo store.Repo) repoLive {
 	now := time.Now().UTC()
-	githubSource := githubSourceForRepo(ctx, repo)
-	owner, name, ok := githubOwnerRepo(githubSource)
-	if !ok {
-		return repoLive{Provider: firstNonEmpty(repo.GitProvider, "git"), Status: "unavailable", CheckedAt: now}
+	base, state, message := githubRepositoryEndpoint(ctx, repo)
+	if state != "ready" {
+		return repoLive{Provider: firstNonEmpty(repo.GitProvider, "git"), Status: state, Error: message, CheckedAt: now}
 	}
-	token := githubToken(ctx, githubSource)
-	client := &http.Client{Timeout: 8 * time.Second}
-	prs, prErr := githubCount(ctx, client, token, fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls?state=open&per_page=1", owner, name))
-	issues, issueErr := githubCount(ctx, client, token, fmt.Sprintf("https://api.github.com/repos/%s/%s/issues?state=open&per_page=1", owner, name))
+	token := githubToken(ctx, base)
+	client := githubHTTPClient(8 * time.Second)
+	prs, prErr := githubCount(ctx, client, token, base+"/pulls?state=open&per_page=1")
+	issues, issueErr := githubCount(ctx, client, token, base+"/issues?state=open&per_page=1")
 	actions := "unknown"
-	if state, err := githubActionsState(ctx, client, token, owner, name); err == nil {
+	if state, err := githubActionsState(ctx, client, token, base); err == nil {
 		actions = state
 	}
 	status := "ok"
@@ -813,22 +812,8 @@ func githubLiveStatus(ctx context.Context, repo store.Repo) repoLive {
 }
 
 func githubOwnerRepo(raw string) (string, string, bool) {
-	raw = strings.TrimSuffix(strings.TrimSpace(raw), ".git")
-	raw = strings.TrimSuffix(raw, "/")
-	if strings.Contains(raw, "github.com:") {
-		parts := strings.Split(raw, "github.com:")
-		raw = "github.com/" + parts[len(parts)-1]
-	}
-	idx := strings.Index(strings.ToLower(raw), "github.com/")
-	if idx < 0 {
-		return "", "", false
-	}
-	rest := raw[idx+len("github.com/"):]
-	parts := strings.Split(rest, "/")
-	if len(parts) < 2 {
-		return "", "", false
-	}
-	return parts[0], parts[1], true
+	host, owner, name, ok := gitRepositoryLocation(raw)
+	return owner, name, ok && host == "github.com"
 }
 
 func githubCount(ctx context.Context, client *http.Client, token, url string) (int, error) {
@@ -854,8 +839,8 @@ func githubCount(ctx context.Context, client *http.Client, token, url string) (i
 	return len(arr), nil
 }
 
-func githubActionsState(ctx context.Context, client *http.Client, token, owner, repo string) (string, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/actions/runs?per_page=1", owner, repo)
+func githubActionsState(ctx context.Context, client *http.Client, token, base string) (string, error) {
+	url := base + "/actions/runs?per_page=1"
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	req.Header.Set("Accept", "application/vnd.github+json")
 	if token != "" {

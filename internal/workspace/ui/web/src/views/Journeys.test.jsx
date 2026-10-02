@@ -6,6 +6,7 @@ import { act } from 'preact/test-utils'
 import { Projects } from './Projects.jsx'
 import { ImportOrgModal } from './ProjectWorkspace.jsx'
 import { ContractComparison } from './GraphCompare.jsx'
+import { PullRequestsView } from './PullRequestsView.jsx'
 import { EvidenceList } from './GraphDetails.jsx'
 import { useProjectCapabilities } from '../lib/access.js'
 
@@ -118,4 +119,24 @@ test('access checks retain prior data on transient failure and clear it on denia
   status = 200; await act(async () => poll()); await settle()
   state = JSON.parse(root.textContent)
   assert.equal(state.data.can_refresh, true); assert.equal(state.error, ''); assert.equal(state.unavailable, false)
+})
+
+
+test('PR providers distinguish local-only, query failure and successfully empty results', async (t) => {
+  const { root, show } = await dom(t)
+  let repository = { repo_id: 'local', repo_name: 'Local checkout', status: 'local_only', message: 'No Git remote configured.', open_count: 0, pull_requests: [] }
+  globalThis.fetch = async () => ({ ok: true, status: 200, text: async () => JSON.stringify({ repositories: [repository], checked_count: repository.status === 'ok' ? 1 : 0, repo_count: 1 }) })
+  await show(<PullRequestsView pid="local-company" />)
+  assert.match(root.textContent, /Local checkout/)
+  assert.match(root.textContent, /No Git remote configured/)
+  assert.match(root.textContent, /Some repository providers are unavailable/)
+  assert.doesNotMatch(root.textContent, /No open pull requests match this view/)
+  repository = { ...repository, status: 'ok', message: '' }
+  await show(<PullRequestsView pid="ready-company" />)
+  assert.match(root.textContent, /No open pull requests match this view/)
+  globalThis.fetch = async () => ({ ok: false, status: 503, text: async () => JSON.stringify({ error: 'Provider service unavailable' }) })
+  await show(<PullRequestsView pid="failed-company" />)
+  assert.match(root.querySelector('[role="alert"]').textContent, /Provider service unavailable/)
+  assert.match(root.textContent, /Pull requests could not be loaded/)
+  assert.doesNotMatch(root.textContent, /No open pull requests match this view/)
 })

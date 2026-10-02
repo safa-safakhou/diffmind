@@ -26,6 +26,7 @@ type createRepoRequest struct {
 	Path          string   `json:"path"`
 	Kind          string   `json:"kind"`
 	SourceType    string   `json:"source_type"`
+	GitAPIBase    string   `json:"git_api_base"`
 	GitURL        string   `json:"git_url"`
 	DefaultBranch string   `json:"default_branch"`
 	Team          string   `json:"team"`
@@ -36,6 +37,10 @@ type createRepoRequest struct {
 func (s *Server) handleCreateRepo(w http.ResponseWriter, r *http.Request) {
 	var req createRepoRequest
 	if err := decodeJSON(r, &req); err != nil {
+		writeErr(w, http.StatusBadRequest, err)
+		return
+	}
+	if err := validateGitHubAPIBase(req.GitAPIBase); err != nil {
 		writeErr(w, http.StatusBadRequest, err)
 		return
 	}
@@ -50,6 +55,7 @@ func (s *Server) handleCreateRepo(w http.ResponseWriter, r *http.Request) {
 		SourceType:    req.SourceType,
 		GitURL:        req.GitURL,
 		GitProvider:   inferGitProvider(req.GitURL),
+		GitAPIBase:    req.GitAPIBase,
 		DefaultBranch: req.DefaultBranch,
 		Team:          req.Team,
 		PackIDs:       req.PackIDs,
@@ -76,6 +82,7 @@ type patchRepoRequest struct {
 	Path          *string   `json:"path"`
 	Kind          *string   `json:"kind"`
 	SourceType    *string   `json:"source_type"`
+	GitAPIBase    *string   `json:"git_api_base"`
 	GitURL        *string   `json:"git_url"`
 	DefaultBranch *string   `json:"default_branch"`
 	Team          *string   `json:"team"`
@@ -88,6 +95,12 @@ func (s *Server) handlePatchRepo(w http.ResponseWriter, r *http.Request) {
 	if err := decodeJSON(r, &req); err != nil {
 		writeErr(w, http.StatusBadRequest, err)
 		return
+	}
+	if req.GitAPIBase != nil {
+		if err := validateGitHubAPIBase(*req.GitAPIBase); err != nil {
+			writeErr(w, http.StatusBadRequest, err)
+			return
+		}
 	}
 	repo, err := s.store.UpdateRepo(r.PathValue("pid"), r.PathValue("rid"), func(rp *store.Repo) {
 		if req.Name != nil {
@@ -105,6 +118,9 @@ func (s *Server) handlePatchRepo(w http.ResponseWriter, r *http.Request) {
 		if req.GitURL != nil {
 			rp.GitURL = *req.GitURL
 			rp.GitProvider = inferGitProvider(*req.GitURL)
+		}
+		if req.GitAPIBase != nil {
+			rp.GitAPIBase = *req.GitAPIBase
 		}
 		if req.DefaultBranch != nil {
 			rp.DefaultBranch = *req.DefaultBranch
@@ -200,8 +216,8 @@ func looksLikeRepo(dir string) bool {
 }
 
 func inferGitProvider(url string) string {
-	u := strings.ToLower(url)
-	if strings.Contains(u, "github.com") {
+	host, _, _, ok := gitRepositoryLocation(url)
+	if ok && host == "github.com" {
 		return "github"
 	}
 	if strings.TrimSpace(url) == "" {

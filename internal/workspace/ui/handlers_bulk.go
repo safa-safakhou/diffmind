@@ -44,12 +44,15 @@ type importReposRequest struct {
 }
 
 type importedRepoResult struct {
-	Name   string `json:"name"`
-	Path   string `json:"path,omitempty"`
-	GitURL string `json:"git_url"`
-	Status string `json:"status"`
-	RepoID string `json:"repo_id,omitempty"`
-	Error  string `json:"error,omitempty"`
+	SourceType    string                    `json:"source_type,omitempty"`
+	DefaultBranch string                    `json:"default_branch,omitempty"`
+	AnalysisPaths *serviceconfig.PathConfig `json:"analysis_paths,omitempty"`
+	Name          string                    `json:"name"`
+	Path          string                    `json:"path,omitempty"`
+	GitURL        string                    `json:"git_url"`
+	Status        string                    `json:"status"`
+	RepoID        string                    `json:"repo_id,omitempty"`
+	Error         string                    `json:"error,omitempty"`
 }
 
 func (s *Server) handleImportRepos(w http.ResponseWriter, r *http.Request) {
@@ -72,8 +75,11 @@ func (s *Server) handleImportRepos(w http.ResponseWriter, r *http.Request) {
 		writeImportError(w, err)
 		return
 	}
-	results := prepared.apply(s, pid, req)
-	writeJSON(w, http.StatusOK, map[string]any{"results": results, "count": len(results), "preview_digest": prepared.digest})
+	results := prepared.review
+	if !req.DryRun {
+		results = prepared.apply(s, pid, req)
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"results": results, "count": len(results), "preview_digest": prepared.digest, "project_id": pid, "scope": req})
 }
 
 func validateImportReposRequest(req *importReposRequest) error {
@@ -83,6 +89,9 @@ func validateImportReposRequest(req *importReposRequest) error {
 	}
 	switch req.Provider {
 	case "github":
+		if err := validateGitHubAPIBase(req.APIBase); err != nil {
+			return err
+		}
 		if strings.TrimSpace(req.Org) == "" {
 			return fmt.Errorf("org is required")
 		}
@@ -126,7 +135,7 @@ type githubRepo struct {
 func githubOrgRepos(ctx context.Context, req importReposRequest) ([]githubRepo, error) {
 	base := strings.TrimRight(firstNonEmpty(req.APIBase, "https://api.github.com"), "/")
 	token := githubToken(ctx, base)
-	client := &http.Client{Timeout: 30 * time.Second}
+	client := githubHTTPClient(30 * time.Second)
 	var out []githubRepo
 	for page := 1; ; page++ {
 		url := fmt.Sprintf("%s/orgs/%s/repos?per_page=100&page=%d&type=all", base, req.Org, page)
@@ -142,14 +151,17 @@ func githubOrgRepos(ctx context.Context, req importReposRequest) ([]githubRepo, 
 		if err != nil {
 			return nil, err
 		}
-		body, readErr := io.ReadAll(resp.Body)
+		body, readErr := io.ReadAll(io.LimitReader(resp.Body, 8<<20))
 		_ = resp.Body.Close()
 		if readErr != nil {
 			return nil, readErr
 		}
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			return nil, githubResponseError(resp.StatusCode)
+		}
 		pageRepos, err := parseGitHubReposResponse(resp.StatusCode, resp.Status, body)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("GitHub repository response could not be read. Check the approved API endpoint.")
 		}
 		if len(pageRepos) == 0 {
 			break
@@ -322,7 +334,7 @@ func (s *Server) importLocalRepos(pid string, req importReposRequest, repos []lo
 			break
 		}
 		clean := filepath.Clean(local.Path)
-		result := importedRepoResult{Name: local.Name, Path: clean, Status: "candidate"}
+		result := importedRepoResult{Name: local.Name, Path: clean, SourceType: "local", Status: "candidate"}
 		if existing[clean].ID != "" || existing[local.Name].ID != "" {
 			result.Status = "skipped_existing"
 			results = append(results, result)
@@ -375,7 +387,7 @@ func (s *Server) importGitHubRepos(pid string, req importReposRequest, repos []g
 			break
 		}
 		gitURL := githubCloneURL(gh, req)
-		result := importedRepoResult{Name: gh.Name, GitURL: gitURL, Status: "candidate"}
+		result := importedRepoResult{Name: gh.Name, GitURL: gitURL, SourceType: "git", DefaultBranch: firstNonEmpty(req.DefaultBranch, gh.DefaultBranch), Status: "candidate"}
 		if existing[gitURL].ID != "" || existing[gh.Name].ID != "" {
 			result.Status = "skipped_existing"
 			results = append(results, result)
@@ -391,6 +403,7 @@ func (s *Server) importGitHubRepos(pid string, req importReposRequest, repos []g
 			SourceType:    "git",
 			GitURL:        gitURL,
 			GitProvider:   "github",
+			GitAPIBase:    strings.TrimRight(firstNonEmpty(req.APIBase, "https://api.github.com"), "/"),
 			DefaultBranch: firstNonEmpty(req.DefaultBranch, gh.DefaultBranch),
 			Team:          firstNonEmpty(req.Team, "default"),
 			SyncStatus:    map[bool]string{true: "sync_queued", false: "unknown"}[req.Clone],
@@ -549,6 +562,7 @@ func (s *Server) runDiffMindBatch(pid string, repos []store.Repo, opts orchestra
 var errImportReviewChanged = errors.New("Repository scope changed since preview. Preview again before importing.")
 
 type preparedImport struct {
+	review []importedRepoResult
 	local  []localRepo
 	github []githubRepo
 	digest string
@@ -599,13 +613,14 @@ func (s *Server) prepareImport(ctx context.Context, pid string, req importReposR
 	// Only selected candidates contribute branch and local analysis boundaries.
 	branches := map[string]string{}
 	paths := map[string]serviceconfig.PathConfig{}
-	for _, result := range results {
+	for i, result := range results {
 		if req.Provider == "local" {
 			config, err := serviceconfig.Load(result.Path)
 			if err != nil {
 				return nil, err
 			}
 			paths[result.Path] = config.Paths
+			results[i].AnalysisPaths = &config.Paths
 		} else {
 			for _, repo := range p.github {
 				if repo.Name == result.Name {
@@ -614,6 +629,7 @@ func (s *Server) prepareImport(ctx context.Context, pid string, req importReposR
 			}
 		}
 	}
+	p.review = results
 	payload, err := json.Marshal(struct {
 		Project    string
 		Request    importReposRequest
