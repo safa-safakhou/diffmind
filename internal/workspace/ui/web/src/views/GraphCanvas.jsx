@@ -1083,6 +1083,26 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
     })
 
     drawSelectedConnectionSummary(rootG.append('g').attr('class', 'selected-connections-overlay'), activeSelection, renderedEdges, topPositions, serviceNames, selectThing)
+    rootG.selectAll('.service-system, .resource-node, path.edge')
+      .attr('tabindex', 0).attr('role', 'button')
+      .attr('aria-label', function () {
+        const node = d3.select(this)
+        return node.attr('data-select-id') ? `Inspect ${node.attr('data-select-id')}` : `Inspect ${node.attr('data-type') || 'dependency'} from ${node.attr('data-from')} to ${node.attr('data-to')}`
+      })
+      .on('keydown.accessibility', function (event) {
+        if (event.key !== 'Enter' && event.key !== ' ') return
+        event.preventDefault(); event.stopPropagation()
+        this.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      })
+      .on('focus.accessibility', function () {
+        const bounds = this.getBoundingClientRect(), viewport = svgRef.current.getBoundingClientRect()
+        if (bounds.left >= viewport.left && bounds.right <= viewport.right && bounds.top >= viewport.top + 92 && bounds.bottom <= viewport.bottom) return
+        const current = transformRef.current
+        const dx = viewport.left + viewport.width / 2 - (bounds.left + bounds.width / 2)
+        const dy = viewport.top + viewport.height / 2 - (bounds.top + bounds.height / 2)
+        svg.call(zoom.transform, d3.zoomIdentity.translate(current.x + dx, current.y + dy).scale(current.k))
+      })
+
 
     function selectThing(sel) {
       setActiveSelection(sel)
@@ -1188,7 +1208,7 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
       const availableW = Math.max(240, W - pad * 2)
       const availableH = Math.max(240, H - overlayTopPad - pad)
       const fitScale = Math.min(availableW / graphW, availableH / graphH, 1.05)
-		const minScale = mode === 'detail' ? 0.04 : 0.18
+		const minScale = mode === 'detail' ? 0.04 : 0.75
       const scale = Math.min(Math.max(fitScale, minScale), 1.05)
       const tx = (W - graphW * scale) / 2
       const ty = overlayTopPad + (H - overlayTopPad - graphH * scale) / 2

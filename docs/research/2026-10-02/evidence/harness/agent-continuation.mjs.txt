@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {root,Observer,StdioClient,waitIngestion} from './helpers.mjs';
+const rows=JSON.parse(fs.readFileSync(path.join(root,'evidence/agent-observations.json')));
+const first=rows.find(r=>r.task==='first_graph_ready');
+const changed=rows.find(r=>r.task==='explicit_refresh_complete');
+const obs=new Observer('agent-continuation');const client=new StdioClient(path.join(root,'agent-home'),obs);
+try{
+ await client.connect();
+ const schema=await client.rpc('tools/list',{});obs.log('actual_contract_tool_schema',{tool:schema.tools.find(t=>t.name==='compare_contracts')});
+ await client.call('compare_contracts',{project:first.pid,from:first.run_id,to:changed.run_id,service:'checkout'});
+ await client.op('start_ingestion',{pid:first.pid},{});
+ const repeated=await waitIngestion(client,first.pid);obs.log('unchanged_repeat',{status:repeated.status,analyzed:repeated.analyzed,reused:repeated.reused,run_id:repeated.graph_run_id});
+ fs.writeFileSync(path.join(root,'agent-state.json'),JSON.stringify({pid:first.pid,baseline:first.run_id,changed:changed.run_id,latest:repeated.graph_run_id},null,2));
+}finally{await client.disconnect()}

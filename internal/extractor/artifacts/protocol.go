@@ -2,6 +2,7 @@ package artifacts
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/url"
@@ -51,6 +52,7 @@ func buildProtocol(in WriteInput, manifest model.RunManifest) (*protocol.Documen
 		now = time.Now().UTC()
 	}
 	pipeline := firstNonEmpty(manifest.Pipeline, in.Pipeline, "deterministic")
+	scopeJSON, _ := json.Marshal(cfg.Paths)
 	b := &protocolBuilder{
 		doc: &protocol.Document{
 			Schema: protocol.SchemaServiceV1,
@@ -73,9 +75,11 @@ func buildProtocol(in WriteInput, manifest model.RunManifest) (*protocol.Documen
 				GeneratedBy: "diffmind",
 				GeneratedAt: now,
 				Labels: map[string]string{
-					"diffmind_run_id": in.RunID,
-					"pipeline":        pipeline,
-					"schema_version":  protocol.SchemaServiceV1,
+					"diffmind_run_id":     in.RunID,
+					"analysis_path_scope": string(scopeJSON),
+					"analysis_filter":     "diffmind.sourcefilter.v1",
+					"pipeline":            pipeline,
+					"schema_version":      protocol.SchemaServiceV1,
 				},
 			},
 		},

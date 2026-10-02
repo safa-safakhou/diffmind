@@ -1,6 +1,9 @@
 package knowledge
 
 import (
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -23,6 +26,16 @@ func NewEngine(log *util.Logger) *Engine {
 // and returns the extraction results.
 func (e *Engine) Run(bp *Pack, repoPath string) []ExtractionResult {
 	var results []ExtractionResult
+	cfg, err := serviceconfig.Load(repoPath)
+	if err != nil {
+		e.log.Warn("invalid repository scope", "error", err.Error())
+		return nil
+	}
+	policy, err := sourcefilter.NewPolicy(cfg.Paths.Include, cfg.Paths.Exclude)
+	if err != nil {
+		e.log.Warn("invalid repository scope", "error", err.Error())
+		return nil
+	}
 
 	for _, ext := range bp.Extractions {
 		strategy := ext.Strategy
@@ -41,6 +54,19 @@ func (e *Engine) Run(bp *Pack, repoPath string) []ExtractionResult {
 			continue
 		}
 		files = filterIgnored(repoPath, files, bp.Ignore)
+		scoped := make([]string, 0, len(files))
+		for _, file := range files {
+			relative, err := filepath.Rel(repoPath, file)
+			if err != nil || !policy.Allows(filepath.ToSlash(relative)) {
+				continue
+			}
+			info, err := os.Lstat(file)
+			if err != nil || sourcefilter.SkipFileInfo(info) {
+				continue
+			}
+			scoped = append(scoped, file)
+		}
+		files = scoped
 
 		switch strategy {
 		case "field_path":

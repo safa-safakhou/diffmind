@@ -1,0 +1,33 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {randomBytes} from 'node:crypto';
+import {root,Observer,launchUI,sleep,chromium} from './helpers.mjs';
+const obs=new Observer('company-regression');let server,browser;
+try {
+ const secret=randomBytes(24).toString('hex');
+ server=await launchUI(fs.mkdtempSync(path.join(root,'company-home-')),obs,{DIFFMIND_PROJECT_ACCESS:'scoped',DIFFMIND_TRUSTED_PROXY_SECRET:secret});
+ const headers=(role)=>({'X-DiffMind-Proxy-Secret':secret,'X-DiffMind-User':'candidate-'+role,'X-DiffMind-Role':role,'Content-Type':'application/json'});
+ const api=async(url,role='admin',method='GET',body)=>{const response=await fetch(server.url+url,{method,headers:headers(role),...(body?{body:JSON.stringify(body)}:{})});return{status:response.status,data:await response.json()}};
+ const created=await api('/api/projects','admin','POST',{name:'Company candidate'});assert.equal(created.status,201);const pid=created.data.id;
+ const access=await api(`/api/v1/projects/${pid}/access`);let policy=await api(`/api/v1/projects/${pid}/access`,'admin','PUT',{revision:access.data.revision,members:{'candidate-viewer':'viewer','candidate-editor':'editor'}});assert.equal(policy.status,200);
+ const started=await api(`/api/projects/${pid}/ingestion`,'admin','POST',{import:{provider:'local',root:path.join(root,'demo-shop/repositories')},concurrency:2});assert.equal(started.status,202);
+ let ingestion;for(let i=0;i<240;i++){ingestion=(await api(`/api/projects/${pid}/ingestion`)).data;if(ingestion.status!=='running')break;await sleep(250)}assert.equal(ingestion.status,'completed');
+ browser=await chromium.launch({headless:true});
+ const viewerContext=await browser.newContext({viewport:{width:1440,height:1000},extraHTTPHeaders:headers('viewer')});const viewer=await viewerContext.newPage();obs.watch(viewer);
+ await viewer.goto(`${server.url}/#/projects/${pid}`);await viewer.locator('.service-compact').first().waitFor();
+ assert.equal(await viewer.getByRole('button',{name:'Update context',exact:true}).count(),0);assert.equal(await viewer.getByRole('button',{name:'Import repositories',exact:true}).count(),0);assert.equal(await viewer.getByText('Advanced actions',{exact:true}).count(),0);
+ await viewer.getByText('You have read-only access.',{exact:false}).waitFor();
+ assert.equal((await api(`/api/v1/projects/${pid}/refresh-jobs`,'viewer','POST',{})).status,403);
+ await obs.screenshot(viewer,'viewer-permissions');
+ const editorContext=await browser.newContext({viewport:{width:1440,height:1000},extraHTTPHeaders:headers('editor')});const editor=await editorContext.newPage();obs.watch(editor);
+ await editor.goto(`${server.url}/#/projects/${pid}`);await editor.getByRole('button',{name:'Update context',exact:true}).waitFor();
+ assert.equal(await editor.getByRole('button',{name:'Import repositories',exact:true}).count(),0);assert.equal(await editor.getByText('Advanced actions',{exact:true}).count(),0);
+ const queued=editor.waitForResponse(r=>r.request().method()==='POST'&&r.url().endsWith('/refresh-jobs'));
+ await editor.getByRole('button',{name:'Update context',exact:true}).click();assert.equal((await queued).status(),202);
+ assert.equal((await api(`/api/projects/${pid}/repo-imports`,'editor','POST',{provider:'local',root:path.join(root,'demo-shop/repositories'),dry_run:true})).status,403);
+ obs.log('role_action_matrix',{passed:true,viewer_update:403,editor_queue:202,editor_import:403});
+ await obs.screenshot(editor,'editor-permissions');
+ await api(`/api/v1/projects/${pid}/access`,'admin','PUT',{revision:policy.data.revision,members:{'candidate-editor':'editor'}});
+ await viewer.getByRole('button',{name:'Projects',exact:true}).waitFor({timeout:10000});await viewer.locator('.service-compact').first().waitFor({state:'hidden'});
+ obs.log('membership_loss_removes_graph',{passed:true});
+ fs.writeFileSync(path.join(root,'evidence','company-result.json'),JSON.stringify({pid,passed:true},null,2));
+}catch(e){obs.log('regression_failure',{message:e.stack});process.exitCode=1}
+finally{if(browser)await browser.close();if(server)await server.stop()}

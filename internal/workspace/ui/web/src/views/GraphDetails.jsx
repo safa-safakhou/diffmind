@@ -1,3 +1,4 @@
+import { useState } from 'preact/hooks'
 import { navigate } from '../lib/router.js'
 import { knowledgeRows } from '../lib/knowledge.js'
 
@@ -25,13 +26,7 @@ function ServiceDetail({ s, pid, rid }) {
   const list = (title, items) => {
     const arr = items || []
     if (!arr.length) return null
-    return (
-      <div class="detail-sec">
-        <h4>{title} <span class="muted">({arr.length})</span></h4>
-        {arr.slice(0, 80).map((it, i) => <ObjectCard key={i} item={typeof it === 'string' ? { name: it } : it} />)}
-        {arr.length > 80 && <p class="muted small">Showing first 80 extracted objects. Use graph groups to inspect more focused slices.</p>}
-      </div>
-    )
+    return <EvidenceList key={`${rid}:${s.name}:${title}`} title={title} items={arr} renderItem={(it, i) => <ObjectCard key={i} item={typeof it === 'string' ? { name: it } : it} />} />
   }
   return (
     <div>
@@ -48,11 +43,7 @@ function ServiceDetail({ s, pid, rid }) {
       {list('CLI commands', s.cli_commands)}
       {list('Dependencies', s.dependencies)}
       {s.connections && s.connections.length > 0 && (
-        <div class="detail-sec">
-          <h4>Object traces <span class="muted">({s.connections.length})</span></h4>
-          {s.connections.slice(0, 120).map((c, i) => <TraceCard key={i} trace={c} service={s.name} pid={pid} rid={rid} />)}
-          {s.connections.length > 120 && <p class="muted small">Showing first 120 traces.</p>}
-        </div>
+        <EvidenceList key={`${rid}:${s.name}:traces`} title="Object traces" items={s.connections} batch={120} renderItem={(c, i) => <TraceCard key={i} trace={c} service={s.name} pid={pid} rid={rid} />} />
       )}
     </div>
   )
@@ -118,12 +109,7 @@ function ResourceDetail({ d, rows }) {
         </div>
       )}
       {d.facts?.length > 0 && (
-        <div class="detail-sec">
-          <h4>Extracted facts</h4>
-          {d.facts.slice(0, 40).map((f, i) => (
-            <ObjectCard key={i} item={{ ...(f.dep || {}), service: f.service }} />
-          ))}
-        </div>
+        <EvidenceList key={d.name || d.id} title="Extracted facts" items={d.facts} batch={40} renderItem={(f, i) => <ObjectCard key={i} item={{ ...(f.dep || {}), service: f.service }} />} />
       )}
       {d.tables?.length > 0 && (
         <div class="detail-sec">
@@ -317,4 +303,13 @@ function formatInline(value) {
 function formatValue(value) {
   if (typeof value === 'string') return value
   return JSON.stringify(value, null, 2)
+}
+
+export function EvidenceList({ title, items, renderItem, batch = 80 }) {
+  const [limit, setLimit] = useState(batch)
+  return <div class="detail-sec">
+    <h4>{title} <span class="muted">({items.length})</span></h4>
+    {items.slice(0, limit).map(renderItem)}
+    {items.length > limit && <button class="btn ghost tiny" onClick={() => setLimit(limit + batch)}>Show more {title.toLowerCase()} ({Math.min(limit, items.length)} of {items.length})</button>}
+  </div>
 }

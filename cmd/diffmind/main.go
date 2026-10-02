@@ -307,6 +307,12 @@ func cmdUIListener(args []string, listener net.Listener) {
 	}
 
 	srv := ui.New(st, mgr, config.DiffMindRunsDir(), *host, *port, log)
+	executable, executableErr := os.Executable()
+	if executableErr != nil {
+		fmt.Fprintln(os.Stderr, executableErr)
+		os.Exit(1)
+	}
+	srv.SetAnalyzerBinary(executable)
 	srv.SetVersion(version)
 	srv.SetAuthToken(*authToken)
 	srv.SetTrustedProxySecret(*trustedProxySecret)

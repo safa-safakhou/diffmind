@@ -18,6 +18,10 @@ scope, company credentials/SSO approval, system installation permission, or a
 client integration approval that the host requires. Never bypass those boundaries.
 An MCP server cannot install or authorize itself before its host can launch it.
 
+Supported native targets are macOS and Linux on AMD64 and ARM64. Windows users
+can run the Linux build in WSL or connect to a shared deployment; native Windows
+operation is not validated. See the [installation matrix](README.md#manual-installation-alternative).
+
 ## 1. Inspect and install (agent executes)
 
 1. Resolve this source checkout; inspect its Git status/revision. Preserve all
@@ -47,9 +51,9 @@ for an upgrade, then use `--replace` only for that authorized target. Existing
 workspaces must be private real directories; do not chmod an unrelated directory
 just to satisfy setup. A failed build leaves an existing binary intact.
 
-There is no published binary release yet. Do not hand the user a release URL
-that does not exist. After releases are available, the host agent may use the
-verified installer instead, then register the same `agent` launch command.
+For a release installation, verify the chosen release and its platform asset
+before installing it. A published binary can lag this checkout; use source setup
+when validating unreleased changes. Register the same absolute `agent` launch command.
 
 ## 2. Register the full-management connection (agent executes)
 
@@ -116,9 +120,13 @@ owns a home; additional query/management clients can share its HTTP endpoint.
    known relationships. Inspect evidence and freshness. Missing static-analysis
    facts are unknown, not proof of no dependency. Record patterns requiring
    teaching rather than inventing edges.
-6. If requested, configure refresh via `agent_runtime`: read current settings,
-   preserve unrelated values, then `configure` with a complete settings object.
-   The local backend runs only while its owning agent connection is alive.
+6. New agent workspaces refresh registered repositories on startup and every
+   15 minutes while connected. This never discovers or imports new repositories.
+   Existing explicit manual settings remain manual. Read runtime status to report
+   the effective policy. For a requested change, use `agent_runtime`: preserve
+   unrelated settings and configure a complete object (`refresh_interval: "0"`,
+   `refresh_on_start: false` disables automatic refresh). Local checkouts retain
+   their working tree; the backend stops when its owning connection closes.
 7. Offer useful findings and the optional dashboard URL from runtime status.
    Do not direct the user to create projects or import repositories in the UI.
 

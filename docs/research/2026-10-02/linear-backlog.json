@@ -1,0 +1,1435 @@
+{
+  "date": "2026-10-02",
+  "source_revision": "5d2548514bfc5d920dfd40def5fcacd80162e9ae",
+  "project": {
+    "id": "P-MNI-5",
+    "uuid": "aad5983f-4fd4-4ce3-9348-75d94840d711",
+    "name": "DiffMind — simpler UX and dependable background context",
+    "url": "https://linear.app/mnim/project/diffmind-simpler-ux-and-dependable-background-context-2125822ad508",
+    "team": "Mnim",
+    "state": "Planned"
+  },
+  "document": {
+    "id": "0008168d-1578-473e-bbc1-dc0e396dfc50",
+    "title": "Start here — coordinated solutions and finding coverage",
+    "url": "https://linear.app/mnim/document/start-here-coordinated-solutions-and-finding-coverage-d5cf0e7dbd13"
+  },
+  "counts": {
+    "epics": 7,
+    "tasks": 28,
+    "issues_total": 35,
+    "milestones": 3,
+    "dependency_edges": 70,
+    "audit_findings": 42,
+    "live_findings": 11,
+    "initial_todo": 4,
+    "initial_backlog": 31
+  },
+  "milestones": [
+    {
+      "key": "M1",
+      "name": "1 — Shared foundations and evidence",
+      "description": "Agree the state, capability, action, error and authorized-scope contracts shared by UI, MCP and background work. Establish independently labeled graph/PR baselines before judging accuracy. Exit: contracts reviewed and baseline corpus reproducible; no claim of implementation completion.",
+      "id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5"
+    },
+    {
+      "key": "M2",
+      "name": "2 — Integrated user and agent journeys",
+      "description": "Deliver the existing three journeys using the same contracts: understandable onboarding and import, bounded automatic refresh, readable accessible exploration, trustworthy evidence, useful PR investigation and safe company access. Exit: integrated walkthroughs demonstrate the proposed behavior and preserve existing persistence/authorization safeguards.",
+      "id": "f2a36135-93ea-43d7-97d8-776fad250d0a"
+    },
+    {
+      "key": "M3",
+      "name": "3 — Verified candidate",
+      "description": "Align entry documentation with the implemented experience, conduct installed-client and independent-human trials, and verify the exact candidate with the existing native/release gates plus cross-journey regressions. Exit: no critical task blocker, evidence limitations recorded, no misleading accuracy/availability claims. Publication is a separate maintainer action.",
+      "id": "def34c56-0f8b-47c0-bd48-85405a44c2b8"
+    }
+  ],
+  "epics": [
+    {
+      "key": "E1",
+      "title": "Epic: One understandable workspace model",
+      "purpose": "Replace inconsistent concepts of ready, fresh, permitted and in progress with shared meaning across the dashboard, agents and background work.",
+      "outcome": "People and agents can identify the scope, saved snapshot, current work, limitations and next permitted action without learning internal pipeline stages.",
+      "priority": 2,
+      "id": "MNI-168",
+      "uuid": "30f913bc-a96d-4601-a83b-4b95829204c2",
+      "url": "https://linear.app/mnim/issue/MNI-168/epic-one-understandable-workspace-model",
+      "initial_state": "Backlog",
+      "children": [
+        "MNI-175",
+        "MNI-176",
+        "MNI-177",
+        "MNI-178"
+      ]
+    },
+    {
+      "key": "E2",
+      "title": "Epic: Install once and maintain approved context",
+      "purpose": "Make the existing individual-agent route dependable from installation through reconnect and background updates, within the current runtime and authorization boundaries.",
+      "outcome": "After scope approval the agent maintains context while DiffMind is running, reuses unchanged analysis and explains availability/freshness when the session ends or changes.",
+      "priority": 2,
+      "id": "MNI-169",
+      "uuid": "b394bd3e-a016-4671-84d5-37add583d3f4",
+      "url": "https://linear.app/mnim/issue/MNI-169/epic-install-once-and-maintain-approved-context",
+      "initial_state": "Backlog",
+      "children": [
+        "MNI-179",
+        "MNI-180",
+        "MNI-181",
+        "MNI-182"
+      ]
+    },
+    {
+      "key": "E3",
+      "title": "Epic: Simple accessible onboarding and exploration",
+      "purpose": "Treat import, first use, graph navigation and recovery as one accessible task flow instead of unrelated screens and modal patches.",
+      "outcome": "A newcomer can inspect scope, reach a readable graph and inspect all relevant evidence using mouse or keyboard with visible feedback.",
+      "priority": 2,
+      "id": "MNI-170",
+      "uuid": "5bc91bbd-00d2-4ab8-b57a-a311be1c5044",
+      "url": "https://linear.app/mnim/issue/MNI-170/epic-simple-accessible-onboarding-and-exploration",
+      "initial_state": "Backlog",
+      "children": [
+        "MNI-183",
+        "MNI-187",
+        "MNI-184",
+        "MNI-185"
+      ]
+    },
+    {
+      "key": "E4",
+      "title": "Epic: Architecture evidence users can trust",
+      "purpose": "Prevent scope leakage and ambiguous evidence from turning a completed scan into a misleading architecture conclusion; preserve deterministic, inspectable analysis.",
+      "outcome": "Examples and alternate scenarios are identifiable, declared/extracted evidence stays distinguishable, changes retain provenance, and correction uses reviewed existing mechanisms.",
+      "priority": 2,
+      "id": "MNI-171",
+      "uuid": "7f5f4bd3-b7ba-4d61-bdb4-2e58c604e585",
+      "url": "https://linear.app/mnim/issue/MNI-171/epic-architecture-evidence-users-can-trust",
+      "initial_state": "Backlog",
+      "children": [
+        "MNI-186",
+        "MNI-188",
+        "MNI-189",
+        "MNI-190"
+      ]
+    },
+    {
+      "key": "E5",
+      "title": "Epic: Clear evidence-based change and PR investigation",
+      "purpose": "Bring existing contract comparison and PR impact into a coherent investigation path without presenting heuristics or stale context as merge safety.",
+      "outcome": "Reviewers and agents understand compatibility changes, revision eligibility, provider availability, exact callers, candidates and unsupported cases from the same evidence.",
+      "priority": 2,
+      "id": "MNI-172",
+      "uuid": "0497563a-1c86-444a-8d80-22f6340e9f13",
+      "url": "https://linear.app/mnim/issue/MNI-172/epic-clear-evidence-based-change-and-pr-investigation",
+      "initial_state": "Backlog",
+      "children": [
+        "MNI-191",
+        "MNI-198",
+        "MNI-192",
+        "MNI-199"
+      ]
+    },
+    {
+      "key": "E6",
+      "title": "Epic: Safe company entry access and continuity",
+      "purpose": "Make the existing shared workspace understandable for joining developers and maintainable for administrators without weakening project-level access.",
+      "outcome": "The joining browser and agent paths are explicit; ordinary users see appropriate actions; revocation, upgrade and restore have verified access outcomes.",
+      "priority": 2,
+      "id": "MNI-173",
+      "uuid": "3e955d29-8070-4dff-863d-1f606f5ac88e",
+      "url": "https://linear.app/mnim/issue/MNI-173/epic-safe-company-entry-access-and-continuity",
+      "initial_state": "Backlog",
+      "children": [
+        "MNI-193",
+        "MNI-194",
+        "MNI-195",
+        "MNI-196"
+      ]
+    },
+    {
+      "key": "E7",
+      "title": "Epic: Prove the complete experience",
+      "purpose": "Keep historical docs, mechanistic tests and successful fixtures from substituting for independently measured user/agent outcomes and real-source interpretation.",
+      "outcome": "An exact candidate is backed by reproducible corpus checks, installed-client observations, independent persona trials and truthful documentation.",
+      "priority": 2,
+      "id": "MNI-174",
+      "uuid": "2f7948b8-7a42-4be1-9e15-f781dd3ad901",
+      "url": "https://linear.app/mnim/issue/MNI-174/epic-prove-the-complete-experience",
+      "initial_state": "Backlog",
+      "children": [
+        "MNI-200",
+        "MNI-197",
+        "MNI-201",
+        "MNI-202"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "key": "T01",
+      "id": "MNI-175",
+      "uuid": "918c44a8-a939-4707-b71d-e6a972e21708",
+      "url": "https://linear.app/mnim/issue/MNI-175/define-shared-readiness-freshness-and-capability-states",
+      "title": "Define shared readiness freshness and capability states",
+      "parent_id": "MNI-168",
+      "milestone_id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5",
+      "milestone": "M1",
+      "priority": 2,
+      "initial_state": "Todo",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [],
+      "findings": [
+        "F11",
+        "F12",
+        "F13"
+      ],
+      "stages": [
+        "A06",
+        "A07",
+        "A09",
+        "B05",
+        "B09",
+        "C04"
+      ]
+    },
+    {
+      "key": "T02",
+      "id": "MNI-176",
+      "uuid": "5682a5ce-8a45-48f4-a35c-604ad0c10de3",
+      "url": "https://linear.app/mnim/issue/MNI-176/use-one-primary-refresh-action-with-role-aware-advanced-operations",
+      "title": "Use one primary refresh action with role-aware advanced operations",
+      "parent_id": "MNI-168",
+      "milestone_id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5",
+      "milestone": "M1",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-175"
+      ],
+      "findings": [
+        "F20"
+      ],
+      "stages": [
+        "A06",
+        "B08",
+        "B09",
+        "C03",
+        "C04",
+        "C10"
+      ]
+    },
+    {
+      "key": "T03",
+      "id": "MNI-177",
+      "uuid": "bc2c7a71-65e8-4965-900b-bef59b362783",
+      "url": "https://linear.app/mnim/issue/MNI-177/define-one-approved-scope-contract-for-discovery-and-automation",
+      "title": "Define one approved scope contract for discovery and automation",
+      "parent_id": "MNI-168",
+      "milestone_id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5",
+      "milestone": "M1",
+      "priority": 2,
+      "initial_state": "Todo",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [],
+      "findings": [
+        "F08",
+        "F09",
+        "F10"
+      ],
+      "stages": [
+        "A04",
+        "A05",
+        "B04",
+        "C03"
+      ]
+    },
+    {
+      "key": "T04",
+      "id": "MNI-178",
+      "uuid": "4bd0f048-c060-4e0b-8021-8a1987277fb3",
+      "url": "https://linear.app/mnim/issue/MNI-178/standardize-actionable-feedback-and-recovery-across-ui-and-agents",
+      "title": "Standardize actionable feedback and recovery across UI and agents",
+      "parent_id": "MNI-168",
+      "milestone_id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5",
+      "milestone": "M1",
+      "priority": 2,
+      "initial_state": "Todo",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [],
+      "findings": [
+        "F11",
+        "L03"
+      ],
+      "stages": [
+        "A06",
+        "A10",
+        "B09",
+        "C03",
+        "C04",
+        "C10"
+      ]
+    },
+    {
+      "key": "T05",
+      "id": "MNI-179",
+      "uuid": "8ea56a8d-42d5-4a5a-aa0f-0a28766115d1",
+      "url": "https://linear.app/mnim/issue/MNI-179/make-installed-startup-and-worker-execution-independent-of-path",
+      "title": "Make installed startup and worker execution independent of PATH accidents",
+      "parent_id": "MNI-169",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 2,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-175"
+      ],
+      "findings": [
+        "F05",
+        "F06",
+        "L05"
+      ],
+      "stages": [
+        "A02",
+        "A03",
+        "A06",
+        "C01",
+        "C03"
+      ]
+    },
+    {
+      "key": "T06",
+      "id": "MNI-180",
+      "uuid": "da6a5731-a599-41a0-a7f8-02782d40bf04",
+      "url": "https://linear.app/mnim/issue/MNI-180/guide-agent-onboarding-project-selection-and-evidence-use",
+      "title": "Guide agent onboarding project selection and evidence use",
+      "parent_id": "MNI-169",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-175",
+        "MNI-177",
+        "MNI-179"
+      ],
+      "findings": [
+        "F03",
+        "F04",
+        "F08",
+        "F25"
+      ],
+      "stages": [
+        "A03",
+        "A04",
+        "A07",
+        "B03",
+        "B04",
+        "B06"
+      ]
+    },
+    {
+      "key": "T07",
+      "id": "MNI-181",
+      "uuid": "e3be99cf-a540-4393-857e-d8e46a8acb41",
+      "url": "https://linear.app/mnim/issue/MNI-181/enable-bounded-background-refresh-after-approved-onboarding",
+      "title": "Enable bounded background refresh after approved onboarding",
+      "parent_id": "MNI-169",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 2,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-175",
+        "MNI-177",
+        "MNI-180"
+      ],
+      "findings": [
+        "F02",
+        "F10",
+        "F12",
+        "L06"
+      ],
+      "stages": [
+        "A05",
+        "A09",
+        "B05",
+        "B08",
+        "B10"
+      ]
+    },
+    {
+      "key": "T08",
+      "id": "MNI-182",
+      "uuid": "c66eced9-0e37-47f7-ac60-84de1ed2c1ca",
+      "url": "https://linear.app/mnim/issue/MNI-182/clarify-local-lifecycle-and-handle-shared-clients-without-competing",
+      "title": "Clarify local lifecycle and handle shared clients without competing owners",
+      "parent_id": "MNI-169",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-175",
+        "MNI-179",
+        "MNI-181"
+      ],
+      "findings": [
+        "F07",
+        "F12",
+        "F37",
+        "L06"
+      ],
+      "stages": [
+        "A03",
+        "A09",
+        "A11",
+        "B10"
+      ]
+    },
+    {
+      "key": "T09",
+      "id": "MNI-183",
+      "uuid": "d51535ce-3d75-4733-86f3-901a572867a1",
+      "url": "https://linear.app/mnim/issue/MNI-183/repair-shared-modal-form-and-confirmation-accessibility",
+      "title": "Repair shared modal form and confirmation accessibility",
+      "parent_id": "MNI-170",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 2,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-178"
+      ],
+      "findings": [
+        "F23",
+        "L03",
+        "L04"
+      ],
+      "stages": [
+        "A10",
+        "B03",
+        "C02",
+        "C03"
+      ]
+    },
+    {
+      "key": "T10",
+      "id": "MNI-187",
+      "uuid": "530ff33a-0a53-4a5f-b6ac-4acc0c91c962",
+      "url": "https://linear.app/mnim/issue/MNI-187/turn-import-preview-into-a-retained-review-and-build-flow",
+      "title": "Turn import preview into a retained review-and-build flow",
+      "parent_id": "MNI-170",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 2,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-177",
+        "MNI-183",
+        "MNI-186"
+      ],
+      "findings": [
+        "F09",
+        "L01",
+        "L02",
+        "L03"
+      ],
+      "stages": [
+        "A05",
+        "C03"
+      ]
+    },
+    {
+      "key": "T11",
+      "id": "MNI-184",
+      "uuid": "f06aab97-ca58-42a5-8faf-02eb46d4b606",
+      "url": "https://linear.app/mnim/issue/MNI-184/make-graph-selection-readable-keyboard-accessible-and-fully",
+      "title": "Make graph selection readable keyboard-accessible and fully inspectable",
+      "parent_id": "MNI-170",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-176",
+        "MNI-183"
+      ],
+      "findings": [
+        "F19",
+        "F24",
+        "F25",
+        "F15",
+        "L07"
+      ],
+      "stages": [
+        "C05",
+        "C06",
+        "A07"
+      ]
+    },
+    {
+      "key": "T12",
+      "id": "MNI-185",
+      "uuid": "5a88be92-3793-4cca-aa85-8bfbe11fc5bd",
+      "url": "https://linear.app/mnim/issue/MNI-185/distinguish-empty-loading-denied-failed-and-partial-workspace-states",
+      "title": "Distinguish empty loading denied failed and partial workspace states",
+      "parent_id": "MNI-170",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-175",
+        "MNI-176",
+        "MNI-178",
+        "MNI-183"
+      ],
+      "findings": [
+        "F11",
+        "F20",
+        "F21",
+        "F22",
+        "L09",
+        "L10"
+      ],
+      "stages": [
+        "B02",
+        "B04",
+        "B09",
+        "C02",
+        "C04",
+        "C08",
+        "C10"
+      ]
+    },
+    {
+      "key": "T13",
+      "id": "MNI-186",
+      "uuid": "7b36e886-9c0d-4b46-a0a9-a430da614688",
+      "url": "https://linear.app/mnim/issue/MNI-186/apply-approved-file-scope-consistently-to-facts-contracts-and-metrics",
+      "title": "Apply approved file scope consistently to facts contracts and metrics",
+      "parent_id": "MNI-171",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 2,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-177"
+      ],
+      "findings": [
+        "F09",
+        "F13",
+        "L11"
+      ],
+      "stages": [
+        "A05",
+        "A06",
+        "B05",
+        "C03",
+        "C04",
+        "C06"
+      ]
+    },
+    {
+      "key": "T14",
+      "id": "MNI-188",
+      "uuid": "93f91655-d8c5-4b0f-88fd-734acfac3b74",
+      "url": "https://linear.app/mnim/issue/MNI-188/explain-evidence-origin-uncertainty-and-coverage-consistently",
+      "title": "Explain evidence origin uncertainty and coverage consistently",
+      "parent_id": "MNI-171",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 2,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-175",
+        "MNI-186"
+      ],
+      "findings": [
+        "F10",
+        "F13",
+        "F16",
+        "F18",
+        "L11"
+      ],
+      "stages": [
+        "A07",
+        "A10",
+        "B05",
+        "B06",
+        "C04",
+        "C06",
+        "C09"
+      ]
+    },
+    {
+      "key": "T15",
+      "id": "MNI-189",
+      "uuid": "c5dec433-6021-47c5-8ea9-fd60dff20674",
+      "url": "https://linear.app/mnim/issue/MNI-189/use-the-existing-gap-and-pack-workflow-for-reviewed-corrections",
+      "title": "Use the existing gap and pack workflow for reviewed corrections",
+      "parent_id": "MNI-171",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-177",
+        "MNI-188"
+      ],
+      "findings": [
+        "F14",
+        "F17",
+        "F34"
+      ],
+      "stages": [
+        "A10",
+        "B08",
+        "C10"
+      ]
+    },
+    {
+      "key": "T16",
+      "id": "MNI-190",
+      "uuid": "4cbccc89-f82d-49ae-8575-384e96967ee7",
+      "url": "https://linear.app/mnim/issue/MNI-190/explain-snapshot-differences-through-input-provenance-and-evidence",
+      "title": "Explain snapshot differences through input provenance and evidence",
+      "parent_id": "MNI-171",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-188"
+      ],
+      "findings": [
+        "F39",
+        "L08"
+      ],
+      "stages": [
+        "C07",
+        "C09",
+        "A08",
+        "B07"
+      ]
+    },
+    {
+      "key": "T17",
+      "id": "MNI-191",
+      "uuid": "e0a46015-cc56-439e-a6c0-20e6ed41b0d7",
+      "url": "https://linear.app/mnim/issue/MNI-191/expose-existing-contract-compatibility-alongside-graph-changes",
+      "title": "Expose existing contract compatibility alongside graph changes",
+      "parent_id": "MNI-172",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-185",
+        "MNI-188",
+        "MNI-190"
+      ],
+      "findings": [
+        "F39",
+        "L08"
+      ],
+      "stages": [
+        "A08",
+        "B07",
+        "C07",
+        "C08"
+      ]
+    },
+    {
+      "key": "T18",
+      "id": "MNI-198",
+      "uuid": "8a83406d-1a88-4f9c-be1f-7ba9ab21580f",
+      "url": "https://linear.app/mnim/issue/MNI-198/make-pr-revision-eligibility-and-deletion-limitations-actionable",
+      "title": "Make PR revision eligibility and deletion limitations actionable",
+      "parent_id": "MNI-172",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 2,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-188",
+        "MNI-190",
+        "MNI-197"
+      ],
+      "findings": [
+        "F27",
+        "F29"
+      ],
+      "stages": [
+        "A08",
+        "B07",
+        "C08"
+      ]
+    },
+    {
+      "key": "T19",
+      "id": "MNI-192",
+      "uuid": "f78631f6-0c0f-4da1-9b9a-fe56f4b205a8",
+      "url": "https://linear.app/mnim/issue/MNI-192/align-existing-repository-provider-settings-with-pr-retrieval-states",
+      "title": "Align existing repository provider settings with PR retrieval states",
+      "parent_id": "MNI-172",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-177"
+      ],
+      "findings": [
+        "F30",
+        "L09"
+      ],
+      "stages": [
+        "A05",
+        "B07",
+        "C08"
+      ]
+    },
+    {
+      "key": "T20",
+      "id": "MNI-199",
+      "uuid": "b22a31ec-fce3-42ae-9654-d2b27f0d391f",
+      "url": "https://linear.app/mnim/issue/MNI-199/present-pr-evidence-before-heuristic-scores-and-clarify-delivery",
+      "title": "Present PR evidence before heuristic scores and clarify delivery",
+      "parent_id": "MNI-172",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-188",
+        "MNI-191",
+        "MNI-198",
+        "MNI-192"
+      ],
+      "findings": [
+        "F26",
+        "F28"
+      ],
+      "stages": [
+        "A08",
+        "B07",
+        "C08",
+        "C09"
+      ]
+    },
+    {
+      "key": "T21",
+      "id": "MNI-193",
+      "uuid": "7f279d77-7d90-455e-abfc-28b2c52052ad",
+      "url": "https://linear.app/mnim/issue/MNI-193/make-shared-access-scope-explicit-and-safely-adopt-scoped-defaults",
+      "title": "Make shared access scope explicit and safely adopt scoped defaults",
+      "parent_id": "MNI-173",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 2,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-175",
+        "MNI-177"
+      ],
+      "findings": [
+        "F32",
+        "F33"
+      ],
+      "stages": [
+        "B01",
+        "B02",
+        "B04",
+        "B05"
+      ]
+    },
+    {
+      "key": "T22",
+      "id": "MNI-194",
+      "uuid": "a744f623-ce36-4711-bfe4-422c39c5243d",
+      "url": "https://linear.app/mnim/issue/MNI-194/make-joining-browser-and-agent-setup-a-clear-role-aware-handoff",
+      "title": "Make joining browser and agent setup a clear role-aware handoff",
+      "parent_id": "MNI-173",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-179",
+        "MNI-180",
+        "MNI-193"
+      ],
+      "findings": [
+        "F31",
+        "F34"
+      ],
+      "stages": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B08"
+      ]
+    },
+    {
+      "key": "T23",
+      "id": "MNI-195",
+      "uuid": "5760e8b7-1482-47a3-878b-0b7a90651bb5",
+      "url": "https://linear.app/mnim/issue/MNI-195/make-access-loss-and-offboarding-understandable-across-independent",
+      "title": "Make access loss and offboarding understandable across independent grants",
+      "parent_id": "MNI-173",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-178",
+        "MNI-193",
+        "MNI-194"
+      ],
+      "findings": [
+        "F35",
+        "L10"
+      ],
+      "stages": [
+        "B02",
+        "B10",
+        "B11"
+      ]
+    },
+    {
+      "key": "T24",
+      "id": "MNI-196",
+      "uuid": "7bcf53d3-00ca-40a6-a285-dd955f6e541f",
+      "url": "https://linear.app/mnim/issue/MNI-196/verify-upgrade-backup-and-restore-with-access-policy-reconciliation",
+      "title": "Verify upgrade backup and restore with access-policy reconciliation",
+      "parent_id": "MNI-173",
+      "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+      "milestone": "M2",
+      "priority": 2,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-182",
+        "MNI-193",
+        "MNI-195"
+      ],
+      "findings": [
+        "F36",
+        "F37"
+      ],
+      "stages": [
+        "A11",
+        "B09",
+        "B11"
+      ]
+    },
+    {
+      "key": "T25",
+      "id": "MNI-200",
+      "uuid": "9c40ed55-f4be-4ef6-aea9-b7ca1d8632b7",
+      "url": "https://linear.app/mnim/issue/MNI-200/align-installation-operation-and-evaluation-docs-with-the-implemented",
+      "title": "Align installation operation and evaluation docs with the implemented journey",
+      "parent_id": "MNI-174",
+      "milestone_id": "def34c56-0f8b-47c0-bd48-85405a44c2b8",
+      "milestone": "M3",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-179",
+        "MNI-180",
+        "MNI-199",
+        "MNI-193"
+      ],
+      "findings": [
+        "F01",
+        "F40"
+      ],
+      "stages": [
+        "A02",
+        "A03",
+        "A10",
+        "A11",
+        "C10"
+      ]
+    },
+    {
+      "key": "T26",
+      "id": "MNI-197",
+      "uuid": "38a4816f-0d74-4b35-adc2-ca94d1fa71e5",
+      "url": "https://linear.app/mnim/issue/MNI-197/establish-an-independently-labeled-real-source-graph-and-pr-corpus",
+      "title": "Establish an independently labeled real-source graph and PR corpus",
+      "parent_id": "MNI-174",
+      "milestone_id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5",
+      "milestone": "M1",
+      "priority": 2,
+      "initial_state": "Todo",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [],
+      "findings": [
+        "F14",
+        "F15",
+        "F28",
+        "F29",
+        "F41",
+        "L11"
+      ],
+      "stages": [
+        "A08",
+        "B05",
+        "B07",
+        "C01",
+        "C04",
+        "C08"
+      ]
+    },
+    {
+      "key": "T27",
+      "id": "MNI-201",
+      "uuid": "53f0f76a-f3e2-4366-998e-0396c6bf76be",
+      "url": "https://linear.app/mnim/issue/MNI-201/observe-independent-developers-and-actual-installed-agent-use",
+      "title": "Observe independent developers and actual installed-agent use",
+      "parent_id": "MNI-174",
+      "milestone_id": "def34c56-0f8b-47c0-bd48-85405a44c2b8",
+      "milestone": "M3",
+      "priority": 3,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-180",
+        "MNI-187",
+        "MNI-184",
+        "MNI-185",
+        "MNI-191",
+        "MNI-199",
+        "MNI-194",
+        "MNI-195"
+      ],
+      "findings": [
+        "F04",
+        "F05",
+        "F38",
+        "F42"
+      ],
+      "stages": [
+        "A01",
+        "A03",
+        "A07",
+        "A09",
+        "B01",
+        "B03",
+        "B06",
+        "B11",
+        "C01",
+        "C05",
+        "C06",
+        "C09"
+      ]
+    },
+    {
+      "key": "T28",
+      "id": "MNI-202",
+      "uuid": "e9365a2c-e63a-4bbb-9c7b-0d60c5ea9ad5",
+      "url": "https://linear.app/mnim/issue/MNI-202/verify-the-exact-candidate-across-all-three-journeys-and-safeguards",
+      "title": "Verify the exact candidate across all three journeys and safeguards",
+      "parent_id": "MNI-174",
+      "milestone_id": "def34c56-0f8b-47c0-bd48-85405a44c2b8",
+      "milestone": "M3",
+      "priority": 2,
+      "initial_state": "Backlog",
+      "assignee": null,
+      "estimate": null,
+      "due_date": null,
+      "blocked_by": [
+        "MNI-181",
+        "MNI-182",
+        "MNI-184",
+        "MNI-189",
+        "MNI-199",
+        "MNI-196",
+        "MNI-200",
+        "MNI-197",
+        "MNI-201"
+      ],
+      "findings": [
+        "F38",
+        "F41"
+      ],
+      "stages": [
+        "A06",
+        "A09",
+        "A11",
+        "B05",
+        "B09",
+        "B11",
+        "C03",
+        "C06",
+        "C08"
+      ]
+    }
+  ],
+  "verification": {
+    "checks": [
+      {
+        "key": "T01",
+        "id": "MNI-175",
+        "blocked_by": [],
+        "status": "Todo",
+        "parent_id": "MNI-168",
+        "milestone_id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T02",
+        "id": "MNI-176",
+        "blocked_by": [
+          "MNI-175"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-168",
+        "milestone_id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T03",
+        "id": "MNI-177",
+        "blocked_by": [],
+        "status": "Todo",
+        "parent_id": "MNI-168",
+        "milestone_id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T04",
+        "id": "MNI-178",
+        "blocked_by": [],
+        "status": "Todo",
+        "parent_id": "MNI-168",
+        "milestone_id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T05",
+        "id": "MNI-179",
+        "blocked_by": [
+          "MNI-175"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-169",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T06",
+        "id": "MNI-180",
+        "blocked_by": [
+          "MNI-175",
+          "MNI-177",
+          "MNI-179"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-169",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T07",
+        "id": "MNI-181",
+        "blocked_by": [
+          "MNI-175",
+          "MNI-177",
+          "MNI-180"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-169",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T08",
+        "id": "MNI-182",
+        "blocked_by": [
+          "MNI-175",
+          "MNI-179",
+          "MNI-181"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-169",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T09",
+        "id": "MNI-183",
+        "blocked_by": [
+          "MNI-178"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-170",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T10",
+        "id": "MNI-187",
+        "blocked_by": [
+          "MNI-177",
+          "MNI-183",
+          "MNI-186"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-170",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T11",
+        "id": "MNI-184",
+        "blocked_by": [
+          "MNI-176",
+          "MNI-183"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-170",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T12",
+        "id": "MNI-185",
+        "blocked_by": [
+          "MNI-175",
+          "MNI-176",
+          "MNI-178",
+          "MNI-183"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-170",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T13",
+        "id": "MNI-186",
+        "blocked_by": [
+          "MNI-177"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-171",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T14",
+        "id": "MNI-188",
+        "blocked_by": [
+          "MNI-175",
+          "MNI-186"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-171",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T15",
+        "id": "MNI-189",
+        "blocked_by": [
+          "MNI-177",
+          "MNI-188"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-171",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T16",
+        "id": "MNI-190",
+        "blocked_by": [
+          "MNI-188"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-171",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T17",
+        "id": "MNI-191",
+        "blocked_by": [
+          "MNI-185",
+          "MNI-188",
+          "MNI-190"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-172",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T18",
+        "id": "MNI-198",
+        "blocked_by": [
+          "MNI-188",
+          "MNI-190",
+          "MNI-197"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-172",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T19",
+        "id": "MNI-192",
+        "blocked_by": [
+          "MNI-177"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-172",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T20",
+        "id": "MNI-199",
+        "blocked_by": [
+          "MNI-188",
+          "MNI-191",
+          "MNI-192",
+          "MNI-198"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-172",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T21",
+        "id": "MNI-193",
+        "blocked_by": [
+          "MNI-175",
+          "MNI-177"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-173",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T22",
+        "id": "MNI-194",
+        "blocked_by": [
+          "MNI-179",
+          "MNI-180",
+          "MNI-193"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-173",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T23",
+        "id": "MNI-195",
+        "blocked_by": [
+          "MNI-178",
+          "MNI-193",
+          "MNI-194"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-173",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T24",
+        "id": "MNI-196",
+        "blocked_by": [
+          "MNI-182",
+          "MNI-193",
+          "MNI-195"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-173",
+        "milestone_id": "f2a36135-93ea-43d7-97d8-776fad250d0a",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T25",
+        "id": "MNI-200",
+        "blocked_by": [
+          "MNI-179",
+          "MNI-180",
+          "MNI-193",
+          "MNI-199"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-174",
+        "milestone_id": "def34c56-0f8b-47c0-bd48-85405a44c2b8",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T26",
+        "id": "MNI-197",
+        "blocked_by": [],
+        "status": "Todo",
+        "parent_id": "MNI-174",
+        "milestone_id": "d511154b-06d5-4bf8-81b3-6dfefa5593d5",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T27",
+        "id": "MNI-201",
+        "blocked_by": [
+          "MNI-180",
+          "MNI-184",
+          "MNI-185",
+          "MNI-187",
+          "MNI-191",
+          "MNI-194",
+          "MNI-195",
+          "MNI-199"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-174",
+        "milestone_id": "def34c56-0f8b-47c0-bd48-85405a44c2b8",
+        "passed": true,
+        "errors": []
+      },
+      {
+        "key": "T28",
+        "id": "MNI-202",
+        "blocked_by": [
+          "MNI-181",
+          "MNI-182",
+          "MNI-184",
+          "MNI-189",
+          "MNI-196",
+          "MNI-197",
+          "MNI-199",
+          "MNI-200",
+          "MNI-201"
+        ],
+        "status": "Backlog",
+        "parent_id": "MNI-174",
+        "milestone_id": "def34c56-0f8b-47c0-bd48-85405a44c2b8",
+        "passed": true,
+        "errors": []
+      }
+    ],
+    "all_passed": true,
+    "verified_tasks": 28,
+    "dependency_edges": 70,
+    "project_issue_list_count": 35,
+    "project_milestones_verified": 3,
+    "solution_document_all_task_links_present": true,
+    "product_code_modified": false,
+    "notes": "All 28 task hierarchies, states, milestones and 70 native blockedBy relations read back through Linear. Counts describe created planning records, not completed implementation."
+  }
+}

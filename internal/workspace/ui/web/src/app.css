@@ -1918,3 +1918,6 @@ textarea { resize: vertical; }
   .pr-category-definition p { padding-right: 0; }
   .pr-category-definition button { position: static; padding: 5px 0 0; }
 }
+
+.service-system:focus-visible rect.compact-service-card, .resource-node:focus-visible ellipse { stroke: #fbbf24; stroke-width: 4; }
+path.edge:focus-visible { stroke: #fbbf24; stroke-width: 5 !important; outline: none; }

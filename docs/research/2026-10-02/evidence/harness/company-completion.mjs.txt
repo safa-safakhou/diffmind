@@ -1,0 +1,6 @@
+import path from 'node:path';
+import {root,Observer,StdioClient} from './helpers.mjs';
+const obs=new Observer('company-completion');
+const client=new StdioClient(path.join(root,'agent-home'),obs);
+try {await client.connect();await client.call('inspect_workspace',{operation:'get_ingestion',selectors:{pid:'live-agent-demo-shop'}});const rt=(await client.call('agent_runtime',{action:'status'})).data;const response=await fetch(rt.dashboard_url+'/api/v1/projects/live-agent-demo-shop/refresh-jobs');obs.log('persisted_company_refresh_jobs',{http_status:response.status,data:await response.json()})}
+finally {await client.disconnect()}

@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/model"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/util"
 	"gopkg.in/yaml.v3"
@@ -247,6 +249,14 @@ func readDetectorFile(file string) ([]byte, error) {
 }
 
 func detectorFiles(ctx context.Context, root, pattern string, ignored []string) ([]string, error) {
+	cfg, err := serviceconfig.Load(root)
+	if err != nil {
+		return nil, err
+	}
+	policy, err := sourcefilter.NewPolicy(cfg.Paths.Include, cfg.Paths.Exclude)
+	if err != nil {
+		return nil, err
+	}
 	if !safeRelativePath(pattern) {
 		return nil, fmt.Errorf("unsafe source glob")
 	}
@@ -278,7 +288,7 @@ func detectorFiles(ctx context.Context, root, pattern string, ignored []string) 
 			}
 		}
 	}
-	err := filepath.WalkDir(base, func(path string, entry fs.DirEntry, err error) error {
+	err = filepath.WalkDir(base, func(path string, entry fs.DirEntry, err error) error {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
@@ -293,7 +303,7 @@ func detectorFiles(ctx context.Context, root, pattern string, ignored []string) 
 		if rel == "." {
 			return nil
 		}
-		if entry.IsDir() && entry.Name() == ".git" {
+		if entry.IsDir() && sourcefilter.SkipDirName(entry.Name()) {
 			return filepath.SkipDir
 		}
 		for _, ignore := range ignored {
@@ -304,7 +314,7 @@ func detectorFiles(ctx context.Context, root, pattern string, ignored []string) 
 				return nil
 			}
 		}
-		if !entry.IsDir() && matchesGlob(rel, pattern) {
+		if !entry.IsDir() && policy.Allows(rel) && matchesGlob(rel, pattern) {
 			if !entry.Type().IsRegular() {
 				return fmt.Errorf("detector input %s must be a regular file, not a symlink", rel)
 			}

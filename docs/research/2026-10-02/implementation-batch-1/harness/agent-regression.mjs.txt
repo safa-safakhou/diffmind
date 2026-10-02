@@ -1,0 +1,49 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {execFileSync} from 'node:child_process';
+import {root,Observer,StdioClient,sleep,waitIngestion,chromium,cleanEnv} from './helpers.mjs';
+const fixture=fs.mkdtempSync(path.join(root,'agent-fixture-'));
+execFileSync('/bin/cp',['-a','/tmp/diffmind-usability-20261002-DmNS6f/demo-shop/repositories',fixture+'/repositories']);
+execFileSync('/usr/bin/git',['-C',fixture+'/repositories/checkout','checkout','--quiet','HEAD~1','--','.']);
+execFileSync('/usr/bin/git',['-C',fixture+'/repositories/checkout','-c','user.name=Candidate Observer','-c','user.email=observer@example.test','commit','-qm','Baseline in disposable fixture']);
+const obs=new Observer('agent-regression');const client=new StdioClient(fs.mkdtempSync(path.join(root,'agent-home-')),obs);let browser;
+try {
+ await client.connect();assert.match(client.initialization.instructions,/static architecture evidence/);
+ let rt=(await client.call('agent_runtime',{action:'status'})).data;
+ assert.equal(rt.settings.refresh_interval,'15m');assert.equal(rt.settings.refresh_on_start,true);
+ obs.log('new_workspace_policy_and_guidance',{passed:true,instructions:client.initialization.instructions,settings:rt.settings});
+ const empty=await client.call('list_projects');assert.equal(empty.data.projects.length,0);
+ const creation=await client.op('create_project',{}, {name:'Maintained candidate'});const pid=creation.data.id;
+ await client.op('start_ingestion',{pid},{import:{provider:'local',root:path.join(fixture,'repositories')},concurrency:2});
+ const before=await waitIngestion(client,pid);assert.equal(before.status,'completed');
+ const summary=await client.call('get_graph_summary',{project:pid});assert.equal(summary.data.evidence.coverage,'unverified');
+ execFileSync('/bin/sh',['/home/mnim/repos/mine/diffmind/scripts/apply-demo-shop-change.sh',fixture],{env:cleanEnv()});
+ // A scheduled update is observed using a short policy only in this disposable workspace.
+ rt=(await client.call('agent_runtime',{action:'configure',settings:{...rt.settings,refresh_interval:'2s',refresh_on_start:false}})).data;
+ const local=path.join(fixture,'repositories/checkout/README.md');fs.appendFileSync(local,'\nCandidate local work must survive background maintenance.\n');const expected=fs.readFileSync(local,'utf8');
+ let jobs,latest;
+ for(let n=0;n<240;n++){
+  jobs=await(await fetch(rt.dashboard_url+`/api/v1/jobs?project=${pid}`)).json();
+  const ready=(jobs.jobs||[]).find(j=>j.trigger==='fleet_refresh'&&j.status==='succeeded');
+  if(ready){latest=(await client.call('get_graph_summary',{project:pid})).data;if(latest.run_id!==before.graph_run_id)break}
+  await sleep(250);
+ }
+ assert.ok(latest?.run_id && latest.run_id!==before.graph_run_id);
+ assert.equal(fs.readFileSync(local,'utf8'),expected);
+ const comparison=await client.call('compare_contracts',{project:pid,from:before.graph_run_id,to:latest.run_id,service:'checkout'});
+ assert.equal(comparison.error,false);assert.equal(comparison.data.changes.length,4);
+ obs.log('automatic_refresh_preserves_local_work',{passed:true,before:before.graph_run_id,after:latest.run_id,jobs:jobs.jobs.map(j=>({status:j.status,trigger:j.trigger})),field_changes:comparison.data.changes.length});
+ // Disable future work before inspecting the stable candidate.
+ rt=(await client.call('agent_runtime',{action:'configure',settings:{...rt.settings,refresh_interval:'0',refresh_on_start:false}})).data;
+ browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1440,height:1000}});obs.watch(page);
+ await page.goto(`${rt.dashboard_url}/#/projects/${pid}/compare?from=${before.graph_run_id}&to=${latest.run_id}`);
+ await page.getByText(/4 extracted field changes/).waitFor();
+ assert.equal(await page.getByRole('region',{name:'Contract comparison'}).locator('details').count(),4);
+ await page.getByRole('heading',{name:'5 changed facts',exact:true}).waitFor();
+ await obs.screenshot(page,'four-contract-changes');
+ await browser.close();browser=null;
+ await client.disconnect();
+ let reachable=true;try{await fetch(rt.dashboard_url+'/healthz',{signal:AbortSignal.timeout(1000)})}catch{reachable=false}assert.equal(reachable,false);
+ await client.connect();const persisted=(await client.call('agent_runtime',{action:'status'})).data;assert.equal(persisted.settings.refresh_interval,'0');assert.equal(persisted.settings.refresh_on_start,false);
+ obs.log('lifecycle_and_manual_policy_preserved',{passed:true});
+ fs.writeFileSync(path.join(root,'evidence','agent-result.json'),JSON.stringify({pid,before:before.graph_run_id,after:latest.run_id,field_changes:comparison.data.changes,passed:true},null,2));
+}catch(e){obs.log('regression_failure',{message:e.stack});process.exitCode=1}
+finally{if(browser)await browser.close();if(client.proc)await client.disconnect()}

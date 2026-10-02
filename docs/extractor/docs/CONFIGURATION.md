@@ -318,3 +318,25 @@ Common validation failures:
 | `resource_patterns[n].kind is required` | Add `database`, `cache`, `queue`, etc. |
 | `patterns[n].regex` | Fix invalid regex syntax. |
 | `unknown detector` | Remove old detector IDs or use current registry IDs. |
+
+## Analysis file scope
+
+`paths.include` and `paths.exclude` apply to repository-relative paths in source
+and configuration indexing, OpenAPI enrichment, knowledge-pack extraction and
+repository metrics. Globs use `/`; `*` matches within a segment and `**` matches
+zero or more segments. Exclusions take precedence. No includes means all eligible
+files. Existing traversal exclusions (such as `.git`, vendor/build output,
+fixtures and test source) still apply. Invalid globs fail validation.
+
+```yaml
+paths:
+  include: [src/**, openapi.yaml]
+  exclude: [src/examples/**, src/generated/**]
+```
+
+The configuration file itself remains a control input even when it is outside the
+included analysis files. Repository-name regexes in import preview select whole
+repositories and are separate from this file policy. Changing scope requires a
+new analysis; a historical graph retains its original extracted facts. Multiple
+applications sharing one analysis root remain a limitation—scope does not create
+an automatic service boundary.

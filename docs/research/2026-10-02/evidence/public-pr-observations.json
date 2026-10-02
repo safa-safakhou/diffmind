@@ -1,0 +1,916 @@
+[
+  {
+    "at": "2026-10-02T16:32:43.044Z",
+    "elapsed_ms": 14,
+    "task": "mcp_connected",
+    "transport": "stdio"
+  },
+  {
+    "at": "2026-10-02T16:32:43.045Z",
+    "elapsed_ms": 15,
+    "task": "mcp_call",
+    "name": "agent_runtime",
+    "args": {
+      "action": "status"
+    },
+    "duration_ms": 1,
+    "isError": false,
+    "data": {
+      "running": true,
+      "home": "<study-root>/public-home",
+      "dashboard_url": "http://127.0.0.1:42963",
+      "settings": {
+        "refresh_interval": "",
+        "refresh_on_start": false,
+        "refresh_concurrency": 4,
+        "project_access": "legacy",
+        "repository_workers": 4,
+        "job_workers": 2,
+        "queue_capacity": 256
+      },
+      "lifecycle": "Agent-owned: starts on connection/management, stops on disconnect. Use shared deployment for always-on refresh."
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:43.051Z",
+    "elapsed_ms": 21,
+    "task": "mcp_call",
+    "name": "manage_workspace",
+    "args": {
+      "operation": "create_project",
+      "selectors": {},
+      "body": {
+        "name": "Public DiffMind PR Trial"
+      }
+    },
+    "duration_ms": 6,
+    "isError": false,
+    "data": {
+      "status": 201,
+      "data": {
+        "created_at": "2026-10-02T16:32:43.047310465Z",
+        "id": "public-diffmind-pr-trial",
+        "name": "Public DiffMind PR Trial",
+        "updated_at": "2026-10-02T16:32:43.047310465Z"
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:43.053Z",
+    "elapsed_ms": 23,
+    "task": "mcp_call",
+    "name": "manage_workspace",
+    "args": {
+      "operation": "import_repositories",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial"
+      },
+      "body": {
+        "provider": "local",
+        "root": "<study-root>/public-repositories",
+        "dry_run": true
+      }
+    },
+    "duration_ms": 1,
+    "isError": false,
+    "data": {
+      "status": 200,
+      "data": {
+        "count": 1,
+        "results": [
+          {
+            "git_url": "",
+            "name": "diffmind",
+            "path": "<study-root>/public-repositories/diffmind",
+            "status": "candidate"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:43.058Z",
+    "elapsed_ms": 28,
+    "task": "mcp_call",
+    "name": "manage_workspace",
+    "args": {
+      "operation": "start_ingestion",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial"
+      },
+      "body": {
+        "import": {
+          "provider": "local",
+          "root": "<study-root>/public-repositories"
+        },
+        "concurrency": 1
+      }
+    },
+    "duration_ms": 5,
+    "isError": false,
+    "data": {
+      "status": 202,
+      "data": {
+        "analyzed": 0,
+        "attempt": 1,
+        "attempt_started_at": "2026-10-02T16:32:43.053848419Z",
+        "discovered": 0,
+        "finished_at": "0001-01-01T00:00:00Z",
+        "id": "20261002T163243.053848419Z",
+        "imported": 0,
+        "phase": "starting",
+        "project_id": "public-diffmind-pr-trial",
+        "provider": "local",
+        "repositories": 0,
+        "request": {
+          "concurrency": 1,
+          "import": {
+            "api_base": "",
+            "clone": false,
+            "clone_transport": "",
+            "concurrency": 0,
+            "default_branch": "",
+            "dry_run": false,
+            "exclude": "",
+            "include": "",
+            "include_archived": false,
+            "include_forks": false,
+            "limit": 0,
+            "max_depth": 0,
+            "org": "",
+            "provider": "local",
+            "recursive": false,
+            "root": "<study-root>/public-repositories",
+            "team": ""
+          },
+          "options": {}
+        },
+        "reused": 0,
+        "skipped": 0,
+        "source": "<study-root>/public-repositories",
+        "started_at": "2026-10-02T16:32:43.053848419Z",
+        "status": "running",
+        "synced": 0,
+        "updated_at": "2026-10-02T16:32:43.053848419Z"
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:43.060Z",
+    "elapsed_ms": 30,
+    "task": "mcp_call",
+    "name": "inspect_workspace",
+    "args": {
+      "operation": "get_ingestion",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial"
+      }
+    },
+    "duration_ms": 1,
+    "isError": false,
+    "data": {
+      "status": 200,
+      "data": {
+        "analyzed": 0,
+        "attempt": 1,
+        "attempt_started_at": "2026-10-02T16:32:43.053848419Z",
+        "discovered": 0,
+        "finished_at": "0001-01-01T00:00:00Z",
+        "id": "20261002T163243.053848419Z",
+        "imported": 0,
+        "phase": "starting",
+        "project_id": "public-diffmind-pr-trial",
+        "provider": "local",
+        "repositories": 0,
+        "request": {
+          "concurrency": 1,
+          "import": {
+            "api_base": "",
+            "clone": false,
+            "clone_transport": "",
+            "concurrency": 0,
+            "default_branch": "",
+            "dry_run": false,
+            "exclude": "",
+            "include": "",
+            "include_archived": false,
+            "include_forks": false,
+            "limit": 0,
+            "max_depth": 0,
+            "org": "",
+            "provider": "local",
+            "recursive": false,
+            "root": "<study-root>/public-repositories",
+            "team": ""
+          },
+          "options": {}
+        },
+        "reused": 0,
+        "skipped": 0,
+        "source": "<study-root>/public-repositories",
+        "started_at": "2026-10-02T16:32:43.053848419Z",
+        "status": "running",
+        "synced": 0,
+        "updated_at": "2026-10-02T16:32:43.053848419Z"
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:43.312Z",
+    "elapsed_ms": 282,
+    "task": "mcp_call",
+    "name": "inspect_workspace",
+    "args": {
+      "operation": "get_ingestion",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial"
+      }
+    },
+    "duration_ms": 1,
+    "isError": false,
+    "data": {
+      "status": 200,
+      "data": {
+        "analyzed": 0,
+        "attempt": 1,
+        "attempt_started_at": "2026-10-02T16:32:43.053848419Z",
+        "discovered": 1,
+        "finished_at": "0001-01-01T00:00:00Z",
+        "id": "20261002T163243.053848419Z",
+        "import_complete": true,
+        "imported": 1,
+        "phase": "processing_repositories",
+        "project_id": "public-diffmind-pr-trial",
+        "provider": "local",
+        "repo_progress": [
+          {
+            "repo_id": "diffmind",
+            "status": "analyzing"
+          }
+        ],
+        "repositories": 1,
+        "request": {
+          "concurrency": 1,
+          "import": {
+            "api_base": "",
+            "clone": false,
+            "clone_transport": "",
+            "concurrency": 0,
+            "default_branch": "",
+            "dry_run": false,
+            "exclude": "",
+            "include": "",
+            "include_archived": false,
+            "include_forks": false,
+            "limit": 0,
+            "max_depth": 0,
+            "org": "",
+            "provider": "local",
+            "recursive": false,
+            "root": "<study-root>/public-repositories",
+            "team": ""
+          },
+          "options": {}
+        },
+        "reused": 0,
+        "skipped": 0,
+        "source": "<study-root>/public-repositories",
+        "started_at": "2026-10-02T16:32:43.053848419Z",
+        "status": "running",
+        "synced": 0,
+        "updated_at": "2026-10-02T16:32:43.129372233Z"
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:43.564Z",
+    "elapsed_ms": 534,
+    "task": "mcp_call",
+    "name": "inspect_workspace",
+    "args": {
+      "operation": "get_ingestion",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial"
+      }
+    },
+    "duration_ms": 1,
+    "isError": false,
+    "data": {
+      "status": 200,
+      "data": {
+        "analyzed": 0,
+        "attempt": 1,
+        "attempt_started_at": "2026-10-02T16:32:43.053848419Z",
+        "discovered": 1,
+        "finished_at": "0001-01-01T00:00:00Z",
+        "id": "20261002T163243.053848419Z",
+        "import_complete": true,
+        "imported": 1,
+        "phase": "processing_repositories",
+        "project_id": "public-diffmind-pr-trial",
+        "provider": "local",
+        "repo_progress": [
+          {
+            "repo_id": "diffmind",
+            "status": "analyzing"
+          }
+        ],
+        "repositories": 1,
+        "request": {
+          "concurrency": 1,
+          "import": {
+            "api_base": "",
+            "clone": false,
+            "clone_transport": "",
+            "concurrency": 0,
+            "default_branch": "",
+            "dry_run": false,
+            "exclude": "",
+            "include": "",
+            "include_archived": false,
+            "include_forks": false,
+            "limit": 0,
+            "max_depth": 0,
+            "org": "",
+            "provider": "local",
+            "recursive": false,
+            "root": "<study-root>/public-repositories",
+            "team": ""
+          },
+          "options": {}
+        },
+        "reused": 0,
+        "skipped": 0,
+        "source": "<study-root>/public-repositories",
+        "started_at": "2026-10-02T16:32:43.053848419Z",
+        "status": "running",
+        "synced": 0,
+        "updated_at": "2026-10-02T16:32:43.129372233Z"
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:43.815Z",
+    "elapsed_ms": 785,
+    "task": "mcp_call",
+    "name": "inspect_workspace",
+    "args": {
+      "operation": "get_ingestion",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial"
+      }
+    },
+    "duration_ms": 1,
+    "isError": false,
+    "data": {
+      "status": 200,
+      "data": {
+        "analyzed": 0,
+        "attempt": 1,
+        "attempt_started_at": "2026-10-02T16:32:43.053848419Z",
+        "discovered": 1,
+        "finished_at": "0001-01-01T00:00:00Z",
+        "id": "20261002T163243.053848419Z",
+        "import_complete": true,
+        "imported": 1,
+        "phase": "processing_repositories",
+        "project_id": "public-diffmind-pr-trial",
+        "provider": "local",
+        "repo_progress": [
+          {
+            "repo_id": "diffmind",
+            "status": "analyzing"
+          }
+        ],
+        "repositories": 1,
+        "request": {
+          "concurrency": 1,
+          "import": {
+            "api_base": "",
+            "clone": false,
+            "clone_transport": "",
+            "concurrency": 0,
+            "default_branch": "",
+            "dry_run": false,
+            "exclude": "",
+            "include": "",
+            "include_archived": false,
+            "include_forks": false,
+            "limit": 0,
+            "max_depth": 0,
+            "org": "",
+            "provider": "local",
+            "recursive": false,
+            "root": "<study-root>/public-repositories",
+            "team": ""
+          },
+          "options": {}
+        },
+        "reused": 0,
+        "skipped": 0,
+        "source": "<study-root>/public-repositories",
+        "started_at": "2026-10-02T16:32:43.053848419Z",
+        "status": "running",
+        "synced": 0,
+        "updated_at": "2026-10-02T16:32:43.129372233Z"
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:44.068Z",
+    "elapsed_ms": 1038,
+    "task": "mcp_call",
+    "name": "inspect_workspace",
+    "args": {
+      "operation": "get_ingestion",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial"
+      }
+    },
+    "duration_ms": 2,
+    "isError": false,
+    "data": {
+      "status": 200,
+      "data": {
+        "analyzed": 0,
+        "attempt": 1,
+        "attempt_started_at": "2026-10-02T16:32:43.053848419Z",
+        "discovered": 1,
+        "finished_at": "0001-01-01T00:00:00Z",
+        "id": "20261002T163243.053848419Z",
+        "import_complete": true,
+        "imported": 1,
+        "phase": "processing_repositories",
+        "project_id": "public-diffmind-pr-trial",
+        "provider": "local",
+        "repo_progress": [
+          {
+            "repo_id": "diffmind",
+            "status": "analyzing"
+          }
+        ],
+        "repositories": 1,
+        "request": {
+          "concurrency": 1,
+          "import": {
+            "api_base": "",
+            "clone": false,
+            "clone_transport": "",
+            "concurrency": 0,
+            "default_branch": "",
+            "dry_run": false,
+            "exclude": "",
+            "include": "",
+            "include_archived": false,
+            "include_forks": false,
+            "limit": 0,
+            "max_depth": 0,
+            "org": "",
+            "provider": "local",
+            "recursive": false,
+            "root": "<study-root>/public-repositories",
+            "team": ""
+          },
+          "options": {}
+        },
+        "reused": 0,
+        "skipped": 0,
+        "source": "<study-root>/public-repositories",
+        "started_at": "2026-10-02T16:32:43.053848419Z",
+        "status": "running",
+        "synced": 0,
+        "updated_at": "2026-10-02T16:32:43.129372233Z"
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:44.320Z",
+    "elapsed_ms": 1290,
+    "task": "mcp_call",
+    "name": "inspect_workspace",
+    "args": {
+      "operation": "get_ingestion",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial"
+      }
+    },
+    "duration_ms": 1,
+    "isError": false,
+    "data": {
+      "status": 200,
+      "data": {
+        "analyzed": 0,
+        "attempt": 1,
+        "attempt_started_at": "2026-10-02T16:32:43.053848419Z",
+        "discovered": 1,
+        "finished_at": "0001-01-01T00:00:00Z",
+        "id": "20261002T163243.053848419Z",
+        "import_complete": true,
+        "imported": 1,
+        "phase": "processing_repositories",
+        "project_id": "public-diffmind-pr-trial",
+        "provider": "local",
+        "repo_progress": [
+          {
+            "repo_id": "diffmind",
+            "status": "analyzing"
+          }
+        ],
+        "repositories": 1,
+        "request": {
+          "concurrency": 1,
+          "import": {
+            "api_base": "",
+            "clone": false,
+            "clone_transport": "",
+            "concurrency": 0,
+            "default_branch": "",
+            "dry_run": false,
+            "exclude": "",
+            "include": "",
+            "include_archived": false,
+            "include_forks": false,
+            "limit": 0,
+            "max_depth": 0,
+            "org": "",
+            "provider": "local",
+            "recursive": false,
+            "root": "<study-root>/public-repositories",
+            "team": ""
+          },
+          "options": {}
+        },
+        "reused": 0,
+        "skipped": 0,
+        "source": "<study-root>/public-repositories",
+        "started_at": "2026-10-02T16:32:43.053848419Z",
+        "status": "running",
+        "synced": 0,
+        "updated_at": "2026-10-02T16:32:43.129372233Z"
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:44.571Z",
+    "elapsed_ms": 1541,
+    "task": "mcp_call",
+    "name": "inspect_workspace",
+    "args": {
+      "operation": "get_ingestion",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial"
+      }
+    },
+    "duration_ms": 1,
+    "isError": false,
+    "data": {
+      "status": 200,
+      "data": {
+        "analyzed": 1,
+        "attempt": 1,
+        "attempt_started_at": "2026-10-02T16:32:43.053848419Z",
+        "discovered": 1,
+        "finished_at": "2026-10-02T16:32:44.506531037Z",
+        "graph_run_id": "20261002T163244Z",
+        "id": "20261002T163243.053848419Z",
+        "import_complete": true,
+        "imported": 1,
+        "phase": "complete",
+        "project_id": "public-diffmind-pr-trial",
+        "provider": "local",
+        "repo_progress": [
+          {
+            "repo_id": "diffmind",
+            "run_id": "20261002T163243.137133045Z",
+            "status": "completed"
+          }
+        ],
+        "repositories": 1,
+        "request": {
+          "concurrency": 1,
+          "import": {
+            "api_base": "",
+            "clone": false,
+            "clone_transport": "",
+            "concurrency": 0,
+            "default_branch": "",
+            "dry_run": false,
+            "exclude": "",
+            "include": "",
+            "include_archived": false,
+            "include_forks": false,
+            "limit": 0,
+            "max_depth": 0,
+            "org": "",
+            "provider": "local",
+            "recursive": false,
+            "root": "<study-root>/public-repositories",
+            "team": ""
+          },
+          "options": {}
+        },
+        "reused": 0,
+        "skipped": 0,
+        "source": "<study-root>/public-repositories",
+        "started_at": "2026-10-02T16:32:43.053848419Z",
+        "status": "completed",
+        "synced": 0,
+        "updated_at": "2026-10-02T16:32:44.506538713Z"
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:44.572Z",
+    "elapsed_ms": 1542,
+    "task": "public_source_graph",
+    "status": "completed",
+    "analyzed": 1,
+    "run_id": "20261002T163244Z"
+  },
+  {
+    "at": "2026-10-02T16:32:44.958Z",
+    "elapsed_ms": 1928,
+    "task": "mcp_call",
+    "name": "inspect_workspace",
+    "args": {
+      "operation": "list_pull_requests",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial"
+      }
+    },
+    "duration_ms": 386,
+    "isError": false,
+    "data": {
+      "status": 200,
+      "data": {
+        "error_count": 0,
+        "generated_at": "2026-10-02T16:32:44.957459252Z",
+        "repo_count": 1,
+        "repositories": [
+          {
+            "open_count": 5,
+            "provider": "github",
+            "pull_requests": [
+              {
+                "author": "dependabot[bot]",
+                "base": "master",
+                "created_at": "2026-09-02T13:05:25Z",
+                "draft": false,
+                "head": "dependabot/github_actions/github-actions-4eb699f393",
+                "labels": [
+                  "dependencies",
+                  "github_actions"
+                ],
+                "number": 5,
+                "repo_id": "diffmind",
+                "repo_name": "diffmind",
+                "team": "default",
+                "title": "build(deps): bump actions/download-artifact from 7 to 8 in the github-actions group across 1 directory",
+                "updated_at": "2026-09-30T21:45:06Z",
+                "url": "https://github.com/safa-safakhou/diffmind/pull/5"
+              },
+              {
+                "author": "dependabot[bot]",
+                "base": "master",
+                "created_at": "2026-09-16T21:45:47Z",
+                "draft": false,
+                "head": "dependabot/npm_and_yarn/internal/extractor/ui/web/extractor-ui-dependencies-4068783736",
+                "labels": [
+                  "dependencies",
+                  "javascript"
+                ],
+                "number": 8,
+                "repo_id": "diffmind",
+                "repo_name": "diffmind",
+                "team": "default",
+                "title": "build(deps): bump the extractor-ui-dependencies group across 1 directory with 4 updates",
+                "updated_at": "2026-09-30T21:44:59Z",
+                "url": "https://github.com/safa-safakhou/diffmind/pull/8"
+              },
+              {
+                "author": "dependabot[bot]",
+                "base": "master",
+                "created_at": "2026-09-23T21:44:21Z",
+                "draft": false,
+                "head": "dependabot/go_modules/go-dependencies-2d170fc014",
+                "labels": [
+                  "dependencies",
+                  "go"
+                ],
+                "number": 9,
+                "repo_id": "diffmind",
+                "repo_name": "diffmind",
+                "team": "default",
+                "title": "build(deps): bump the go-dependencies group across 1 directory with 5 updates",
+                "updated_at": "2026-09-30T21:44:46Z",
+                "url": "https://github.com/safa-safakhou/diffmind/pull/9"
+              },
+              {
+                "author": "dependabot[bot]",
+                "base": "master",
+                "created_at": "2026-09-02T13:05:01Z",
+                "draft": false,
+                "head": "dependabot/npm_and_yarn/internal/workspace/ui/web/workspace-ui-dependencies-788cdcced7",
+                "labels": [
+                  "dependencies",
+                  "javascript"
+                ],
+                "number": 3,
+                "repo_id": "diffmind",
+                "repo_name": "diffmind",
+                "team": "default",
+                "title": "build(deps-dev): bump vite from 7.3.6 to 8.3.1 in /internal/workspace/ui/web in the workspace-ui-dependencies group across 1 directory",
+                "updated_at": "2026-09-30T21:44:44Z",
+                "url": "https://github.com/safa-safakhou/diffmind/pull/3"
+              },
+              {
+                "author": "dependabot[bot]",
+                "base": "master",
+                "created_at": "2026-09-02T13:04:40Z",
+                "draft": false,
+                "head": "dependabot/docker/container-images-85afe1b847",
+                "labels": [
+                  "dependencies",
+                  "docker"
+                ],
+                "number": 1,
+                "repo_id": "diffmind",
+                "repo_name": "diffmind",
+                "team": "default",
+                "title": "build(deps): bump the container-images group across 1 directory with 2 updates",
+                "updated_at": "2026-09-30T21:44:27Z",
+                "url": "https://github.com/safa-safakhou/diffmind/pull/1"
+              }
+            ],
+            "repo_id": "diffmind",
+            "repo_name": "diffmind",
+            "status": "ok",
+            "team": "default"
+          }
+        ],
+        "total_open": 5
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:44.958Z",
+    "elapsed_ms": 1928,
+    "task": "public_pr_list",
+    "http_status": 200,
+    "duration_ms": 386,
+    "data": {
+      "error_count": 0,
+      "generated_at": "2026-10-02T16:32:44.957459252Z",
+      "repo_count": 1,
+      "repositories": [
+        {
+          "open_count": 5,
+          "provider": "github",
+          "pull_requests": [
+            {
+              "author": "dependabot[bot]",
+              "base": "master",
+              "created_at": "2026-09-02T13:05:25Z",
+              "draft": false,
+              "head": "dependabot/github_actions/github-actions-4eb699f393",
+              "labels": [
+                "dependencies",
+                "github_actions"
+              ],
+              "number": 5,
+              "repo_id": "diffmind",
+              "repo_name": "diffmind",
+              "team": "default",
+              "title": "build(deps): bump actions/download-artifact from 7 to 8 in the github-actions group across 1 directory",
+              "updated_at": "2026-09-30T21:45:06Z",
+              "url": "https://github.com/safa-safakhou/diffmind/pull/5"
+            },
+            {
+              "author": "dependabot[bot]",
+              "base": "master",
+              "created_at": "2026-09-16T21:45:47Z",
+              "draft": false,
+              "head": "dependabot/npm_and_yarn/internal/extractor/ui/web/extractor-ui-dependencies-4068783736",
+              "labels": [
+                "dependencies",
+                "javascript"
+              ],
+              "number": 8,
+              "repo_id": "diffmind",
+              "repo_name": "diffmind",
+              "team": "default",
+              "title": "build(deps): bump the extractor-ui-dependencies group across 1 directory with 4 updates",
+              "updated_at": "2026-09-30T21:44:59Z",
+              "url": "https://github.com/safa-safakhou/diffmind/pull/8"
+            },
+            {
+              "author": "dependabot[bot]",
+              "base": "master",
+              "created_at": "2026-09-23T21:44:21Z",
+              "draft": false,
+              "head": "dependabot/go_modules/go-dependencies-2d170fc014",
+              "labels": [
+                "dependencies",
+                "go"
+              ],
+              "number": 9,
+              "repo_id": "diffmind",
+              "repo_name": "diffmind",
+              "team": "default",
+              "title": "build(deps): bump the go-dependencies group across 1 directory with 5 updates",
+              "updated_at": "2026-09-30T21:44:46Z",
+              "url": "https://github.com/safa-safakhou/diffmind/pull/9"
+            },
+            {
+              "author": "dependabot[bot]",
+              "base": "master",
+              "created_at": "2026-09-02T13:05:01Z",
+              "draft": false,
+              "head": "dependabot/npm_and_yarn/internal/workspace/ui/web/workspace-ui-dependencies-788cdcced7",
+              "labels": [
+                "dependencies",
+                "javascript"
+              ],
+              "number": 3,
+              "repo_id": "diffmind",
+              "repo_name": "diffmind",
+              "team": "default",
+              "title": "build(deps-dev): bump vite from 7.3.6 to 8.3.1 in /internal/workspace/ui/web in the workspace-ui-dependencies group across 1 directory",
+              "updated_at": "2026-09-30T21:44:44Z",
+              "url": "https://github.com/safa-safakhou/diffmind/pull/3"
+            },
+            {
+              "author": "dependabot[bot]",
+              "base": "master",
+              "created_at": "2026-09-02T13:04:40Z",
+              "draft": false,
+              "head": "dependabot/docker/container-images-85afe1b847",
+              "labels": [
+                "dependencies",
+                "docker"
+              ],
+              "number": 1,
+              "repo_id": "diffmind",
+              "repo_name": "diffmind",
+              "team": "default",
+              "title": "build(deps): bump the container-images group across 1 directory with 2 updates",
+              "updated_at": "2026-09-30T21:44:27Z",
+              "url": "https://github.com/safa-safakhou/diffmind/pull/1"
+            }
+          ],
+          "repo_id": "diffmind",
+          "repo_name": "diffmind",
+          "status": "ok",
+          "team": "default"
+        }
+      ],
+      "total_open": 5
+    }
+  },
+  {
+    "at": "2026-10-02T16:32:45.906Z",
+    "elapsed_ms": 2876,
+    "task": "public_pr_ui_initial",
+    "body_text": "← Graph\nPull request impact\n\nCode change evidence, overlaid on the current company graph.\n\nESTIMATED IMPACT\nRefresh GitHub\n5\nOPEN PRS IN SCOPE\n1\nREPOS WITH PRS IN SCOPE\n1\nREPOSITORIES CHECKED\n—\nSELECTED RISK\n—\nEXACT CALLER MATCHES\nSCOPE\n1/1\nTEAM\nAll teams\ndefault\nFIND REPOSITORY\nOnly repositories with open PRs\nREPOSITORIES\n5 PRs\nAll repositories in scope\n5\ndiffmind\ndefault · ok\n5\n5 shown\ndiffmind #5\nbuild(deps): bump actions/download-artifact from 7 to 8 in the github-actions group across 1 directory\n@dependabot[bot]\n1d ago\ndependencies\ngithub_actions\ndiffmind #8\nbuild(deps): bump the extractor-ui-dependencies group across 1 directory with 4 updates\n@dependabot[bot]\n1d ago\ndependencies\njavascript\ndiffmind #9\nbuild(deps): bump the go-dependencies group across 1 directory with 5 updates\n@dependabot[bot]\n1d ago\ndependencies\ngo\ndiffmind #3\nbuild(deps-dev): bump vite from 7.3.6 to 8.3.1 in /internal/workspace/ui/web in the workspace-ui-dependencies group across 1 directory\n@dependabot[bot]\n1d ago\ndependencies\njavascript\ndiffmind #1\nbuild(deps): bump the container-images group across 1 directory with 2 updates\n@dependabot[bot]\n1d ago\ndependencies\ndocker\n\nReading changed files and walking the company graph…"
+  },
+  {
+    "at": "2026-10-02T16:32:45.979Z",
+    "elapsed_ms": 2949,
+    "task": "screenshot",
+    "file": "P-live-public-pr-list.png"
+  },
+  {
+    "at": "2026-10-02T16:32:45.981Z",
+    "elapsed_ms": 2951,
+    "task": "public_pr_cards",
+    "count": 5
+  },
+  {
+    "at": "2026-10-02T16:32:45.982Z",
+    "elapsed_ms": 2952,
+    "task": "mcp_call",
+    "name": "manage_workspace",
+    "args": {
+      "operation": "pull_request_impact",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial",
+        "repo_id": "diffmind",
+        "number": "9"
+      }
+    },
+    "duration_ms": 1,
+    "isError": true,
+    "data": "use inspect_workspace for pull_request_impact"
+  },
+  {
+    "at": "2026-10-02T16:32:45.982Z",
+    "elapsed_ms": 2952,
+    "task": "public_pr_impact"
+  },
+  {
+    "at": "2026-10-02T16:32:45.999Z",
+    "elapsed_ms": 2969,
+    "task": "mcp_disconnected",
+    "exit_code": 0
+  }
+]

@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/artifacts"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge"
@@ -56,7 +57,11 @@ func (s *Server) analysisFingerprint(ctx context.Context, pid string, repo store
 	if err != nil {
 		return "", err
 	}
-	inputs := map[string]any{"schema": 1, "head": head, "path": root, "analyzer": analyzer, "version": s.version,
+	effectiveConfig, err := serviceconfig.Load(root)
+	if err != nil {
+		return "", err
+	}
+	inputs := map[string]any{"effective_service_config": effectiveConfig, "schema": 1, "head": head, "path": root, "analyzer": analyzer, "version": s.version,
 		"options": opts, "name": repo.Name, "kind": repo.Kind, "packs": repo.PackIDs, "instruction": repo.Instruction, "project_instruction": project.Instruction}
 	// Static analysis reads useful files regardless of Git ignore rules. Include
 	// those bytes too (e.g. ignored application configuration), not only HEAD.

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -231,7 +230,7 @@ func (s *Server) runProjectRefreshWithControl(ctx context.Context, pid string, c
 		return result
 	}
 
-	analyzer, _ := orchestrator.AnalyzerIdentity(firstNonEmpty(os.Getenv("DIFFMIND_BINARY"), "diffmind"))
+	analyzer, _ := orchestrator.AnalyzerIdentity(s.analyzerExecutable())
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	process := func(repo store.Repo) {

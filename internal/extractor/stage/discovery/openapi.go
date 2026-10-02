@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/model"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter"
 	"gopkg.in/yaml.v3"
 )
 
@@ -79,14 +81,26 @@ func EnrichHTTPContractsFromOpenAPI(repoPath string, exposures []model.Exposure)
 
 func openAPIFiles(root string) ([]string, []string) {
 	var files, warnings []string
+	cfg, err := serviceconfig.Load(root)
+	if err != nil {
+		return nil, []string{fmt.Sprintf("OpenAPI scope: %v", err)}
+	}
+	policy, err := sourcefilter.NewPolicy(cfg.Paths.Include, cfg.Paths.Exclude)
+	if err != nil {
+		return nil, []string{fmt.Sprintf("OpenAPI scope: %v", err)}
+	}
 	_ = filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
 		if d.IsDir() {
-			if path != root && skipOpenAPIDir(d.Name()) {
+			if path != root && sourcefilter.SkipDirName(d.Name()) {
 				return filepath.SkipDir
 			}
+			return nil
+		}
+		relative, relErr := filepath.Rel(root, path)
+		if relErr != nil || !policy.Allows(filepath.ToSlash(relative)) {
 			return nil
 		}
 		if len(files) >= 20 {
@@ -104,14 +118,6 @@ func openAPIFiles(root string) ([]string, []string) {
 	})
 	sort.Strings(files)
 	return files, warnings
-}
-
-func skipOpenAPIDir(name string) bool {
-	switch name {
-	case ".git", "node_modules", "vendor", "target", "build", "dist", ".venv", "venv", ".tox", ".nox":
-		return true
-	}
-	return false
 }
 
 func openAPIParameters(raw any, source string, body []byte) []map[string]any {

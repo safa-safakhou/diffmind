@@ -17,13 +17,14 @@ import (
 	"time"
 
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/artifacts"
-	"github.com/mohammad-safakhou/diffmind/internal/workspace/config"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/model"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/orchestrator"
+	querysvc "github.com/mohammad-safakhou/diffmind/internal/workspace/query"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/store"
 )
 
 type workspaceResponse struct {
+	Evidence     querysvc.EvidenceState                 `json:"evidence"`
 	Project      *store.Project                         `json:"project"`
 	Repos        []workspaceRepo                        `json:"repos"`
 	Teams        []workspaceTeam                        `json:"teams"`
@@ -102,7 +103,17 @@ func (s *Server) handleWorkspace(w http.ResponseWriter, r *http.Request) {
 		}
 		runs[wr.ID] = rr
 	}
-	writeJSON(w, http.StatusOK, workspaceResponse{
+	freshness := []string{}
+	for _, repo := range repos {
+		freshness = append(freshness, repo.Freshness)
+	}
+	savedRun := ""
+	if latest != nil {
+		savedRun = latest.ID
+	}
+	evidence := querysvc.DescribeEvidence(savedRun, freshness)
+	evidence.FreshnessBasis = "live_checkout_status"
+	writeJSON(w, http.StatusOK, workspaceResponse{Evidence: evidence,
 		Project: project, Repos: repos, Teams: teams, CurrentRun: current, LatestRun: latest, Graph: graph,
 		LiveStatus: live, DiffMindRuns: runs, GeneratedAt: time.Now().UTC(),
 	})
@@ -667,7 +678,7 @@ func (s *Server) runDiffMindForRepoContext(ctx context.Context, pid, rid string,
 			return
 		}
 	}
-	binary := firstNonEmpty(os.Getenv("DIFFMIND_BINARY"), config.NewDefault().DiffMind.BinaryPath)
+	binary := s.analyzerExecutable()
 	release, acquireErr := s.acquireRepository(ctx, pid)
 	if acquireErr != nil {
 		_, _ = s.store.UpdateRepo(pid, rid, func(r *store.Repo) { r.SyncStatus = "diffmind_failed"; r.SyncError = acquireErr.Error() })
