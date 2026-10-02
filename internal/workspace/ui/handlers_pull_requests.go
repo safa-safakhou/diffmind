@@ -30,6 +30,7 @@ type pullRequestSummary struct {
 	URL       string    `json:"url"`
 	Draft     bool      `json:"draft"`
 	Author    string    `json:"author"`
+	HeadSHA   string    `json:"head_sha,omitempty"`
 	Head      string    `json:"head"`
 	Base      string    `json:"base"`
 	CreatedAt time.Time `json:"created_at"`
@@ -258,7 +259,7 @@ func githubOpenPullRequests(ctx context.Context, repo workspaceRepo) pullRequest
 	}
 	result.Provider = "github"
 	client := githubHTTPClient(20 * time.Second)
-	token := githubToken(ctx, base)
+	token := githubAPIToken(ctx, base)
 	for page := 1; page <= 10; page++ {
 		endpoint := fmt.Sprintf("%s/pulls?state=open&per_page=100&page=%d&sort=updated&direction=desc", base, page)
 		var pulls []githubPull
@@ -302,7 +303,7 @@ func (s *Server) handlePullRequestImpact(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	client := githubHTTPClient(30 * time.Second)
-	token := githubToken(r.Context(), endpoint)
+	token := githubAPIToken(r.Context(), endpoint)
 	base := fmt.Sprintf("%s/pulls/%d", endpoint, number)
 	var pull githubPull
 	if err := githubJSON(r.Context(), client, token, base, &pull); err != nil {
@@ -355,7 +356,7 @@ func githubJSON(ctx context.Context, client *http.Client, token, endpoint string
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return githubConnectionError()
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
@@ -387,7 +388,7 @@ func pullSummary(p githubPull, repo store.Repo) pullRequestSummary {
 	sort.Strings(labels)
 	return pullRequestSummary{
 		Number: p.Number, Title: p.Title, URL: p.HTMLURL, Draft: p.Draft, Author: p.User.Login,
-		Head: p.Head.Ref, Base: p.Base.Ref, CreatedAt: p.CreatedAt, UpdatedAt: p.UpdatedAt,
+		Head: p.Head.Ref, HeadSHA: p.Head.SHA, Base: p.Base.Ref, CreatedAt: p.CreatedAt, UpdatedAt: p.UpdatedAt,
 		Labels: labels, RepoID: repo.ID, RepoName: repo.Name, Team: repo.Team,
 	}
 }

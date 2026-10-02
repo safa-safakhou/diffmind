@@ -81,6 +81,7 @@ export function PullRequestsView({ pid }) {
   }, [pid])
   useEffect(() => {
     if (!selected) {
+      setImpactError(''); setImpactLoading(false)
       setImpact(null)
       return
     }
@@ -93,7 +94,7 @@ export function PullRequestsView({ pid }) {
       .catch((e) => { if (!cancelled) setImpactError(e.message) })
       .finally(() => { if (!cancelled) setImpactLoading(false) })
     return () => { cancelled = true }
-  }, [pid, selected?.repo_id, selected?.number, selected?.updated_at])
+  }, [pid, selected?.repo_id, selected?.number, selected?.head_sha, selected?.updated_at])
 
   const repositories = data?.repositories || []
   const teams = useMemo(() => Array.from(new Set(repositories.map((repo) => repo.team || 'default'))).sort(), [data])

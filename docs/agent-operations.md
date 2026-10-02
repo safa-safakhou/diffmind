@@ -189,3 +189,29 @@ migration, persistent scheduling, reconnect and controller-crash cleanup through
 MCP. Permission, identity-switch, mutation-route parity, request bounds and setup
 tests complement the existing company acceptance/race suites. Native release
 gates run the same agent acceptance test against their installed archive.
+
+
+## Repository scope and PR provider context
+
+Import previews return candidate `source_type`, effective `default_branch`, local
+`analysis_paths`, the project ID and requested scope alongside `preview_digest`.
+Inspect these before approval. Local repositories are analyzed in place without
+Git pull. Managed repository file configuration remains unknown until checkout;
+the preview does not promise complete extraction or freeze future source edits.
+
+An imported GitHub `api_base` persists as repository `git_api_base` and is reused
+for PR listing, PR files/impact and live status. Explicit add/update operations can
+also configure it. API URLs require HTTPS, except loopback HTTP for local
+integrations. Credentials come from server environment or GitHub CLI using the
+approved API hostname. Redirects to another origin are rejected. Changing
+`git_url` clears a prior custom API endpoint unless the same update explicitly
+approves its replacement.
+
+PR lists distinguish local-only, missing remote, unsupported provider, unavailable
+configuration and provider request failure from a successfully queried empty
+list. `checked_count` counts successful provider queries; `repo_count` counts all
+registered sources. Partial provider availability does not prove an absence of
+PRs. Authentication, access and rate-limit failures give safe next steps without
+reflecting provider response bodies. Public GitHub remains the automatic endpoint
+for public GitHub repository URLs; existing custom sources without an approved
+API endpoint require configuration rather than a guessed endpoint.

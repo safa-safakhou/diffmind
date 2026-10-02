@@ -134,7 +134,7 @@ type githubRepo struct {
 
 func githubOrgRepos(ctx context.Context, req importReposRequest) ([]githubRepo, error) {
 	base := strings.TrimRight(firstNonEmpty(req.APIBase, "https://api.github.com"), "/")
-	token := githubToken(ctx, base)
+	token := githubAPIToken(ctx, base)
 	client := githubHTTPClient(30 * time.Second)
 	var out []githubRepo
 	for page := 1; ; page++ {
@@ -149,7 +149,7 @@ func githubOrgRepos(ctx context.Context, req importReposRequest) ([]githubRepo, 
 		}
 		resp, err := client.Do(httpReq)
 		if err != nil {
-			return nil, err
+			return nil, githubConnectionError()
 		}
 		body, readErr := io.ReadAll(io.LimitReader(resp.Body, 8<<20))
 		_ = resp.Body.Close()
@@ -434,7 +434,7 @@ func githubCloneURL(repo githubRepo, req importReposRequest) string {
 	case "ssh":
 		return firstNonEmpty(repo.SSHURL, repo.CloneURL, repo.HTMLURL)
 	default:
-		if githubToken(context.Background(), req.APIBase) != "" {
+		if githubAPIToken(context.Background(), req.APIBase) != "" {
 			return firstNonEmpty(repo.CloneURL, repo.HTMLURL, repo.SSHURL)
 		}
 		return firstNonEmpty(repo.SSHURL, repo.CloneURL, repo.HTMLURL)

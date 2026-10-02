@@ -116,6 +116,9 @@ func (s *Server) handlePatchRepo(w http.ResponseWriter, r *http.Request) {
 			rp.SourceType = *req.SourceType
 		}
 		if req.GitURL != nil {
+			if req.GitAPIBase == nil && strings.TrimSpace(*req.GitURL) != strings.TrimSpace(rp.GitURL) {
+				rp.GitAPIBase = ""
+			}
 			rp.GitURL = *req.GitURL
 			rp.GitProvider = inferGitProvider(*req.GitURL)
 		}
