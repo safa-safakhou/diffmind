@@ -1,0 +1,6 @@
+DiffMind dashboard: http://127.0.0.1:38999
+Press Ctrl+C to stop.
+2026-10-02T19:19:24.180573553Z [INF] diffmind dashboard listening addr=127.0.0.1:38999
+2026-10-02T19:19:24.495569324Z [INF] running DiffMind binary=/bin/false repo=/tmp/diffmind-batch2/fixture-HqFY79/checkout
+2026-10-02T19:19:26.569008824Z [INF] running DiffMind binary=/bin/false repo=/tmp/diffmind-batch2/fixture-HqFY79/checkout
+2026-10-02T19:19:30.669348874Z [INF] running DiffMind binary=/bin/false repo=/tmp/diffmind-batch2/fixture-HqFY79/checkout
