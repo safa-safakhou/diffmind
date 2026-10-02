@@ -152,3 +152,7 @@ export const putProjectAccess = (pid, body) => api(`/api/v1/projects/${encodeURI
 export const listProjectTokens = (pid) => api(`/api/v1/projects/${encodeURIComponent(pid)}/tokens`, { cache: 'no-store' })
 export const issueProjectToken = (pid, body) => api(`/api/v1/projects/${encodeURIComponent(pid)}/tokens`, { method: 'POST', body: j(body) })
 export const revokeProjectToken = (pid, tid) => api(`/api/v1/projects/${encodeURIComponent(pid)}/tokens/${encodeURIComponent(tid)}/revoke`, { method: 'POST' })
+
+export function compareContracts(pid, from, to) {
+  return api(`/api/v1/projects/${encodeURIComponent(pid)}/contracts/compare?${new URLSearchParams({ from, to })}`)
+}

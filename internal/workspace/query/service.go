@@ -65,6 +65,7 @@ type Project struct {
 }
 
 type GraphSummary struct {
+	Evidence      EvidenceState                `json:"evidence"`
 	ProjectID     string                       `json:"project_id"`
 	RunID         string                       `json:"run_id"`
 	ServiceCount  int                          `json:"service_count"`
@@ -292,7 +293,15 @@ func (s *Service) Summary(projectID, runID string) (*GraphSummary, error) {
 		teamList = append(teamList, team)
 	}
 	sort.Strings(teamList)
-	return &GraphSummary{
+	freshness := []string{}
+	repos, err := s.store.ListRepos(run.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+	for _, repo := range repos {
+		freshness = append(freshness, repo.DiffMindFreshness)
+	}
+	return &GraphSummary{Evidence: DescribeEvidence(run.ID, freshness),
 		ProjectID: run.ProjectID, RunID: run.ID, ServiceCount: len(graph.Services), EdgeCount: len(graph.Edges),
 		ExternalCount: len(graph.ExternalNodes), ResourceCount: len(graph.ResourceNodes), Teams: teamList,
 		Connectivity: graph.Connectivity, Quality: run.GraphQuality,

@@ -20,6 +20,26 @@ hosts. `--project` is an optional default selector, not a permission boundary.
 Admin tokens grant full platform administration; viewer tokens are intentionally
 insufficient when the user wants the agent to manage projects.
 
+## Background maintenance and primary actions
+
+A new local agent workspace refreshes its registered repositories on connection
+and every 15 minutes while connected. It never expands the imported repository
+set. Existing explicit settings are preserved. Runtime status reports the actual
+policy; use `agent_runtime` to change it while preserving other settings. Setting
+`refresh_interval` to `"0"` and `refresh_on_start` to `false` selects manual updates.
+The owning connection controls availability; disconnecting stops background work.
+
+The dashboard's **Update context** refreshes registered repositories and builds
+context. In scoped company mode, editors enqueue the saved configuration, while
+administrators can also configure/import sources. Viewers explore saved evidence
+and ask an editor to update it. **Reload view** only reloads displayed data.
+Manual analyzer and graph controls are under **Advanced actions**.
+
+Graph summaries distinguish a saved run, repository analysis freshness and
+unverified static coverage. `freshness_basis` identifies stored repository status
+(MCP) versus a current checkout check (dashboard). Neither says that the chosen
+graph incorporates a newer analysis or that PR-head evidence is eligible.
+
 ## Discover, inspect, mutate
 
 `describe_management` lists the finite operation catalog, method/path,

@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {root,chromium,Observer,StdioClient,sleep} from './helpers.mjs';
+process.env.GH_CONFIG_DIR=path.join(root,'empty-gh-config');
+const obs=new Observer('public-pr-continuation');const state=JSON.parse(fs.readFileSync(path.join(root,'public-state.json')));const client=new StdioClient(path.join(root,'public-home'),obs);let browser;
+try{
+ await client.connect();await client.call('describe_management');const rt=(await client.call('agent_runtime',{action:'status'})).data;
+ const response=await client.call('inspect_workspace',{operation:'pull_request_impact',selectors:{pid:state.pid,repo_id:'diffmind',number:'9'}});const result=response.data;obs.log('actual_public_pr_impact',{http_status:result.status,data:result.data});
+ browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1440,height:900}});obs.watch(page);await page.goto(rt.dashboard_url+'#/projects/'+state.pid+'/pull-requests');await page.locator('.pr-card').filter({hasText:'#9'}).click();await page.locator('.pr-impact-detail').waitFor({timeout:30000});obs.log('public_pr_selected_in_browser',{body_text:await page.locator('.pr-impact-detail').innerText()});await obs.screenshot(page,'P-real-pr-9-impact');
+ await page.getByRole('button',{name:'Refresh GitHub',exact:true}).click();await page.locator('.pr-impact-detail').waitFor();obs.log('public_pr_refresh_ui',{cards:await page.locator('.pr-card').count(),errors:await page.locator('.banner.error').allTextContents()});
+}catch(e){obs.log('study_driver_failure',{message:e.stack});process.exitCode=1}
+finally{if(browser)await browser.close();await client.disconnect()}

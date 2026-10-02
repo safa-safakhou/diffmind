@@ -1,0 +1,104 @@
+[
+  {
+    "at": "2026-10-02T18:36:32.268Z",
+    "elapsed_ms": 118,
+    "task": "ui_server_started",
+    "url": "http://127.0.0.1:44271"
+  },
+  {
+    "at": "2026-10-02T18:36:32.451Z",
+    "elapsed_ms": 301,
+    "task": "onboarding_focus_and_escape",
+    "passed": true
+  },
+  {
+    "at": "2026-10-02T18:36:32.808Z",
+    "elapsed_ms": 658,
+    "task": "reload_is_read_only",
+    "passed": true
+  },
+  {
+    "at": "2026-10-02T18:36:32.929Z",
+    "elapsed_ms": 779,
+    "task": "browser_console_error",
+    "message": "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+  },
+  {
+    "at": "2026-10-02T18:36:32.942Z",
+    "elapsed_ms": 792,
+    "task": "invalid_root_retains_form",
+    "passed": true
+  },
+  {
+    "at": "2026-10-02T18:36:32.996Z",
+    "elapsed_ms": 846,
+    "task": "browser_console_error",
+    "message": "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+  },
+  {
+    "at": "2026-10-02T18:36:33.008Z",
+    "elapsed_ms": 858,
+    "task": "import_local_error",
+    "passed": true
+  },
+  {
+    "at": "2026-10-02T18:36:33.135Z",
+    "elapsed_ms": 985,
+    "task": "screenshot",
+    "file": "preview.png"
+  },
+  {
+    "at": "2026-10-02T18:36:33.492Z",
+    "elapsed_ms": 1342,
+    "task": "absolute_binary_ingestion",
+    "status": "completed",
+    "analyzed": 6,
+    "run": "20261002T183633Z"
+  },
+  {
+    "at": "2026-10-02T18:36:36.024Z",
+    "elapsed_ms": 3874,
+    "task": "graph_readability",
+    "measured": {
+      "font": "16px",
+      "transform": 0.75,
+      "width": 49.99993896484375
+    }
+  },
+  {
+    "at": "2026-10-02T18:36:36.038Z",
+    "elapsed_ms": 3888,
+    "task": "graph_keyboard_inspection",
+    "passed": true
+  },
+  {
+    "at": "2026-10-02T18:36:36.097Z",
+    "elapsed_ms": 3947,
+    "task": "screenshot",
+    "file": "graph.png"
+  },
+  {
+    "at": "2026-10-02T18:36:36.214Z",
+    "elapsed_ms": 4064,
+    "task": "screenshot",
+    "file": "contract-comparison.png"
+  },
+  {
+    "at": "2026-10-02T18:36:36.214Z",
+    "elapsed_ms": 4064,
+    "task": "contract_comparison_live",
+    "passed": true
+  },
+  {
+    "at": "2026-10-02T18:36:36.278Z",
+    "elapsed_ms": 4128,
+    "task": "destructive_confirmation_focus",
+    "passed": true
+  },
+  {
+    "at": "2026-10-02T18:36:36.297Z",
+    "elapsed_ms": 4147,
+    "task": "ui_server_stopped",
+    "exit_code": 0
+  }
+]

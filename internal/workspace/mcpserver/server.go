@@ -81,7 +81,7 @@ type contractDiffInput struct {
 }
 
 func (s *Server) MCPServer() *mcp.Server {
-	server := mcp.NewServer(&mcp.Implementation{Name: "diffmind", Title: "DiffMind Architecture Graph", Version: s.version, WebsiteURL: "https://github.com/mohammad-safakhou/diffmind"}, nil)
+	server := mcp.NewServer(&mcp.Implementation{Name: "diffmind", Title: "DiffMind Architecture Graph", Version: s.version, WebsiteURL: "https://github.com/mohammad-safakhou/diffmind"}, &mcp.ServerOptions{Instructions: "DiffMind provides saved static architecture evidence, not proof of runtime behavior or complete dependency coverage. Start with list_projects; use the configured or sole accessible project, and ask the user to choose when several projects are available. Get a graph summary before investigating; pin completed run IDs when comparing evidence. Use exact service names returned by list_services and follow pagination. Empty results mean no extracted evidence, not proof of no dependencies or breaking changes. compare_contracts compares only extracted supported request fields. Ordinary query tools are read-only. If management tools are available, discover their catalog and use only the user's approved repository scope; do not import a company or change settings merely to answer a query."})
 	readOnly := &mcp.ToolAnnotations{Title: "List DiffMind projects", ReadOnlyHint: true, OpenWorldHint: boolPtr(false)}
 	mcp.AddTool(server, &mcp.Tool{Name: "list_projects", Title: "List projects", Description: "List DiffMind projects accessible to this connection and whether each has a queryable architecture graph.", Annotations: readOnly},
 		func(_ context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {

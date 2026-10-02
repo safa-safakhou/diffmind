@@ -1,0 +1,158 @@
+[
+  {
+    "at": "2026-10-02T16:25:39.126Z",
+    "elapsed_ms": 211,
+    "task": "ui_server_started",
+    "url": "http://127.0.0.1:40385"
+  },
+  {
+    "at": "2026-10-02T16:26:09.655Z",
+    "elapsed_ms": 30740,
+    "task": "ingestion_failure_ui",
+    "body_text": "Projects\nLive Explorer Demo Shop\nOperations\nProject access\nCompare graphs\nKnowledge packs\nPR impact\nRefresh\nResume / retry\nUpdate graph\nImport & build\nAdd repo\nRun DiffMind all\nBuild graph\nLast ingestion failed\n0 analyzed · 0 reused · attempt 1 · no graph\nTEAMS\ndefault\n6\ncatalog\nunknown · unknown · PR -\nFAILED\ncheckout\nunknown · unknown · PR -\nFAILED\ngateway\nunknown · unknown · PR -\nFAILED\nnotification\nunknown · unknown · PR -\nFAILED\npayment\nunknown · unknown · PR -\nFAILED\nstorefront\nunknown · unknown · PR -\nFAILED\nGraph workspace\n\nImport more repositories and rebuild everything in one operation, or use the manual controls above.\n\nImport repositories and build graph\nAdd one repository\nSelect a repo, service, resource, or edge.\n6 repos\n1 teams\nno graph yet\ngraph idle\ningestion failed\n0 stale\n0 dirty\n6 unknown"
+  },
+  {
+    "at": "2026-10-02T16:26:09.713Z",
+    "elapsed_ms": 30798,
+    "task": "screenshot",
+    "file": "C-ingestion-path-failure.png"
+  },
+  {
+    "at": "2026-10-02T16:26:09.715Z",
+    "elapsed_ms": 30800,
+    "task": "ui_server_stopped",
+    "exit_code": 0
+  },
+  {
+    "at": "2026-10-02T16:26:09.821Z",
+    "elapsed_ms": 30906,
+    "task": "ui_server_started",
+    "url": "http://127.0.0.1:42675"
+  },
+  {
+    "at": "2026-10-02T16:26:09.821Z",
+    "elapsed_ms": 30906,
+    "task": "temporary_process_environment_recovery",
+    "change": "Added study binary directory to this UI process PATH only"
+  },
+  {
+    "at": "2026-10-02T16:26:12.179Z",
+    "elapsed_ms": 33264,
+    "task": "ui_graph_ready",
+    "automation_ms": 2316,
+    "service_nodes": 6,
+    "footer": "6 repos\n1 teams\n6 services\ngraph completed\ningestion completed\n0 stale\n0 dirty\n0 unknown"
+  },
+  {
+    "at": "2026-10-02T16:26:12.214Z",
+    "elapsed_ms": 33299,
+    "task": "screenshot",
+    "file": "C-initial-fit-1440.png"
+  },
+  {
+    "at": "2026-10-02T16:26:12.228Z",
+    "elapsed_ms": 33313,
+    "task": "initial_label_readability",
+    "labels": [
+      {
+        "text": "gateway",
+        "font_size": 16,
+        "scale": 0.2982608675956726,
+        "screen_height": 6
+      }
+    ]
+  },
+  {
+    "at": "2026-10-02T16:26:12.946Z",
+    "elapsed_ms": 34031,
+    "task": "search_focus",
+    "labels": [
+      {
+        "text": "gateway",
+        "font_size": 16,
+        "scale": 0.9000000357627869,
+        "screen_height": 16
+      },
+      {
+        "text": "gateway",
+        "font_size": 10,
+        "scale": 0.9000000357627869,
+        "screen_height": 10.000030517578125
+      }
+    ]
+  },
+  {
+    "at": "2026-10-02T16:26:12.992Z",
+    "elapsed_ms": 34077,
+    "task": "screenshot",
+    "file": "C-gateway-search-focus.png"
+  },
+  {
+    "at": "2026-10-02T16:26:13.627Z",
+    "elapsed_ms": 34712,
+    "task": "gateway_mouse_selection",
+    "body_text": "Projects\nLive Explorer Demo Shop\nCOMPLETED\nOperations\nProject access\nCompare graphs\nKnowledge packs\nPR impact\nRefresh\nUpdate graph\nImport & build\nAdd repo\nRun DiffMind all\nBuild graph\nLast ingestion completed\n6 analyzed · 0 reused · attempt 1 · graph run recorded\nTEAMS\ndefault\n6\ncatalog\npython · fresh · PR -\nCOMPLETED\ncheckout\njava · fresh · PR -\nCOMPLETED\ngateway\ngo · fresh · PR -\nCOMPLETED\nnotification\njava · fresh · PR -\nCOMPLETED\npayment\ngo · fresh · PR -\nCOMPLETED\nstorefront\ngo · fresh · PR -\nCOMPLETED\n6\nservices\n·\n1 team\n·\n9 relationships\nOverview\nFull detail\nFocus\n−\nReset\n+\nAll 1 teams · 6 services\ndefault · 6 services\nTeam only\nTeam + connected\ndefault · 6 services · 4 resources\ngo, java, python · 184 LOC\nHTTP\nHTTP\nHTTP\nHTTP\ncatalog\ndefault · python\n1 entrypoints · 2 downstream · 2 traces\n0k LOC\ncheckout\ndefault · java\n1 entrypoints · 2 downstream · 0 traces\n0.1k LOC\ngateway\ndefault · go\n1 entrypoints · 3 downstream · 3 traces\n0k LOC\nnotification\ndefault · java\n1 entrypoints · 0 downstream · 0 traces\n0k LOC\npayment\ndefault · go\n1 entrypoints · 1 downstream · 0 traces\n0k LOC\nstorefront\ndefault · go\n0 entrypoints · 1 downstream · 0 traces\n0k LOC\nSERVICE\nstatus-example-test\nservice\nREDIS\ncatalog-cache:6379/0\nredis · 2 operations\n2 operations\nDATABASE\npayment-db\ndatabase · 1 tables\n1 operation\nQUEUE_TOPI\norders.created\nshared by 2 services\nDirect connections\ngateway\nClick a row to inspect operations and evidence\nHTTP\nOUT ->\ncatalog\n1 link\nHTTP\nOUT ->\ncheckout\n1 link\nHTTP\nOUT ->\nstatus-example-test\n1 link\nHTTP\n<- IN\nstorefront\n1 link\ngateway\ndefault\nunknown\nService\ngateway\nTeam\ndefault\nRepo\n<study-root>/demo-shop/repositories/gateway\nFreshness\nunknown\nHTTP inbound (1)\nID\nhttp.post_api_checkout\nName\nPOST /api/checkout\nKind\nhttp_endpoint\nMethod\nPOST\nPath\n/api/checkout\nConfidence\nhigh\nOrigin\ndeterministic\n\nnet/http HTTP route detected from framework binding\n\nObservations\nobs.http.post_api_checkout.1\nEvidence refs\nev.http.post_api_checkout.1\nSource evidence\nDependencies (3)\nID\nhttpcall.get_catalog_products\nName\nGET http://catalog/products\nKind\nhttp_call\nMethod\nGET\nURL template\nhttp://catalog/products\nConfidence\nhigh\nOrigin\ndeterministic\n\nnet/http outbound call to a literal destination\n\nTarget\nObservations\nobs.httpcall.get_catalog_products.1\nEvidence refs\nev.httpcall.get_catalog_products.1\nSource evidence\nID\nhttpcall.get_status_example_test_health\nName\nGET https://status.example.test/health\nKind\nhttp_call\nMethod\nGET\nURL template\nhttps://status.example.test/health\nConfidence\nhigh\nOrigin\ndeterministic\n\nnet/http outbound call to a literal destination\n\nTarget\nObservations\nobs.httpcall.get_status_example_test_health.1\nEvidence refs\nev.httpcall.get_status_example_test_health.1\nSource evidence\nID\nhttpcall.post_checkout_v1_checkout\nName\nPOST http://checkout/v1/checkout\nKind\nhttp_call\nMethod\nPOST\nURL template\nhttp://checkout/v1/checkout\nConfidence\nhigh\nOrigin\ndeterministic\n\nnet/http outbound call to a literal destination\n\nTarget\nObservations\nobs.httpcall.post_checkout_v1_checkout.1\nEvidence refs\nev.httpcall.post_checkout_v1_checkout.1\nSource evidence\nObject traces (3)\nFrom\nPOST /api/checkout\nTo\nGET http://catalog/products\nKind\napi_to_http\nReachability\nmust\n\napi_to_http\n\nCondition\nFlow nodes\nFlow edges\nFrom\nPOST /api/checkout\nTo\nGET https://status.example.test/health\nKind\napi_to_http\nReachability\nmust\n\napi_to_http\n\nCondition\nFlow nodes\nFlow edges\nFrom\nPOST /api/checkout\nTo\nPOST http://checkout/v1/checkout\nKind\napi_to_http\nReachability\nmust\n\napi_to_http\n\nCondition\nFlow nodes\nFlow edges\n6 repos\n1 teams\n6 services\ngraph completed\ningestion completed\n0 stale\n0 dirty\n0 unknown"
+  },
+  {
+    "at": "2026-10-02T16:26:13.674Z",
+    "elapsed_ms": 34759,
+    "task": "screenshot",
+    "file": "C-gateway-evidence.png"
+  },
+  {
+    "at": "2026-10-02T16:26:13.679Z",
+    "elapsed_ms": 34764,
+    "task": "service_keyboard_attributes",
+    "service": "checkout",
+    "tabindex": null,
+    "role": null
+  },
+  {
+    "at": "2026-10-02T16:26:13.681Z",
+    "elapsed_ms": 34766,
+    "task": "keyboard_connection_rows",
+    "count": 4
+  },
+  {
+    "at": "2026-10-02T16:26:14.208Z",
+    "elapsed_ms": 35293,
+    "task": "pr_local_repos_screen",
+    "body_text": "← Graph\nPull request impact\n\nCode change evidence, overlaid on the current company graph.\n\nESTIMATED IMPACT\nRefresh GitHub\n0\nOPEN PRS IN SCOPE\n0\nREPOS WITH PRS IN SCOPE\n6\nREPOSITORIES CHECKED\n—\nSELECTED RISK\n—\nEXACT CALLER MATCHES\nSCOPE\n0/6\nTEAM\nAll teams\ndefault\nFIND REPOSITORY\nOnly repositories with open PRs\nREPOSITORIES\n0 PRs\nAll repositories in scope\n0\nNo repositories match this team and repository scope.\n0 shown\n\nNo open pull requests match this view.\n\nSelect a pull request to calculate its impact."
+  },
+  {
+    "at": "2026-10-02T16:26:14.238Z",
+    "elapsed_ms": 35323,
+    "task": "screenshot",
+    "file": "C-pr-local-repositories.png"
+  },
+  {
+    "at": "2026-10-02T16:26:14.445Z",
+    "elapsed_ms": 35530,
+    "task": "single_snapshot_compare_entry",
+    "body_text": "← live-explorer-demo-shop\nCompare graph snapshots\n\nSaved architectural facts and evidence, not a source diff or proof of runtime behavior.\n\nBefore\nSelect a saved graph\n20261002T162610Z · 10/2/2026, 6:26:10 PM\nAfter\nSelect a saved graph\n20261002T162610Z · 10/2/2026, 6:26:10 PM\nCompare\nSwap\n\nBuild at least two completed graphs to compare changes. You can also compare a snapshot with itself."
+  },
+  {
+    "at": "2026-10-02T16:26:14.470Z",
+    "elapsed_ms": 35555,
+    "task": "screenshot",
+    "file": "C-single-snapshot-compare.png"
+  },
+  {
+    "at": "2026-10-02T16:26:14.574Z",
+    "elapsed_ms": 35659,
+    "task": "screenshot",
+    "file": "C-fit-1280.png"
+  },
+  {
+    "at": "2026-10-02T16:26:14.695Z",
+    "elapsed_ms": 35780,
+    "task": "screenshot",
+    "file": "C-fit-1920.png"
+  },
+  {
+    "at": "2026-10-02T16:26:14.735Z",
+    "elapsed_ms": 35820,
+    "task": "ui_server_stopped",
+    "exit_code": 0
+  }
+]

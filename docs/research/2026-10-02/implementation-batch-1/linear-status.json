@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-02",
+  "project_state": "In Progress",
+  "completed_tasks": 6,
+  "in_progress_tasks": 9,
+  "verified": true,
+  "tasks": [
+    {
+      "id": "MNI-176",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-176/use-one-primary-refresh-action-with-role-aware-advanced-operations"
+    },
+    {
+      "id": "MNI-179",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-179/make-installed-startup-and-worker-execution-independent-of-path"
+    },
+    {
+      "id": "MNI-183",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-183/repair-shared-modal-form-and-confirmation-accessibility"
+    },
+    {
+      "id": "MNI-187",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-187/turn-import-preview-into-a-retained-review-and-build-flow"
+    },
+    {
+      "id": "MNI-186",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-186/apply-approved-file-scope-consistently-to-facts-contracts-and-metrics"
+    },
+    {
+      "id": "MNI-191",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-191/expose-existing-contract-compatibility-alongside-graph-changes"
+    },
+    {
+      "id": "MNI-175",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-175/define-shared-readiness-freshness-and-capability-states"
+    },
+    {
+      "id": "MNI-177",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-177/define-one-approved-scope-contract-for-discovery-and-automation"
+    },
+    {
+      "id": "MNI-178",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-178/standardize-actionable-feedback-and-recovery-across-ui-and-agents"
+    },
+    {
+      "id": "MNI-180",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-180/guide-agent-onboarding-project-selection-and-evidence-use"
+    },
+    {
+      "id": "MNI-181",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-181/enable-bounded-background-refresh-after-approved-onboarding"
+    },
+    {
+      "id": "MNI-184",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-184/make-graph-selection-readable-keyboard-accessible-and-fully"
+    },
+    {
+      "id": "MNI-185",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-185/distinguish-empty-loading-denied-failed-and-partial-workspace-states"
+    },
+    {
+      "id": "MNI-188",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-188/explain-evidence-origin-uncertainty-and-coverage-consistently"
+    },
+    {
+      "id": "MNI-200",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-200/align-installation-operation-and-evaluation-docs-with-the-implemented"
+    }
+  ]
+}

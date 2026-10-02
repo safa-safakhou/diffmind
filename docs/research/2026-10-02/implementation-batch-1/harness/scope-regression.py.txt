@@ -1,0 +1,35 @@
+from pathlib import Path
+import json, subprocess, shutil, tempfile, yaml
+root=Path('/tmp/diffmind-implementation-20261002')
+repo=Path(tempfile.mkdtemp(prefix='public-scope-',dir=root))/'diffmind'
+shutil.copytree('/tmp/diffmind-usability-20261002-DmNS6f/public-repositories/diffmind',repo)
+rows=[]
+outputs=Path(tempfile.mkdtemp(prefix="scope-output-",dir=root))
+for stage in ['default','scoped']:
+ if stage=='scoped':
+  (repo/'diffmind-configuration.yaml').write_text('schema: diffmind.config.v1\npaths:\n  exclude: [examples/**]\n')
+ output=outputs/stage
+ output.mkdir(parents=True,exist_ok=True)
+ with (root/'evidence'/('scope-'+stage+'.log')).open('w') as log:
+  subprocess.run([str(root/'diffmind'),'run','--repo',str(repo),'--out',str(output),'--workers','4'],stdout=log,stderr=log,check=True,timeout=120)
+ exposures_path=next(output.glob('*/state/entities_exposures.json'))
+ exposures=json.loads(exposures_path.read_text())
+ dependencies=json.loads((exposures_path.parent/'entities_dependencies.json').read_text())
+ def paths(value):
+  if isinstance(value,dict):
+   for key,item in value.items():
+    if key in ['source_file','file','file_path','path'] and isinstance(item,str): yield item
+    yield from paths(item)
+  elif isinstance(value,list):
+   for item in value: yield from paths(item)
+ source_paths=list(paths(exposures))+list(paths(dependencies))
+ examples=[p for p in source_paths if p.startswith('examples/') or '/examples/' in p]
+ document=yaml.safe_load((exposures_path.parent.parent/'diffmind.yaml').read_text())
+ recorded=json.loads(document['metadata']['labels']['analysis_path_scope'])
+ if stage=='scoped': assert recorded['exclude']==['examples/**'], recorded
+ row={'recorded_scope':recorded,'scope':stage,'exposures':len(exposures),'dependencies':len(dependencies),'example_source_references':len(examples),'examples':sorted(set(examples)),'source_revision':subprocess.check_output(['/usr/bin/git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()}
+ rows.append(row)
+ print(json.dumps(row))
+assert rows[0]['example_source_references']>0, rows
+assert rows[1]['example_source_references']==0, rows
+(root/'evidence'/'scope-result.json').write_text(json.dumps({'passed':True,'rows':rows},indent=2))

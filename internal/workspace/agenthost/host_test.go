@@ -107,3 +107,25 @@ func TestBoundedConcurrentOutput(t *testing.T) {
 		t.Fatal("output was not bounded")
 	}
 }
+
+func TestNewWorkspaceRefreshDefaultsPreserveExplicitManualSettings(t *testing.T) {
+	home := t.TempDir()
+	h, err := New("/installed/diffmind", home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if h.settings.RefreshInterval != "15m" || !h.settings.RefreshOnStart {
+		t.Fatal("new workspace does not maintain approved scope", h.settings)
+	}
+	body := `{"refresh_interval":"","refresh_on_start":false,"refresh_concurrency":4,"project_access":"legacy","repository_workers":4,"job_workers":2,"queue_capacity":256}`
+	if err := os.WriteFile(filepath.Join(home, "agent-settings.json"), []byte(body), 0600); err != nil {
+		t.Fatal(err)
+	}
+	h, err = New("/installed/diffmind", home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if h.settings.RefreshInterval != "" || h.settings.RefreshOnStart {
+		t.Fatal("explicit manual policy changed", h.settings)
+	}
+}

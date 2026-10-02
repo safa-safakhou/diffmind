@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {root,Observer,StdioClient,chromium} from './helpers.mjs';
+process.env.GH_CONFIG_DIR=path.join(root,'empty-gh-config');
+const obs=new Observer('public-graph-provenance');
+const client=new StdioClient(path.join(root,'public-home'),obs);
+let browser;
+try {
+ await client.connect();
+ await client.call('get_service',{project:'public-diffmind-pr-trial',service:'diffmind',detail:'full'});
+ await client.call('get_dependencies',{project:'public-diffmind-pr-trial',service:'diffmind',direction:'both'});
+ const rt=(await client.call('agent_runtime',{action:'status'})).data;
+ browser=await chromium.launch({headless:true});
+ const page=await browser.newPage({viewport:{width:1440,height:900}});obs.watch(page);
+ await page.goto(rt.dashboard_url+'#/projects/public-diffmind-pr-trial/pull-requests');
+ await page.locator('.pr-card').filter({hasText:'#9'}).click();
+ await page.locator('.pr-impact-detail').waitFor();
+ const text=page.getByText('Company impact',{exact:true});await text.scrollIntoViewIfNeeded();
+ await obs.screenshot(page,'P-real-pr-company-context');
+} catch(e) {obs.log('study_driver_failure',{message:e.stack});process.exitCode=1}
+finally {if(browser)await browser.close();await client.disconnect()}

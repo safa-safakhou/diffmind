@@ -99,7 +99,12 @@ add repositories in the UI. Give your host coding agent this request:
 > wait for completion, and verify known dependencies with source evidence.
 > Perform the setup yourself; do not give me commands or UI chores.
 
-[AGENT_SETUP.md](AGENT_SETUP.md) is the executable playbook for the host agent.
+[AGENT_SETUP.md](AGENT_SETUP.md) is the executable playbook for the host agent. New local agent workspaces maintain already registered
+repositories on connection and every 15 minutes while connected; existing explicit
+manual policies stay manual. The optional dashboard previews imports before
+registration, offers **Update context** for analysis and **Reload view** for data
+reload, and groups manual controls under **Advanced actions**. See
+[agent operations](docs/agent-operations.md) for roles and lifecycle.
 It runs the source installer, receives machine-readable MCP configuration, and
 registers it with the user's client. The client launches `diffmind agent`, which
 starts its own backend on an available loopback port. No project needs to exist.

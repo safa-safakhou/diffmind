@@ -1,0 +1,930 @@
+[
+  {
+    "at": "2026-10-02T16:34:50.103Z",
+    "elapsed_ms": 14,
+    "task": "mcp_connected",
+    "transport": "stdio"
+  },
+  {
+    "at": "2026-10-02T16:34:50.105Z",
+    "elapsed_ms": 16,
+    "task": "mcp_call",
+    "name": "describe_management",
+    "args": {},
+    "duration_ms": 2,
+    "isError": false,
+    "data": {
+      "operations": [
+        {
+          "name": "list_project_records",
+          "method": "GET",
+          "path": "/api/projects",
+          "description": "List visible projects with configuration. Reuse an existing matching project before creation.",
+          "destructive": false
+        },
+        {
+          "name": "create_project",
+          "method": "POST",
+          "path": "/api/projects",
+          "description": "Create a project. name required; search_roots and instruction optional. Creation is not idempotent: list projects after an uncertain response.",
+          "body_example": {
+            "instruction": "",
+            "name": "Platform",
+            "search_roots": []
+          },
+          "destructive": false
+        },
+        {
+          "name": "get_project",
+          "method": "GET",
+          "path": "/api/projects/{pid}",
+          "description": "Read a project.",
+          "destructive": false
+        },
+        {
+          "name": "update_project",
+          "method": "PATCH",
+          "path": "/api/projects/{pid}",
+          "description": "Update only supplied name, search_roots, instruction fields.",
+          "body_example": {
+            "instruction": "Service naming conventions"
+          },
+          "destructive": false
+        },
+        {
+          "name": "delete_project",
+          "method": "DELETE",
+          "path": "/api/projects/{pid}",
+          "description": "Delete project metadata and saved artifacts. Back up first. Does not delete external source directories.",
+          "destructive": true
+        },
+        {
+          "name": "list_repositories",
+          "method": "GET",
+          "path": "/api/projects/{pid}/repos",
+          "description": "List registered repositories and IDs.",
+          "destructive": false
+        },
+        {
+          "name": "add_repository",
+          "method": "POST",
+          "path": "/api/projects/{pid}/repos",
+          "description": "Register an explicit local path or Git URL. Fields: name, path, kind (service_repo/infra_repo), source_type (local/git), git_url, default_branch, team, pack_ids, instruction.",
+          "body_example": {
+            "kind": "service_repo",
+            "name": "gateway",
+            "path": "/absolute/path/to/gateway",
+            "source_type": "local",
+            "team": "default"
+          },
+          "destructive": false
+        },
+        {
+          "name": "get_repository",
+          "method": "GET",
+          "path": "/api/projects/{pid}/repos/{rid}",
+          "description": "Read repository configuration.",
+          "destructive": false
+        },
+        {
+          "name": "update_repository",
+          "method": "PATCH",
+          "path": "/api/projects/{pid}/repos/{rid}",
+          "description": "Update supplied fields supported by add_repository; preserve unrelated values.",
+          "body_example": {
+            "team": "platform"
+          },
+          "destructive": false
+        },
+        {
+          "name": "delete_repository",
+          "method": "DELETE",
+          "path": "/api/projects/{pid}/repos/{rid}",
+          "description": "Remove registration, not source repository contents.",
+          "destructive": true
+        },
+        {
+          "name": "import_repositories",
+          "method": "POST",
+          "path": "/api/projects/{pid}/repo-imports",
+          "description": "Preview/import local or GitHub repositories. provider local requires root; github requires org, optional api_base. Supports include/exclude regex, limit, recursive/max_depth, clone, clone_transport (auto/https/ssh), default_branch, include_forks/include_archived, team, concurrency. Use dry_run=true first; no credential arguments (credentials come from server environment). For full import+analysis prefer start_ingestion after preview.",
+          "body_example": {
+            "dry_run": true,
+            "provider": "local",
+            "root": "/absolute/path/to/repos"
+          },
+          "destructive": false
+        },
+        {
+          "name": "repository_suggestions",
+          "method": "GET",
+          "path": "/api/projects/{pid}/repo-suggestions",
+          "description": "Discover candidates under project search_roots. Requires host-discovery authority.",
+          "destructive": false
+        },
+        {
+          "name": "sync_repository",
+          "method": "POST",
+          "path": "/api/projects/{pid}/repos/{rid}/sync",
+          "description": "Sync a managed Git checkout. Local imports are not pulled. Inspect live status afterward.",
+          "body_example": {},
+          "destructive": false
+        },
+        {
+          "name": "analyze_repository",
+          "method": "POST",
+          "path": "/api/projects/{pid}/repos/{rid}/diffmind-runs",
+          "description": "Start analysis of one repository; options are DiffMindRunOptions. Prefer start_ingestion for complete graph workflow.",
+          "body_example": {
+            "options": {}
+          },
+          "destructive": false
+        },
+        {
+          "name": "analyze_repositories",
+          "method": "POST",
+          "path": "/api/projects/{pid}/diffmind-runs/batch",
+          "description": "Start a repository analysis batch. Prefer start_ingestion for analysis plus graph.",
+          "body_example": {},
+          "destructive": false
+        },
+        {
+          "name": "get_repository_configuration",
+          "method": "GET",
+          "path": "/api/projects/{pid}/repos/{rid}/diffmind-configuration-yaml",
+          "description": "Read effective editable YAML configuration.",
+          "destructive": false
+        },
+        {
+          "name": "set_repository_configuration",
+          "method": "PUT",
+          "path": "/api/projects/{pid}/repos/{rid}/diffmind-configuration-yaml",
+          "description": "Validate/write repository analysis configuration; body is YAML text under the body field.",
+          "body_example": {
+            "body": ""
+          },
+          "destructive": false
+        },
+        {
+          "name": "get_workspace",
+          "method": "GET",
+          "path": "/api/projects/{pid}/workspace",
+          "description": "Workspace graph/configuration overview; may be large, prefer focused operations.",
+          "destructive": false
+        },
+        {
+          "name": "get_live_status",
+          "method": "GET",
+          "path": "/api/projects/{pid}/live-status",
+          "description": "Current sync and analysis status.",
+          "destructive": false
+        },
+        {
+          "name": "get_endpoint_contracts",
+          "method": "GET",
+          "path": "/api/v1/projects/{pid}/contracts",
+          "description": "Get recorded request fields. Query: run and optional service. Empty results mean unsupported or absent evidence, not an empty runtime contract.",
+          "destructive": false
+        },
+        {
+          "name": "compare_endpoint_contracts",
+          "method": "GET",
+          "path": "/api/v1/projects/{pid}/contracts/compare",
+          "description": "Compare request contracts between immutable runs. Query: from, to, optional service. Renames remain remove plus add without explicit alias evidence.",
+          "destructive": false
+        },
+        {
+          "name": "list_improvement_gaps",
+          "method": "GET",
+          "path": "/api/v1/projects/{pid}/improvement-gaps",
+          "description": "List persistent, revisioned extraction or graph gaps and their review history.",
+          "destructive": false
+        },
+        {
+          "name": "record_improvement_gap",
+          "method": "POST",
+          "path": "/api/v1/projects/{pid}/improvement-gaps",
+          "description": "Record a concrete expected-versus-observed gap. Read first and supply revision. New records always start observed; source_pointers must identify evidence without embedding private source.",
+          "body_example": {
+            "gap": {
+              "category": "missing_fact",
+              "expected": "resolved catalog service",
+              "object_id": "http.call",
+              "observed": "unresolved target",
+              "repository_id": "gateway",
+              "run_id": "RUN_ID",
+              "source_pointers": [
+                "src/client.py:42"
+              ]
+            },
+            "revision": 0
+          },
+          "destructive": false
+        },
+        {
+          "name": "transition_improvement_gap",
+          "method": "PATCH",
+          "path": "/api/v1/projects/{pid}/improvement-gaps/{gid}",
+          "description": "Advance a gap through observed, reproduced, proposed, tested, accepted, active, and rolled_back. Rejected/deferred/superseded require a reason. Supply the latest collection revision; activation is a review state and does not itself mutate packs.",
+          "body_example": {
+            "reason": "synthetic fixture added",
+            "revision": 1,
+            "status": "reproduced",
+            "tests": [
+              "TestDynamicURLRemainsUnresolved"
+            ]
+          },
+          "destructive": false
+        },
+        {
+          "name": "start_ingestion",
+          "method": "POST",
+          "path": "/api/projects/{pid}/ingestion",
+          "description": "Durable full workflow. Empty body incrementally syncs/analyzes/builds existing repos. import uses import_repositories fields (dry_run must be false). Options: concurrency 0..16, force boolean, options. Returns 202 before completion: poll get_ingestion. Never infer completion from acceptance.",
+          "body_example": {
+            "concurrency": 4,
+            "import": {
+              "provider": "local",
+              "root": "/absolute/path/to/repos"
+            }
+          },
+          "destructive": false
+        },
+        {
+          "name": "get_ingestion",
+          "method": "GET",
+          "path": "/api/projects/{pid}/ingestion",
+          "description": "Poll latest ingestion. completed means done; partial/failed/cancelled require inspection. Includes phase, counts, errors, graph_run_id and repository progress.",
+          "destructive": false
+        },
+        {
+          "name": "cancel_ingestion",
+          "method": "POST",
+          "path": "/api/projects/{pid}/ingestion/cancel",
+          "description": "Request cancellation; poll until work drains.",
+          "body_example": {},
+          "destructive": false
+        },
+        {
+          "name": "resume_ingestion",
+          "method": "POST",
+          "path": "/api/projects/{pid}/ingestion/resume",
+          "description": "Resume failed/interrupted/cancelled direct ingestion. Queued refreshes must use retry_job.",
+          "body_example": {},
+          "destructive": false
+        },
+        {
+          "name": "list_jobs",
+          "method": "GET",
+          "path": "/api/v1/jobs",
+          "description": "List durable jobs. Query: project, status, offset, limit.",
+          "destructive": false
+        },
+        {
+          "name": "enqueue_refresh",
+          "method": "POST",
+          "path": "/api/v1/projects/{pid}/refresh-jobs",
+          "description": "Queue a refresh respecting concurrency and project/global quotas.",
+          "body_example": {},
+          "destructive": false
+        },
+        {
+          "name": "cancel_job",
+          "method": "POST",
+          "path": "/api/v1/jobs/{jid}/cancel",
+          "description": "Cancel a queued/running refresh; inspect job status afterward.",
+          "body_example": {},
+          "destructive": false
+        },
+        {
+          "name": "retry_job",
+          "method": "POST",
+          "path": "/api/v1/jobs/{jid}/retry",
+          "description": "Retry a failed/cancelled refresh while retaining attempt history.",
+          "body_example": {},
+          "destructive": false
+        },
+        {
+          "name": "ingestion_history",
+          "method": "GET",
+          "path": "/api/v1/projects/{pid}/ingestion-history",
+          "description": "Read saved ingestion attempts. Query: offset, limit.",
+          "destructive": false
+        },
+        {
+          "name": "get_session",
+          "method": "GET",
+          "path": "/api/v1/session",
+          "description": "Authenticated identity, role and project-access mode.",
+          "destructive": false
+        },
+        {
+          "name": "get_capabilities",
+          "method": "GET",
+          "path": "/api/v1/projects/{pid}/capabilities",
+          "description": "Effective caller permissions for this project.",
+          "destructive": false
+        },
+        {
+          "name": "get_access",
+          "method": "GET",
+          "path": "/api/v1/projects/{pid}/access",
+          "description": "Read project membership revision and grants. Administrator only.",
+          "destructive": false
+        },
+        {
+          "name": "set_access",
+          "method": "PUT",
+          "path": "/api/v1/projects/{pid}/access",
+          "description": "Replace memberships using the current revision; read first, preserve other members. Administrator only.",
+          "body_example": {
+            "members": {
+              "developer@example.test": "viewer"
+            },
+            "revision": 0
+          },
+          "destructive": false
+        },
+        {
+          "name": "get_limits",
+          "method": "GET",
+          "path": "/api/v1/projects/{pid}/limits",
+          "description": "Read quota policy, revision and effective usage.",
+          "destructive": false
+        },
+        {
+          "name": "set_limits",
+          "method": "PUT",
+          "path": "/api/v1/projects/{pid}/limits",
+          "description": "Administrator sets pending-job and repository worker caps with current revision. 0 inherits global budgets.",
+          "body_example": {
+            "max_pending_jobs": 10,
+            "repository_workers": 2,
+            "revision": 0
+          },
+          "destructive": false
+        },
+        {
+          "name": "list_tokens",
+          "method": "GET",
+          "path": "/api/v1/projects/{pid}/tokens",
+          "description": "Administrator lists project token metadata (never secrets).",
+          "destructive": false
+        },
+        {
+          "name": "issue_token",
+          "method": "POST",
+          "path": "/api/v1/projects/{pid}/tokens",
+          "description": "Administrator issues scoped viewer/editor token. Secret returned ONCE: keep out of chat/logs. Not idempotent; do not blindly retry. Lifetime 60..31536000 seconds; scoped mode required.",
+          "body_example": {
+            "expires_in_seconds": 2592000,
+            "name": "Work agent",
+            "role": "viewer"
+          },
+          "destructive": false
+        },
+        {
+          "name": "revoke_token",
+          "method": "POST",
+          "path": "/api/v1/projects/{pid}/tokens/{tid}/revoke",
+          "description": "Administrator permanently revokes this token.",
+          "body_example": {},
+          "destructive": true
+        },
+        {
+          "name": "refresh_status",
+          "method": "GET",
+          "path": "/api/v1/refresh/status",
+          "description": "Fleet schedule and refresh progress.",
+          "destructive": false
+        },
+        {
+          "name": "refresh_all",
+          "method": "POST",
+          "path": "/api/v1/refresh",
+          "description": "Administrator queues fleet refresh.",
+          "body_example": {},
+          "destructive": false
+        },
+        {
+          "name": "list_project_packs",
+          "method": "GET",
+          "path": "/api/projects/{pid}/packs",
+          "description": "List project-scoped declarative packs.",
+          "destructive": false
+        },
+        {
+          "name": "get_project_pack",
+          "method": "GET",
+          "path": "/api/projects/{pid}/packs/{pack_id}",
+          "description": "Read pack JSON before editing. pack_id is the storage key returned by create/list, which can differ from the manifest id.",
+          "destructive": false
+        },
+        {
+          "name": "create_project_pack",
+          "method": "POST",
+          "path": "/api/projects/{pid}/packs",
+          "description": "Create a validated project pack. Body is the complete KnowledgePack JSON manifest, not a wrapper. Include synthetic tests. Use local agent_command pack tools for scaffolding/fixtures/installing global packs.",
+          "body_example": {
+            "api_version": "diffmind.dev/v1alpha1",
+            "applies_to": {
+              "kind": "service_repo"
+            },
+            "compatibility": ">=0.1.0",
+            "extractions": [
+              {
+                "extract": [
+                  {
+                    "field": "service.name",
+                    "maps_to": "service_name"
+                  }
+                ],
+                "name": "service identity",
+                "source": {
+                  "glob": "service-meta.json"
+                },
+                "strategy": "field_path"
+              }
+            ],
+            "id": "example.conventions",
+            "kind": "KnowledgePack",
+            "license": "Apache-2.0",
+            "name": "Example conventions",
+            "version": "1.0.0"
+          },
+          "destructive": false
+        },
+        {
+          "name": "update_project_pack",
+          "method": "PUT",
+          "path": "/api/projects/{pid}/packs/{pack_id}",
+          "description": "Validate/replace complete pack JSON. Preserve the existing manifest id; use the create/list storage key as pack_id. Read existing pack first; update graph afterward.",
+          "destructive": false
+        },
+        {
+          "name": "delete_project_pack",
+          "method": "DELETE",
+          "path": "/api/projects/{pid}/packs/{pack_id}",
+          "description": "Remove a project pack; historical graphs are unchanged.",
+          "destructive": true
+        },
+        {
+          "name": "list_analysis_runs",
+          "method": "GET",
+          "path": "/api/diffmind-runs",
+          "description": "Discover analysis artifacts. Optional query repo_path.",
+          "destructive": false
+        },
+        {
+          "name": "list_run_records",
+          "method": "GET",
+          "path": "/api/projects/{pid}/runs",
+          "description": "List graph runs including incomplete/failed runs.",
+          "destructive": false
+        },
+        {
+          "name": "create_graph_run",
+          "method": "POST",
+          "path": "/api/projects/{pid}/runs",
+          "description": "Build from explicit existing analysis references. Prefer start_ingestion for automatic selection.",
+          "body_example": {
+            "options": {},
+            "repos": [
+              {
+                "diffmind_run_id": "ANALYSIS_ID",
+                "repo_id": "REPOSITORY_ID"
+              }
+            ]
+          },
+          "destructive": false
+        },
+        {
+          "name": "get_run",
+          "method": "GET",
+          "path": "/api/projects/{pid}/runs/{rid}",
+          "description": "Read graph run and active state.",
+          "destructive": false
+        },
+        {
+          "name": "cancel_run",
+          "method": "POST",
+          "path": "/api/projects/{pid}/runs/{rid}/cancel",
+          "description": "Cancel graph build.",
+          "body_example": {},
+          "destructive": false
+        },
+        {
+          "name": "delete_run",
+          "method": "DELETE",
+          "path": "/api/projects/{pid}/runs/{rid}",
+          "description": "Delete saved graph run/artifacts; irreversible without backup.",
+          "destructive": true
+        },
+        {
+          "name": "list_pull_requests",
+          "method": "GET",
+          "path": "/api/projects/{pid}/pull-requests",
+          "description": "List provider pull requests, using server credentials.",
+          "destructive": false
+        },
+        {
+          "name": "pull_request_impact",
+          "method": "GET",
+          "path": "/api/projects/{pid}/pull-requests/{repo_id}/{number}/impact",
+          "description": "Inspect pull request impact.",
+          "destructive": false
+        }
+      ],
+      "workflow": [
+        "list projects before creating; do not retry creation blindly after a lost response",
+        "create_project",
+        "import_repositories with dry_run=true to preview",
+        "start_ingestion with import or {} for incremental refresh",
+        "get_ingestion until completed; inspect failures before retry",
+        "query graph and verify source evidence"
+      ]
+    }
+  },
+  {
+    "at": "2026-10-02T16:34:50.105Z",
+    "elapsed_ms": 16,
+    "task": "mcp_call",
+    "name": "agent_runtime",
+    "args": {
+      "action": "status"
+    },
+    "duration_ms": 0,
+    "isError": false,
+    "data": {
+      "running": true,
+      "home": "<study-root>/public-home",
+      "dashboard_url": "http://127.0.0.1:42085",
+      "settings": {
+        "refresh_interval": "",
+        "refresh_on_start": false,
+        "refresh_concurrency": 4,
+        "project_access": "legacy",
+        "repository_workers": 4,
+        "job_workers": 2,
+        "queue_capacity": 256
+      },
+      "lifecycle": "Agent-owned: starts on connection/management, stops on disconnect. Use shared deployment for always-on refresh."
+    }
+  },
+  {
+    "at": "2026-10-02T16:34:51.075Z",
+    "elapsed_ms": 986,
+    "task": "mcp_call",
+    "name": "inspect_workspace",
+    "args": {
+      "operation": "pull_request_impact",
+      "selectors": {
+        "pid": "public-diffmind-pr-trial",
+        "repo_id": "diffmind",
+        "number": "9"
+      }
+    },
+    "duration_ms": 969,
+    "isError": false,
+    "data": {
+      "status": 200,
+      "data": {
+        "codebase": {
+          "additions": 32,
+          "areas": [
+            "go.mod",
+            "go.sum"
+          ],
+          "categories": [
+            {
+              "additions": 32,
+              "deletions": 28,
+              "files": 2,
+              "id": "dependencies",
+              "label": "Dependencies",
+              "risk": 15
+            }
+          ],
+          "changed_files": 2,
+          "commits": 1,
+          "deletions": 28,
+          "files": [
+            {
+              "additions": 23,
+              "category": "dependencies",
+              "deletions": 22,
+              "path": "go.sum",
+              "status": "modified",
+              "url": "https://github.com/safa-safakhou/diffmind/blob/6b1c6e662759749dc0246b3a9f297b9ac9d1b7eb/go.sum"
+            },
+            {
+              "additions": 9,
+              "category": "dependencies",
+              "deletions": 6,
+              "path": "go.mod",
+              "status": "modified",
+              "url": "https://github.com/safa-safakhou/diffmind/blob/6b1c6e662759749dc0246b3a9f297b9ac9d1b7eb/go.mod"
+            }
+          ],
+          "risk_level": "low",
+          "risk_reasons": [
+            "Dependency graph changed"
+          ],
+          "risk_score": 19,
+          "signals": [
+            {
+              "files": [
+                "go.mod",
+                "go.sum"
+              ],
+              "kind": "dependency_change",
+              "label": "Dependency graph changed",
+              "severity": "medium"
+            }
+          ]
+        },
+        "company": {
+          "available": true,
+          "confidence": "stale_graph_estimate",
+          "direct_services": 0,
+          "flow": {
+            "edges": [
+              {
+                "async": true,
+                "cross_service": true,
+                "from": "queue:orderscreated",
+                "kind": "queue_consume",
+                "match_status": "impacted",
+                "to": "service:diffmind"
+              },
+              {
+                "async": true,
+                "from": "service:diffmind",
+                "kind": "queue_publish",
+                "match_status": "impacted",
+                "to": "queue:orderscreated"
+              }
+            ],
+            "entry": {
+              "service": "diffmind"
+            },
+            "nodes": [
+              {
+                "details": {
+                  "platform": "kafka"
+                },
+                "id": "queue:orderscreated",
+                "kind": "queue_topic_stream",
+                "label": "orders.created"
+              },
+              {
+                "id": "service:diffmind",
+                "kind": "service",
+                "label": "diffmind",
+                "service": "diffmind"
+              }
+            ],
+            "run_id": "20261002T163244Z",
+            "services": [
+              {
+                "depth": 0,
+                "entry_status": "impact_root",
+                "name": "diffmind",
+                "team": "default"
+              }
+            ],
+            "stats": {
+              "cycle_count": 0,
+              "edge_count": 2,
+              "node_count": 2,
+              "service_count": 1
+            },
+            "status": "complete"
+          },
+          "freshness": "stale",
+          "graph_revision": {
+            "branch": "master",
+            "commit": "5d2548514bfc5d920dfd40def5fcacd80162e9ae"
+          },
+          "indirect_services": 0,
+          "notes": [
+            "graph snapshot is stale relative to PR head; refresh the repository analysis before treating graph results as current",
+            "no exact caller of a changed entrypoint or resource is proven by the graph",
+            "the technical graph is repository-wide context; only exact changed-surface matches count toward PR risk"
+          ],
+          "potential_resources": [
+            "queue_topic_stream: orders.created"
+          ],
+          "root_service": "diffmind",
+          "run_id": "20261002T163244Z",
+          "score_eligible": false
+        },
+        "generated_at": "2026-10-02T16:34:51.074173406Z",
+        "pull_request": {
+          "author": "dependabot[bot]",
+          "base": "master",
+          "created_at": "2026-09-23T21:44:21Z",
+          "draft": false,
+          "head": "dependabot/go_modules/go-dependencies-2d170fc014",
+          "labels": [
+            "dependencies",
+            "go"
+          ],
+          "number": 9,
+          "repo_id": "diffmind",
+          "repo_name": "diffmind",
+          "team": "default",
+          "title": "build(deps): bump the go-dependencies group across 1 directory with 5 updates",
+          "updated_at": "2026-09-30T21:44:46Z",
+          "url": "https://github.com/safa-safakhou/diffmind/pull/9"
+        },
+        "risk_level": "low",
+        "risk_score": 19
+      }
+    }
+  },
+  {
+    "at": "2026-10-02T16:34:51.075Z",
+    "elapsed_ms": 986,
+    "task": "actual_public_pr_impact",
+    "http_status": 200,
+    "data": {
+      "codebase": {
+        "additions": 32,
+        "areas": [
+          "go.mod",
+          "go.sum"
+        ],
+        "categories": [
+          {
+            "additions": 32,
+            "deletions": 28,
+            "files": 2,
+            "id": "dependencies",
+            "label": "Dependencies",
+            "risk": 15
+          }
+        ],
+        "changed_files": 2,
+        "commits": 1,
+        "deletions": 28,
+        "files": [
+          {
+            "additions": 23,
+            "category": "dependencies",
+            "deletions": 22,
+            "path": "go.sum",
+            "status": "modified",
+            "url": "https://github.com/safa-safakhou/diffmind/blob/6b1c6e662759749dc0246b3a9f297b9ac9d1b7eb/go.sum"
+          },
+          {
+            "additions": 9,
+            "category": "dependencies",
+            "deletions": 6,
+            "path": "go.mod",
+            "status": "modified",
+            "url": "https://github.com/safa-safakhou/diffmind/blob/6b1c6e662759749dc0246b3a9f297b9ac9d1b7eb/go.mod"
+          }
+        ],
+        "risk_level": "low",
+        "risk_reasons": [
+          "Dependency graph changed"
+        ],
+        "risk_score": 19,
+        "signals": [
+          {
+            "files": [
+              "go.mod",
+              "go.sum"
+            ],
+            "kind": "dependency_change",
+            "label": "Dependency graph changed",
+            "severity": "medium"
+          }
+        ]
+      },
+      "company": {
+        "available": true,
+        "confidence": "stale_graph_estimate",
+        "direct_services": 0,
+        "flow": {
+          "edges": [
+            {
+              "async": true,
+              "cross_service": true,
+              "from": "queue:orderscreated",
+              "kind": "queue_consume",
+              "match_status": "impacted",
+              "to": "service:diffmind"
+            },
+            {
+              "async": true,
+              "from": "service:diffmind",
+              "kind": "queue_publish",
+              "match_status": "impacted",
+              "to": "queue:orderscreated"
+            }
+          ],
+          "entry": {
+            "service": "diffmind"
+          },
+          "nodes": [
+            {
+              "details": {
+                "platform": "kafka"
+              },
+              "id": "queue:orderscreated",
+              "kind": "queue_topic_stream",
+              "label": "orders.created"
+            },
+            {
+              "id": "service:diffmind",
+              "kind": "service",
+              "label": "diffmind",
+              "service": "diffmind"
+            }
+          ],
+          "run_id": "20261002T163244Z",
+          "services": [
+            {
+              "depth": 0,
+              "entry_status": "impact_root",
+              "name": "diffmind",
+              "team": "default"
+            }
+          ],
+          "stats": {
+            "cycle_count": 0,
+            "edge_count": 2,
+            "node_count": 2,
+            "service_count": 1
+          },
+          "status": "complete"
+        },
+        "freshness": "stale",
+        "graph_revision": {
+          "branch": "master",
+          "commit": "5d2548514bfc5d920dfd40def5fcacd80162e9ae"
+        },
+        "indirect_services": 0,
+        "notes": [
+          "graph snapshot is stale relative to PR head; refresh the repository analysis before treating graph results as current",
+          "no exact caller of a changed entrypoint or resource is proven by the graph",
+          "the technical graph is repository-wide context; only exact changed-surface matches count toward PR risk"
+        ],
+        "potential_resources": [
+          "queue_topic_stream: orders.created"
+        ],
+        "root_service": "diffmind",
+        "run_id": "20261002T163244Z",
+        "score_eligible": false
+      },
+      "generated_at": "2026-10-02T16:34:51.074173406Z",
+      "pull_request": {
+        "author": "dependabot[bot]",
+        "base": "master",
+        "created_at": "2026-09-23T21:44:21Z",
+        "draft": false,
+        "head": "dependabot/go_modules/go-dependencies-2d170fc014",
+        "labels": [
+          "dependencies",
+          "go"
+        ],
+        "number": 9,
+        "repo_id": "diffmind",
+        "repo_name": "diffmind",
+        "team": "default",
+        "title": "build(deps): bump the go-dependencies group across 1 directory with 5 updates",
+        "updated_at": "2026-09-30T21:44:46Z",
+        "url": "https://github.com/safa-safakhou/diffmind/pull/9"
+      },
+      "risk_level": "low",
+      "risk_score": 19
+    }
+  },
+  {
+    "at": "2026-10-02T16:34:52.221Z",
+    "elapsed_ms": 2132,
+    "task": "public_pr_selected_in_browser",
+    "body_text": "DIFFMIND · #9\nbuild(deps): bump the go-dependencies group across 1 directory with 5 updates\ndependabot/go_modules/go-dependencies-2d170fc014\n→\nmaster\n19\nLOW RISK\nOpened by @dependabot[bot]\nOpen on GitHub ↗\nCodebase impact\n\nEvidence from the PR file list and available diff patches\n\n2\nFILES\n+32\nADDITIONS\n−28\nDELETIONS\n1\nCOMMITS\nWhat the categories mean\n\nThey are changed-file buckets, not detected vulnerabilities or endpoint counts. Every file is assigned once from its path and type. The large number is the number of changed files; + / − are added and removed lines. Select a bucket to inspect those files.\n\nDependencies\n2 files\n+32 −28 lines\nAll change categories\n\nSelect a category above to filter the file list and see exactly why those files were grouped together.\n\nREVIEW SIGNALS\nAttention prompts inferred from file paths and diff text; they do not prove a vulnerability or breaking change.\nDependency graph changed\n2 files\nWHY THIS SCORE\nDependency graph changed\nAll changed files\n2\nM\ngo.sum\nDEPENDENCIES\n+23 −22\nM\ngo.mod\nDEPENDENCIES\n+9 −6\nCompany impact\n\nPR-correlated callers, separated from repository-wide dependency candidates\n\nCHANGED SERVICE\ndiffmind\nEXACT ENDPOINT CALLERS\n0\nEXACT INDIRECT PATHS\n0\nSERVICE-LEVEL CANDIDATES\n0\nGRAPH FRESHNESS\nstale\nHow to read this blast radius\n\nOnly callers whose operation matches a changed entrypoint appear here. Repository-wide dependencies without that evidence are listed separately as service-level candidates.\n\nHOP 0\nChange starts here\ndiffmind\nRepository changed by this PR\nNo downstream service dependency is proven by the current graph.\nTechnical dependency graph\nServices, queues, resources, and protocols\n\nConfidence: stale_graph_estimate. graph snapshot is stale relative to PR head; refresh the repository analysis before treating graph results as current no exact caller of a changed entrypoint or resource is proven by the graph the technical graph is repository-wide context; only exact changed-surface matches count toward PR risk"
+  },
+  {
+    "at": "2026-10-02T16:34:52.270Z",
+    "elapsed_ms": 2181,
+    "task": "screenshot",
+    "file": "P-real-pr-9-impact.png"
+  },
+  {
+    "at": "2026-10-02T16:34:52.323Z",
+    "elapsed_ms": 2234,
+    "task": "public_pr_refresh_ui",
+    "cards": 5,
+    "errors": []
+  },
+  {
+    "at": "2026-10-02T16:34:52.362Z",
+    "elapsed_ms": 2273,
+    "task": "mcp_disconnected",
+    "exit_code": 0
+  }
+]

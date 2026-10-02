@@ -1,0 +1,19 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {root,chromium,Observer,StdioClient,waitIngestion,sleep} from './helpers.mjs';
+process.env.GH_CONFIG_DIR=path.join(root,'empty-gh-config');fs.mkdirSync(process.env.GH_CONFIG_DIR,{recursive:true,mode:0o700});
+const obs=new Observer('public-pr-observations');const client=new StdioClient(path.join(root,'public-home'),obs);let browser;
+try{
+ await client.connect();const rt=(await client.call('agent_runtime',{action:'status'})).data;
+ const created=await client.op('create_project',{}, {name:'Public DiffMind PR Trial'});const pid=created.data.id;
+ await client.op('import_repositories',{pid},{provider:'local',root:path.join(root,'public-repositories'),dry_run:true});
+ await client.op('start_ingestion',{pid},{import:{provider:'local',root:path.join(root,'public-repositories')},concurrency:1});
+ const graph=await waitIngestion(client,pid);obs.log('public_source_graph',{status:graph.status,analyzed:graph.analyzed,run_id:graph.graph_run_id});
+ const start=Date.now();const pulls=await client.op('list_pull_requests',{pid});obs.log('public_pr_list',{http_status:pulls.status,duration_ms:Date.now()-start,data:pulls.data});
+ browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1440,height:900}});obs.watch(page);
+ await page.goto(rt.dashboard_url+'#/projects/'+pid+'/pull-requests');await page.getByRole('heading',{name:'Pull request impact'}).waitFor();await sleep(800);obs.log('public_pr_ui_initial',{body_text:await page.locator('body').innerText()});await obs.screenshot(page,'P-live-public-pr-list');
+ const cards=page.locator('.pr-card');obs.log('public_pr_cards',{count:await cards.count()});
+ const details=await client.op('pull_request_impact',{pid,repo_id:'diffmind',number:'9'});obs.log('public_pr_impact',{http_status:details.status,data:details.data});
+ fs.writeFileSync(path.join(root,'public-state.json'),JSON.stringify({pid,repo_id:'diffmind',pr:9,run:graph.graph_run_id},null,2));
+}catch(e){obs.log('study_driver_failure',{message:e.stack});process.exitCode=1}
+finally{if(browser)await browser.close();if(client.proc)await client.disconnect()}

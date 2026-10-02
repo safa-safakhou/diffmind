@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter"
 	"gopkg.in/yaml.v3"
 )
 
@@ -254,6 +255,9 @@ func mergeStringSliceMap(dst *map[string][]string, src map[string][]string) {
 }
 
 func (c Config) Validate() error {
+	if _, err := sourcefilter.NewPolicy(c.Paths.Include, c.Paths.Exclude); err != nil {
+		return err
+	}
 	if schema := strings.TrimSpace(c.Schema); schema != "" && schema != Schema {
 		return fmt.Errorf("schema %q is unsupported; expected %s", c.Schema, Schema)
 	}

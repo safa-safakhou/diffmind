@@ -1,0 +1,58 @@
+{
+  "study_date": "2026-10-02",
+  "source_commit": "5d2548514bfc5d920dfd40def5fcacd80162e9ae",
+  "public_clone_commit": "5d2548514bfc5d920dfd40def5fcacd80162e9ae",
+  "method": "AI-observer live browser and MCP walkthrough; no recruited human participants",
+  "browser": "Headless Chromium 153.0.8010.12 via Playwright",
+  "node": "24.12.0",
+  "system": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "main_viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "supplemental_viewports": [
+    [
+      1280,
+      720
+    ],
+    [
+      1920,
+      1080
+    ]
+  ],
+  "public_pr": "https://github.com/safa-safakhou/diffmind/pull/9",
+  "synthetic_repositories": [
+    "catalog",
+    "checkout",
+    "gateway",
+    "notification",
+    "payment",
+    "storefront"
+  ],
+  "path_substitutions": {
+    "<study-root>": "Disposable directory outside repository",
+    "<source-root>": "Working source checkout"
+  },
+  "product_code_changes": false,
+  "agent_host_registration_performed": false,
+  "shared_identity_method": "trusted proxy headers simulated in isolated browser contexts; no OIDC or TLS deployment",
+  "github_writes_performed": false,
+  "known_harness_errors": [
+    "Nonexistent diff_contracts tool: corrected to advertised compare_contracts",
+    "Public PR read initially routed to manage_workspace: corrected to inspect_workspace",
+    "Incorrect membership row selected in discarded company trial: final trial verified subject before revocation",
+    "Native Fetch status called as a method in an earlier discarded trial",
+    "Nonexistent ingestion summary selector introduced a 30-second wait: excluded from product latency",
+    "Completion probe guessed an unavailable list_refresh_jobs operation and a /api/v1 GET route: persisted ingestion and saved job verify success independently"
+  ],
+  "evidence_transformations": [
+    "JSON string path substitution only",
+    "PNG screenshots copied unchanged",
+    "Empty stderr and discarded wrong-member trial omitted",
+    "No authentication headers or token secrets captured",
+    "Observer scripts copied as text with path substitutions; contain original driver assumptions and mistakes"
+  ],
+  "test_processes": "Owning agent/server processes stopped after each retained run",
+  "retained_timestamped_events": 143,
+  "retained_screenshots": 22
+}

@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -42,6 +43,7 @@ type Server struct {
 	host                string
 	port                int
 	log                 *util.Logger
+	analyzerBinary      string
 	version             string
 	authToken           string
 	proxySecret         string
@@ -102,6 +104,13 @@ func New(st *store.Store, runs *runmgr.Manager, diffmindRunsDir, host string, po
 
 // Addr returns "host:port".
 func (s *Server) Addr() string { return fmt.Sprintf("%s:%d", s.host, s.port) }
+
+// SetAnalyzerBinary supplies the executable used by repository workers and cache identity.
+func (s *Server) SetAnalyzerBinary(path string) { s.analyzerBinary = path }
+
+func (s *Server) analyzerExecutable() string {
+	return firstNonEmpty(os.Getenv("DIFFMIND_BINARY"), s.analyzerBinary, "diffmind")
+}
 
 // SetVersion identifies this DiffMind build to MCP clients.
 func (s *Server) SetVersion(version string) {
