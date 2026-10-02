@@ -69,6 +69,24 @@ digest. These are context, **not proof of why a change happened**. Historical
 snapshots without pack digests remain queryable. No source diff, causal
 explanation, runtime reachability, or universal extraction coverage is implied.
 
+### Pull-request impact evidence
+
+The PR impact screen separates callers matching a changed endpoint from broader
+service dependency candidates. Exact changed-line matching requires the endpoint's
+recorded repository revision to be clean and equal to the PR head SHA. Matching
+uses added lines in the diff's head coordinates; removed lines belong to the diff
+base and cannot be applied to a head snapshot. Older or unidentified snapshots,
+missing source line ranges, and omitted patches produce file-scope candidates
+only. Deleted endpoints require baseline analysis; their absence in a head graph
+does not establish that the PR has no impact.
+
+Caller matching preserves URL path case and trailing slashes while normalizing
+route parameter names. Only exact matches from a fresh graph contribute to the
+company portion of the risk score. Missing or conflicting snapshot revisions
+remain unknown even when the current repository checkout is marked fresh.
+Service-level candidates and repository-wide technical graphs remain available
+as review context and do not imply runtime breakage or proven indirect impact.
+
 ## Find a dependency path
 
 ```json
