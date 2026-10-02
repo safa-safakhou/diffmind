@@ -110,3 +110,53 @@ func TestCompletedIngestionSatisfiesReconnectCadence(t *testing.T) {
 		t.Fatalf("recent ingestion=%s", reason)
 	}
 }
+
+func TestManualRetryCompletionIsNewerThanJobCreationOrder(t *testing.T) {
+	s := newAuthTestServer(t)
+	project, _ := s.store.CreateProject(store.Project{Name: "retry ordering"})
+	first, _, err := s.store.EnqueueJob(project.ID, "fleet_refresh", "", "", 32)
+	if err != nil {
+		t.Fatal(err)
+	}
+	failJob := func() {
+		t.Helper()
+		for i := 0; i < 3; i++ {
+			if _, err := s.store.ClaimJob(time.Now().UTC().Add(time.Hour)); err != nil {
+				t.Fatal(err)
+			}
+			if err := s.store.FinishJob(first.ID, store.JobAttempt{Status: "failed"}, false, 0); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	failJob()
+	second, _, err := s.store.EnqueueJob(project.ID, "fleet_refresh", "", "", 32)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 3; i++ {
+		if _, err = s.store.ClaimJob(time.Now().UTC().Add(time.Hour)); err != nil {
+			t.Fatal(err)
+		}
+		if err = s.store.FinishJob(second.ID, store.JobAttempt{Status: "failed"}, false, 0); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err = s.store.RetryJob(first.ID, 32); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.store.ClaimJob(time.Now().UTC().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	if err = s.store.FinishJob(first.ID, store.JobAttempt{Status: "succeeded"}, false, 0); err != nil {
+		t.Fatal(err)
+	}
+	history, err := s.automaticRefreshHistory(project.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	reason, _ := automaticRefreshEligibility(history, 15*time.Minute, time.Now().UTC())
+	if history[0].ID != first.ID || reason != "not_due" {
+		t.Fatalf("manual retry history=%+v reason=%s", history, reason)
+	}
+}
