@@ -634,6 +634,8 @@ export function ImportOrgModal({ open = true, busy, onClose, onImport }) {
   const [preview, setPreview] = useState(null)
   const draftKey = JSON.stringify([provider, org, root, apiBase, include, exclude, team, limit, clone, cloneTransport, concurrency, recursive, maxDepth, runPipeline])
   const reviewed = preview?.key === draftKey
+  const errorField = error.startsWith('Root directory:') ? 'root' : /^invalid (include|exclude) regex/.exec(error)?.[1]
+  const fieldError = (name) => errorField === name ? { invalid: true, describedBy: 'import-error' } : {}
   const submit = async (dryRun = true) => {
     if (busy || (!dryRun && !reviewed)) return
     setError('')
@@ -655,11 +657,12 @@ export function ImportOrgModal({ open = true, busy, onClose, onImport }) {
         recursive,
         max_depth: maxDepth === '' ? 2 : Number(maxDepth),
         dry_run: dryRun,
+        preview_digest: dryRun ? undefined : preview?.result?.preview_digest,
         run_pipeline: runPipeline,
       })
       if (dryRun) setPreview({ key: requestKey, result })
       else setPreview(null)
-    } catch (e) { setError(e.message) }
+    } catch (e) { setError(e.message); if (e.status === 409) setPreview(null) }
   }
   if (!open) return null
   return (
@@ -676,14 +679,14 @@ export function ImportOrgModal({ open = true, busy, onClose, onImport }) {
         </div>
       ) : (
         <div class="option-grid">
-          <TextField label="Root directory" value={root} onInput={setRoot} placeholder="/path/to/repos" />
+          <TextField {...fieldError('root')} label="Root directory" value={root} onInput={setRoot} placeholder="/path/to/repos" />
           <TextField label="Team" value={team} onInput={setTeam} />
           <NumberField label="Max depth" value={maxDepth} onInput={setMaxDepth} min="1" max="8" />
         </div>
       )}
       <div class="option-grid">
-        <TextField label="Include regex" value={include} onInput={setInclude} placeholder=".*-api$" />
-        <TextField label="Exclude regex" value={exclude} onInput={setExclude} placeholder="archive|template" />
+        <TextField {...fieldError('include')} label="Include regex" value={include} onInput={setInclude} placeholder=".*-api$" />
+        <TextField {...fieldError('exclude')} label="Exclude regex" value={exclude} onInput={setExclude} placeholder="archive|template" />
         <NumberField label="Limit" value={limit} onInput={setLimit} placeholder="0 = all" min="0" />
       </div>
       <div class="check-grid">
@@ -709,11 +712,11 @@ export function ImportOrgModal({ open = true, busy, onClose, onImport }) {
           ? <>Uses <code>GITHUB_TOKEN</code>, <code>GH_TOKEN</code>, or <code>gh auth token</code>. Auto prefers HTTPS when a token is available and SSH otherwise.</>
           : <>Scans for directories containing <code>.git</code>. Imported repos keep their existing local paths; no clone is performed.</>}
       </p>
-      {error && <div class="banner error" role="alert">{error}</div>}
+      {error && <div id="import-error" class="banner error" role="alert">{error}</div>}
       {preview && <section aria-label="Import preview" aria-live="polite">
         <h3>{preview.result.count || 0} repositories found</h3>
         {!reviewed && <p class="banner">Settings changed. Preview again before importing.</p>}
-        <p class="muted small">Preview does not clone, register or analyze repositories. Import scans this scope again; repositories may have changed since preview.</p>
+        <p class="muted small">Preview does not clone, register or analyze repositories. If the repository list or import settings change, preview again before importing.</p>
         <ul>{(preview.result.results || []).map((repo) => <li key={repo.path || repo.git_url || repo.name}><strong>{repo.name}</strong> · {repo.path || repo.git_url} · {repo.error || repo.status}</li>)}</ul>
       </section>}
       <div class="actions">
@@ -826,11 +829,11 @@ function DiffMindRunModal({ repo, busy, onClose, onRun }) {
   )
 }
 
-function TextField({ label, value, onInput, placeholder, type = 'text', disabled, min, max, step }) {
+function TextField({ label, value, onInput, placeholder, type = 'text', disabled, min, max, step, invalid, describedBy }) {
   return (
     <div class="field">
       <label>{label}
-      <input type={type} value={value} disabled={disabled} min={min} max={max} step={step} placeholder={placeholder || ''} onInput={(e) => onInput(e.target.value)} /></label>
+      <input aria-invalid={invalid || undefined} aria-describedby={describedBy} type={type} value={value} disabled={disabled} min={min} max={max} step={step} placeholder={placeholder || ''} onInput={(e) => onInput(e.target.value)} /></label>
     </div>
   )
 }

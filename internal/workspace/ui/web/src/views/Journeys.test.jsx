@@ -47,7 +47,7 @@ test('import retains reviewed candidates and draft, invalidates changed scope an
   const { root, show, button, click, input } = await dom(t)
   const calls = []
   let fail = false
-  const onImport = async (body) => { calls.push(body); if (fail) throw new Error('Invalid include regex'); return { count: 1, results: [{ name: 'checkout', path: '/company/checkout', status: 'preview' }] } }
+  const onImport = async (body) => { calls.push(body); if (fail) throw new Error('Invalid include regex'); return { preview_digest: 'reviewed-scope', count: 1, results: [{ name: 'checkout', path: '/company/checkout', status: 'preview' }] } }
   const view = (open = true) => <ImportOrgModal open={open} onImport={onImport} onClose={() => {}} />
   await show(view())
   await click('Local directory'); await input('Root directory', '/company')
@@ -63,6 +63,7 @@ test('import retains reviewed candidates and draft, invalidates changed scope an
   await click('Preview repositories'); await click('Import and build graph')
   assert.equal(calls.at(-1).dry_run, false)
   assert.equal(calls.at(-1).root, '/company')
+  assert.equal(calls.at(-1).preview_digest, 'reviewed-scope')
   fail = true
   await click('Preview repositories')
   assert.match(root.querySelector('[role="dialog"] [role="alert"]').textContent, /Invalid include regex/)
