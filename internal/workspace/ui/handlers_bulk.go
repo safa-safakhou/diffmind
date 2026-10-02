@@ -2,22 +2,28 @@ package ui
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/orchestrator"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/store"
 )
 
 type importReposRequest struct {
+	PreviewDigest   string `json:"preview_digest,omitempty"`
 	Provider        string `json:"provider"`
 	Org             string `json:"org"`
 	Root            string `json:"root"`
@@ -61,26 +67,13 @@ func (s *Server) handleImportRepos(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusBadRequest, err)
 		return
 	}
-	switch req.Provider {
-	case "github":
-		repos, err := githubOrgRepos(r.Context(), req)
-		if err != nil {
-			writeErr(w, http.StatusBadGateway, err)
-			return
-		}
-		results := s.importGitHubRepos(pid, req, repos)
-		writeJSON(w, http.StatusOK, map[string]any{"results": results, "count": len(results)})
-	case "local":
-		repos, err := localRepos(req)
-		if err != nil {
-			writeErr(w, http.StatusBadRequest, err)
-			return
-		}
-		results := s.importLocalRepos(pid, req, repos)
-		writeJSON(w, http.StatusOK, map[string]any{"results": results, "count": len(results)})
-	default:
-		writeErr(w, http.StatusBadRequest, fmt.Errorf("provider %q is not supported yet", req.Provider))
+	prepared, err := s.prepareImport(r.Context(), pid, req)
+	if err != nil {
+		writeImportError(w, err)
+		return
 	}
+	results := prepared.apply(s, pid, req)
+	writeJSON(w, http.StatusOK, map[string]any{"results": results, "count": len(results), "preview_digest": prepared.digest})
 }
 
 func validateImportReposRequest(req *importReposRequest) error {
@@ -550,4 +543,91 @@ func (s *Server) runDiffMindBatch(pid string, repos []store.Repo, opts orchestra
 		}()
 	}
 	wg.Wait()
+}
+
+// A review digest is a consistency check, not an authorization credential.
+var errImportReviewChanged = errors.New("Repository scope changed since preview. Preview again before importing.")
+
+type preparedImport struct {
+	local  []localRepo
+	github []githubRepo
+	digest string
+}
+
+func (p *preparedImport) apply(s *Server, pid string, req importReposRequest) []importedRepoResult {
+	if req.Provider == "local" {
+		return s.importLocalRepos(pid, req, p.local)
+	}
+	return s.importGitHubRepos(pid, req, p.github)
+}
+
+type importUpstreamError struct{ error }
+
+func writeImportError(w http.ResponseWriter, err error) {
+	code := http.StatusBadRequest
+	var upstream *importUpstreamError
+	if errors.As(err, &upstream) {
+		code = http.StatusBadGateway
+	}
+	if errors.Is(err, errImportReviewChanged) {
+		code = http.StatusConflict
+	}
+	writeErr(w, code, err)
+}
+func (s *Server) prepareImport(ctx context.Context, pid string, req importReposRequest) (*preparedImport, error) {
+	p := &preparedImport{}
+	var err error
+	if req.Provider == "local" {
+		p.local, err = localRepos(req)
+	} else {
+		p.github, err = githubOrgRepos(ctx, req)
+	}
+	if err != nil {
+		if req.Provider == "local" {
+			return nil, fmt.Errorf("Root directory: %w", err)
+		}
+		return nil, &importUpstreamError{err}
+	}
+	review := req
+	review.DryRun = true
+	review.PreviewDigest = ""
+	review.Clone = false // execution mode does not alter repository membership
+	results := p.apply(s, pid, review)
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Name+results[i].Path+results[i].GitURL < results[j].Name+results[j].Path+results[j].GitURL
+	})
+	// Only selected candidates contribute branch and local analysis boundaries.
+	branches := map[string]string{}
+	paths := map[string]serviceconfig.PathConfig{}
+	for _, result := range results {
+		if req.Provider == "local" {
+			config, err := serviceconfig.Load(result.Path)
+			if err != nil {
+				return nil, err
+			}
+			paths[result.Path] = config.Paths
+		} else {
+			for _, repo := range p.github {
+				if repo.Name == result.Name {
+					branches[repo.Name] = firstNonEmpty(req.DefaultBranch, repo.DefaultBranch)
+				}
+			}
+		}
+	}
+	payload, err := json.Marshal(struct {
+		Project    string
+		Request    importReposRequest
+		Candidates []importedRepoResult
+		Branches   map[string]string
+		Paths      map[string]serviceconfig.PathConfig
+	}{pid, review, results, branches, paths})
+	if err != nil {
+		return nil, err
+	}
+	digest := sha256.Sum256(payload)
+	p.digest = hex.EncodeToString(digest[:])
+	if !req.DryRun && req.PreviewDigest != "" && req.PreviewDigest != p.digest {
+		return nil, errImportReviewChanged
+	}
+	return p, nil
 }

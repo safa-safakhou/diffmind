@@ -140,7 +140,7 @@ func AddTools(server *mcp.Server, invoke Invoke) {
 				}
 				return nil, op, nil
 			}
-			return nil, map[string]any{"operations": Operations, "workflow": []string{"list projects before creating; do not retry creation blindly after a lost response", "create_project", "import_repositories with dry_run=true to preview", "start_ingestion with import or {} for incremental refresh", "get_ingestion until completed; inspect failures before retry", "query graph and verify source evidence"}}, nil
+			return nil, map[string]any{"operations": Operations, "workflow": []string{"list projects before creating; do not retry creation blindly after a lost response", "create_project", "import_repositories with dry_run=true to preview", "start_ingestion with import including returned preview_digest, or {} for incremental refresh", "get_ingestion until completed; inspect failures before retry", "query graph and verify source evidence"}}, nil
 		})
 	for _, readOnly := range []bool{true, false} {
 		name, desc := "manage_workspace", "Create/configure projects, import repositories, build/update/cancel/retry graphs, teach packs, and administer access/tokens/limits. Use describe_management first. Accepted async work is NOT completed: inspect its persisted status. Mutations are audited and permission checked. No automatic mutation retries."

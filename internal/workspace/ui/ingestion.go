@@ -15,6 +15,7 @@ import (
 )
 
 type ingestionRequest struct {
+	prepared    *preparedImport
 	Import      *importReposRequest             `json:"import,omitempty"`
 	Concurrency int                             `json:"concurrency,omitempty"`
 	Options     orchestrator.DiffMindRunOptions `json:"options,omitempty"`
@@ -65,6 +66,14 @@ func (s *Server) handleStartIngestion(w http.ResponseWriter, r *http.Request) {
 	if req.Concurrency < 0 || req.Concurrency > 16 {
 		writeErr(w, http.StatusBadRequest, errors.New("concurrency must be between 0 and 16"))
 		return
+	}
+	if req.Import != nil && req.Import.PreviewDigest != "" {
+		prepared, err := s.prepareImport(r.Context(), pid, *req.Import)
+		if err != nil {
+			writeImportError(w, err)
+			return
+		}
+		req.prepared = prepared
 	}
 	req.Concurrency = importCloneConcurrency(req.Concurrency)
 	ingestion := store.Ingestion{Status: store.IngestionRunning, Phase: "starting", Attempt: 1}
@@ -235,23 +244,16 @@ func (s *Server) executeIngestion(ctx context.Context, pid string, req ingestion
 		save()
 		importReq := *req.Import
 		importReq.Clone = false // the project pipeline performs one coordinated sync
-		var results []importedRepoResult
-		switch importReq.Provider {
-		case "github":
-			repos, err := githubOrgRepos(ctx, importReq)
+		prepared := req.prepared
+		if prepared == nil {
+			var err error
+			prepared, err = s.prepareImport(ctx, pid, importReq)
 			if err != nil {
 				fail(err)
 				return
 			}
-			results = s.importGitHubRepos(pid, importReq, repos)
-		case "local":
-			repos, err := localRepos(importReq)
-			if err != nil {
-				fail(err)
-				return
-			}
-			results = s.importLocalRepos(pid, importReq, repos)
 		}
+		results := prepared.apply(s, pid, importReq)
 		ingestion.Phase = "importing"
 		ingestion.Discovered = len(results)
 		for _, result := range results {
