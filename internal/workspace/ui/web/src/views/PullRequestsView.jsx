@@ -135,6 +135,7 @@ export function PullRequestsView({ pid }) {
   const activeRepos = scopedRepos.filter((repo) => repo.open_count > 0)
   const onlyUnavailable = scopedRepos.length > 0 && scopedRepos.every((repo) => repo.status !== 'ok')
   const scopedOpen = scopedRepos.reduce((sum, repo) => sum + repo.open_count, 0)
+  const observedCount = data && checkedCount > 0 && !onlyUnavailable ? scopedOpen : '—'
   const visibleRepos = scopedRepos.slice(0, 100)
   const visiblePulls = pulls.slice(0, 100)
   const impacted = impact?.company?.services || []
@@ -158,8 +159,8 @@ export function PullRequestsView({ pid }) {
 
       {error && <div class="banner error pr-banner" role="alert">{error}</div>}
       <section class="pr-kpis">
-        <Metric value={data && checkedCount > 0 && !onlyUnavailable ? scopedOpen : '—'} label="Observed open PRs in scope" tone="blue" />
-        <Metric value={activeRepos.length} label="Repos with PRs in scope" tone="cyan" />
+        <Metric value={observedCount} label="Observed open PRs in scope" tone="blue" />
+        <Metric value={observedCount === '—' ? '—' : activeRepos.length} label="Observed repos with PRs in scope" tone="cyan" />
         <Metric value={data ? checkedCount : '—'} label="Repositories checked" />
         <Metric value={impact ? `${impact.risk_score}/100` : '—'} label="Selected risk" tone={impact?.risk_level} />
         <Metric value={impact?.company?.available ? companyCount : '—'} label="Exact caller matches" tone={companyCount > 3 ? 'high' : 'green'} />
@@ -186,9 +187,9 @@ export function PullRequestsView({ pid }) {
             </label>
             {(teamFilter || repoSearch || !openOnly) && <button class="pr-clear-scope" onClick={() => { setTeamFilter(''); setRepoSearch(''); setOpenOnly(true); setRepoFilter('') }}>Reset scope</button>}
           </div>
-          <div class="pr-section-head pr-repo-results"><h2>Repositories</h2><span>{scopedOpen} PRs</span></div>
+          <div class="pr-section-head pr-repo-results"><h2>Repositories</h2><span>{observedCount === '—' ? 'Unknown' : `${scopedOpen} observed PRs`}</span></div>
           <button class={'pr-repo-row ' + (!repoFilter ? 'active' : '')} onClick={() => setRepoFilter('')}>
-            <span>All repositories in scope</span><strong>{scopedOpen}</strong>
+            <span>All repositories in scope</span><strong>{observedCount}</strong>
           </button>
           {visibleRepos.map((repo) => (
             <button key={repo.repo_id} class={'pr-repo-row ' + (repoFilter === repo.repo_id ? 'active' : '')} onClick={() => setRepoFilter(repo.repo_id)}>
