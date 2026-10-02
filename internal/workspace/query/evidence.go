@@ -3,21 +3,22 @@ package query
 // EvidenceState distinguishes a saved graph from the freshness of repository
 // analyses. Fresh analyses do not imply that the selected graph incorporates them.
 type EvidenceState struct {
-	FreshnessBasis    string `json:"freshness_basis"`
-	GraphState        string `json:"graph_state"`
-	SavedRunID        string `json:"saved_run_id,omitempty"`
-	RepositoryCount   int    `json:"repository_count"`
-	AnalysisFreshness string `json:"analysis_freshness"`
-	Fresh             int    `json:"fresh"`
-	Stale             int    `json:"stale"`
-	Dirty             int    `json:"dirty"`
-	Unknown           int    `json:"unknown"`
-	Basis             string `json:"basis"`
-	Coverage          string `json:"coverage"`
+	FreshnessReference string `json:"freshness_reference"`
+	FreshnessBasis     string `json:"freshness_basis"`
+	GraphState         string `json:"graph_state"`
+	SavedRunID         string `json:"saved_run_id,omitempty"`
+	RepositoryCount    int    `json:"repository_count"`
+	AnalysisFreshness  string `json:"analysis_freshness"`
+	Fresh              int    `json:"fresh"`
+	Stale              int    `json:"stale"`
+	Dirty              int    `json:"dirty"`
+	Unknown            int    `json:"unknown"`
+	Basis              string `json:"basis"`
+	Coverage           string `json:"coverage"`
 }
 
 func DescribeEvidence(runID string, freshness []string) EvidenceState {
-	state := EvidenceState{GraphState: "missing", FreshnessBasis: "stored_repository_status", SavedRunID: runID, RepositoryCount: len(freshness), AnalysisFreshness: "unknown", Basis: "static_source", Coverage: "unverified"}
+	state := EvidenceState{FreshnessReference: "latest_repository_analysis", GraphState: "missing", FreshnessBasis: "stored_repository_status", SavedRunID: runID, RepositoryCount: len(freshness), AnalysisFreshness: "unknown", Basis: "static_source", Coverage: "unverified"}
 	if runID != "" {
 		state.GraphState = "saved"
 	}

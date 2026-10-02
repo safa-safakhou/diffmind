@@ -15,15 +15,15 @@ export function membersFromRows(rows) {
 }
 
 export function useProjectCapabilities(pid) {
-  const [state, setState] = useState({ data: null, error: '' })
+  const [state, setState] = useState({ data: null, error: '', unavailable: false })
   useEffect(() => {
     let alive = true, timer
     const refresh = async () => {
-      try { const data = await getCapabilities(pid); if (alive) setState({ data, error: '' }) }
-      catch (e) { if (alive) setState({ data: null, error: e.message }) }
+      try { const data = await getCapabilities(pid); if (alive) setState({ data, error: '', unavailable: false }) }
+      catch (e) { if (alive) setState((previous) => ({ data: [401, 403, 404].includes(e.status) ? null : previous.data, error: e.message, unavailable: [401, 403, 404].includes(e.status) })) }
       finally { if (alive) timer = setTimeout(refresh, 3000) }
     }
-    setState({ data: null, error: '' }); refresh()
+    setState({ data: null, error: '', unavailable: false }); refresh()
     return () => { alive = false; clearTimeout(timer) }
   }, [pid])
   return state

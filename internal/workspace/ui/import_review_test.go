@@ -101,3 +101,28 @@ func TestImportReviewFreezesAcceptedCandidates(t *testing.T) {
 		t.Fatalf("accepted scope expanded: %+v %+v", results, repos)
 	}
 }
+
+func TestImportReviewRejectsChangedGitHubDefaultBranch(t *testing.T) {
+	branch := "main"
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(w).Encode([]githubRepo{{Name: "service", CloneURL: "https://github.example/acme/service.git", DefaultBranch: branch}})
+	}))
+	defer upstream.Close()
+	s := newAuthTestServer(t)
+	project, _ := s.store.CreateProject(store.Project{Name: "github review"})
+	req := importReposRequest{Provider: "github", Org: "acme", APIBase: upstream.URL, CloneTransport: "https", DryRun: true}
+	preview, err := s.prepareImport(context.Background(), project.ID, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.DryRun = false
+	req.PreviewDigest = preview.digest
+	branch = "release"
+	if _, err = s.prepareImport(context.Background(), project.ID, req); !errors.Is(err, errImportReviewChanged) {
+		t.Fatalf("branch changed: %v", err)
+	}
+	repos, _ := s.store.ListRepos(project.ID)
+	if len(repos) != 0 {
+		t.Fatal("branch conflict registered repositories")
+	}
+}

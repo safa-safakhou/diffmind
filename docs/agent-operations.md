@@ -36,9 +36,9 @@ and ask an editor to update it. **Reload view** only reloads displayed data.
 Manual analyzer and graph controls are under **Advanced actions**.
 
 Graph summaries distinguish a saved run, repository analysis freshness and
-unverified static coverage. `freshness_basis` identifies stored repository status
-(MCP) versus a current checkout check (dashboard). Neither says that the chosen
-graph incorporates a newer analysis or that PR-head evidence is eligible.
+unverified static coverage. `freshness_basis: live_checkout_status` uses the same read-only check as the dashboard; `freshness_reference: latest_repository_analysis` compares current source against the latest repository analysis, not the selected graph snapshot. Missing or inaccessible local checkouts report unknown.
+These states do not assert that the chosen graph incorporates a newer analysis
+or that PR-head evidence is eligible.
 
 ## Discover, inspect, mutate
 
@@ -84,7 +84,7 @@ This is not a substitute for the user's authorization.
 ## End-to-end workflow
 
 1. `list_projects`; `create_project` only if needed.
-2. `import_repositories` with `dry_run:true` to preview authorized repositories.
+2. `import_repositories` with `dry_run:true` to preview authorized repositories. Keep its returned `preview_digest` and pass it unchanged inside the approved import request. HTTP 409 requires another preview; never silently expand scope.
 3. `start_ingestion` to import/sync/analyze/build, or `body:{}` for incremental
    refresh of registered repositories.
 4. Poll `get_ingestion` until terminal; inspect errors and freshness for partial

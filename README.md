@@ -100,7 +100,7 @@ add repositories in the UI. Give your host coding agent this request:
 > Perform the setup yourself; do not give me commands or UI chores.
 
 [AGENT_SETUP.md](AGENT_SETUP.md) is the executable playbook for the host agent. New local agent workspaces maintain already registered
-repositories on connection and every 15 minutes while connected; existing explicit
+repositories when overdue on connection and every 15 minutes while connected; existing explicit
 manual policies stay manual. The optional dashboard previews imports before
 registration, offers **Update context** for analysis and **Reload view** for data
 reload, and groups manual controls under **Advanced actions**. See

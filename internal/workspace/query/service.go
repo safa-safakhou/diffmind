@@ -24,17 +24,23 @@ var (
 )
 
 type Service struct {
-	store  *store.Store
-	access func(string) error
+	store   *store.Store
+	access  func(string) error
+	runsDir string
 }
 
-func New(st *store.Store) *Service { return &Service{store: st} }
+func New(st *store.Store) *Service {
+	return &Service{store: st, runsDir: filepath.Join(st.HomeDir(), "runs")}
+}
 
 // NewWithAccess filters discovery before reading project contents and checks
 // explicit/default project selection. A nil policy is trusted local access.
 func NewWithAccess(st *store.Store, access func(string) error) *Service {
-	return &Service{store: st, access: access}
+	return &Service{store: st, access: access, runsDir: filepath.Join(st.HomeDir(), "runs")}
 }
+
+// WithRunsDir selects the same analysis artifact directory as the dashboard.
+func (s *Service) WithRunsDir(dir string) *Service { s.runsDir = dir; return s }
 
 func (s *Service) visibleProjects() ([]store.Project, error) {
 	projects, err := s.store.ListProjects()
@@ -238,7 +244,7 @@ func (s *Service) enrichCurrentRepositoryStatus(projectID string, graph *archgra
 	if graph == nil {
 		return
 	}
-	repos, err := s.store.ListRepos(projectID)
+	repos, err := s.currentRepositories(projectID)
 	if err != nil {
 		return
 	}
@@ -267,9 +273,7 @@ func (s *Service) enrichCurrentRepositoryStatus(projectID string, graph *archgra
 		if ok {
 			svc.RepoID, svc.DiffMindFreshness = repo.ID, repo.DiffMindFreshness
 			status.CurrentState = repo.DiffMindFreshness
-			if !repo.UpdatedAt.IsZero() {
-				status.CheckedAt = repo.UpdatedAt.UTC().Format(time.RFC3339Nano)
-			}
+			status.CheckedAt = time.Now().UTC().Format(time.RFC3339Nano)
 		} else {
 			status.CurrentState = "unavailable"
 		}
@@ -294,14 +298,16 @@ func (s *Service) Summary(projectID, runID string) (*GraphSummary, error) {
 	}
 	sort.Strings(teamList)
 	freshness := []string{}
-	repos, err := s.store.ListRepos(run.ProjectID)
+	repos, err := s.currentRepositories(run.ProjectID)
 	if err != nil {
 		return nil, err
 	}
 	for _, repo := range repos {
 		freshness = append(freshness, repo.DiffMindFreshness)
 	}
-	return &GraphSummary{Evidence: DescribeEvidence(run.ID, freshness),
+	evidence := DescribeEvidence(run.ID, freshness)
+	evidence.FreshnessBasis = "live_checkout_status"
+	return &GraphSummary{Evidence: evidence,
 		ProjectID: run.ProjectID, RunID: run.ID, ServiceCount: len(graph.Services), EdgeCount: len(graph.Edges),
 		ExternalCount: len(graph.ExternalNodes), ResourceCount: len(graph.ResourceNodes), Teams: teamList,
 		Connectivity: graph.Connectivity, Quality: run.GraphQuality,

@@ -70,7 +70,7 @@ func (s *Server) queryFor(r *http.Request) *query.Service {
 			return errProjectAccessUnavailable
 		}
 		return err
-	})
+	}).WithRunsDir(s.diffmindRunsDir)
 }
 
 // routedMux places authorization inside ServeMux routing, where decoded

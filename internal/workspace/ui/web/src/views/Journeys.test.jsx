@@ -7,6 +7,7 @@ import { Projects } from './Projects.jsx'
 import { ImportOrgModal } from './ProjectWorkspace.jsx'
 import { ContractComparison } from './GraphCompare.jsx'
 import { EvidenceList } from './GraphDetails.jsx'
+import { useProjectCapabilities } from '../lib/access.js'
 
 const settle = () => act(async () => { await new Promise(setImmediate) })
 async function dom(t) {
@@ -93,4 +94,28 @@ test('contract comparison pins direction, exposes evidence, and never claims com
   assert.match(root.textContent, /potentially breaking/)
   assert.match(root.textContent, /source_line/)
   assert.match(root.textContent, /not proof of compatibility/)
+})
+
+
+test('access checks retain prior data on transient failure and clear it on denial', async (t) => {
+  const { root, show } = await dom(t)
+  const originalTimer = globalThis.setTimeout
+  const originalClear = globalThis.clearTimeout
+  let poll, status = 200
+  globalThis.setTimeout = (fn, ms, ...args) => ms === 3000 ? (poll = fn, -1) : originalTimer(fn, ms, ...args)
+  globalThis.clearTimeout = (id) => { if (id !== -1) originalClear(id) }
+  t.after(() => { globalThis.setTimeout = originalTimer; globalThis.clearTimeout = originalClear })
+  globalThis.fetch = async () => ({ ok: status === 200, status, text: async () => JSON.stringify(status === 200 ? { can_refresh: true } : { error: 'Access check failed' }) })
+  function Probe() { const state = useProjectCapabilities('company'); return <pre>{JSON.stringify(state)}</pre> }
+  await show(<Probe />)
+  assert.equal(JSON.parse(root.textContent).data.can_refresh, true)
+  status = 503; await act(async () => poll()); await settle()
+  let state = JSON.parse(root.textContent)
+  assert.equal(state.data.can_refresh, true); assert.equal(state.unavailable, false); assert.ok(state.error)
+  status = 403; await act(async () => poll()); await settle()
+  state = JSON.parse(root.textContent)
+  assert.equal(state.data, null); assert.equal(state.unavailable, true)
+  status = 200; await act(async () => poll()); await settle()
+  state = JSON.parse(root.textContent)
+  assert.equal(state.data.can_refresh, true); assert.equal(state.error, ''); assert.equal(state.unavailable, false)
 })

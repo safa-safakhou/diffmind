@@ -12,7 +12,8 @@ import { useProjectCapabilities } from '../lib/access.js'
 import { enqueueRefresh } from '../lib/api.js'
 
 export function ProjectWorkspace({ pid }) {
-  const { data: caps, error: accessError } = useProjectCapabilities(pid)
+  const { data: retainedCaps, error: accessError, unavailable: accessUnavailable } = useProjectCapabilities(pid)
+  const caps = accessError ? null : retainedCaps
   const [workspace, setWorkspace] = useState(null)
   const [ingestion, setIngestion] = useState(null)
   const [selected, setSelected] = useState(null)
@@ -238,7 +239,7 @@ export function ProjectWorkspace({ pid }) {
     finally { setBusy('') }
   }
 
-  if (accessError) return <div class="page"><button class="btn ghost" onClick={() => navigate('/')}>Projects</button><p class="banner error" role="alert">This workspace is unavailable or your access has changed. Ask an administrator to check your access, or return to Projects.</p></div>
+  if (accessUnavailable) return <div class="page"><button class="btn ghost" onClick={() => navigate('/')}>Projects</button><p class="banner error" role="alert">This workspace is unavailable or your access has changed. Ask an administrator to check your access, or return to Projects.</p></div>
   return (
     <div class="workspace">
       <header class="workspace-topbar">
@@ -273,6 +274,7 @@ export function ProjectWorkspace({ pid }) {
         {!workspace && error && <button class="btn ghost" onClick={refresh}>Retry loading workspace</button>}
         {workspace?.evidence && <p class="muted small">{workspace.evidence.graph_state === 'saved' ? `Saved graph ${workspace.evidence.saved_run_id}` : 'No saved graph yet'} · Repository analyses: {workspace.evidence.fresh} fresh, {workspace.evidence.stale} stale, {workspace.evidence.dirty} with local changes, {workspace.evidence.unknown} unknown. Static source evidence; coverage remains unverified.</p>}
         {caps && !caps.can_refresh && <p class="muted small">You have read-only access. Ask a project editor to update context.</p>}
+        {accessError && !accessUnavailable && <div class="workspace-error banner" role="status">Unable to check workspace access. Showing the last loaded view; actions are paused until access can be checked.</div>}
         {error && <div class="workspace-error banner error">{error}</div>}
         {graphError && <div class="workspace-error banner error">Graph load failed: {graphError}</div>}
         {currentGraphRun?.status === 'failed' && currentGraphRun.error && <div class="workspace-error banner error">Graph build failed: {currentGraphRun.error}</div>}
