@@ -1,0 +1,13 @@
+
+> diffmind-dashboard@0.1.0 build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 900 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.46 kB │ gzip:   0.29 kB
+dist/assets/index-DAO3FvuJ.css   56.47 kB │ gzip:  11.80 kB
+dist/assets/index-CgTs4wfv.js   337.76 kB │ gzip: 110.28 kB
+✓ built in 692ms

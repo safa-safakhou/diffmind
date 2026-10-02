@@ -323,7 +323,7 @@ func TestScopedMCPAllToolsIdentitySwitchAndRevocation(t *testing.T) {
 		}
 		args := map[string]any{"project": b}
 		switch tool.Name {
-		case "get_graph_summary", "list_services", "list_graph_runs", "get_contracts":
+		case "get_graph_summary", "get_readiness", "list_services", "list_graph_runs", "get_contracts":
 		case "get_service", "get_dependencies":
 			args["service"] = "private-service"
 		case "search_architecture":

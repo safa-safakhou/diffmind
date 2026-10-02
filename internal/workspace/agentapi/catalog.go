@@ -4,6 +4,7 @@ package agentapi
 import "encoding/json"
 
 var Operations = []Operation{
+	{Name: "get_readiness", Method: "GET", Path: "/api/v1/projects/{pid}/readiness", Description: "Shared runtime, saved graph, work phase, freshness, limits and permitted next actions. Works before a graph exists; acceptance/completion never proves coverage.", Destructive: false},
 	{Name: "list_project_records", Method: "GET", Path: "/api/projects", Description: "List visible projects with configuration. Reuse an existing matching project before creation.", Destructive: false},
 	{Name: "create_project", Method: "POST", Path: "/api/projects", Description: "Create a project. name required; search_roots and instruction optional. Creation is not idempotent: list projects after an uncertain response.", Destructive: false, BodyExample: example("{\"name\":\"Platform\",\"search_roots\":[],\"instruction\":\"\"}")},
 	{Name: "get_project", Method: "GET", Path: "/api/projects/{pid}", Description: "Read a project.", Destructive: false},

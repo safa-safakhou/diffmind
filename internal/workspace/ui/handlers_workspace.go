@@ -24,6 +24,7 @@ import (
 )
 
 type workspaceResponse struct {
+	Readiness    *querysvc.Readiness                    `json:"readiness"`
 	Evidence     querysvc.EvidenceState                 `json:"evidence"`
 	Project      *store.Project                         `json:"project"`
 	Repos        []workspaceRepo                        `json:"repos"`
@@ -103,17 +104,24 @@ func (s *Server) handleWorkspace(w http.ResponseWriter, r *http.Request) {
 		}
 		runs[wr.ID] = rr
 	}
-	freshness := []string{}
-	for _, repo := range repos {
-		freshness = append(freshness, repo.Freshness)
+	readiness, err := s.queryFor(r).Readiness(pid)
+	if err != nil {
+		s.writeStoreErr(w, err)
+		return
 	}
-	savedRun := ""
-	if latest != nil {
-		savedRun = latest.ID
+	// Metadata and readiness must identify the same usable saved snapshot.
+	if latest == nil || latest.ID != readiness.SavedRunID {
+		latest = nil
+		graph = nil
+		if readiness.SavedRunID != "" {
+			latest, err = s.store.GetRun(pid, readiness.SavedRunID)
+			if err != nil {
+				s.writeStoreErr(w, err)
+				return
+			}
+		}
 	}
-	evidence := querysvc.DescribeEvidence(savedRun, freshness)
-	evidence.FreshnessBasis = "live_checkout_status"
-	writeJSON(w, http.StatusOK, workspaceResponse{Evidence: evidence,
+	writeJSON(w, http.StatusOK, workspaceResponse{Readiness: readiness, Evidence: readiness.Evidence,
 		Project: project, Repos: repos, Teams: teams, CurrentRun: current, LatestRun: latest, Graph: graph,
 		LiveStatus: live, DiffMindRuns: runs, GeneratedAt: time.Now().UTC(),
 	})
@@ -224,14 +232,17 @@ func (s *Server) persistedArchGraphForRun(pid, rid string) (*ArchGraph, error) {
 	if err != nil {
 		return nil, err
 	}
-	var graph ArchGraph
+	var graph *ArchGraph
 	if err := json.Unmarshal(data, &graph); err != nil {
 		return nil, err
 	}
+	if graph == nil || (graph.RunID != "" && graph.RunID != rid) {
+		return nil, fmt.Errorf("invalid saved graph for run %s", rid)
+	}
 	s.archGraphMu.Lock()
-	s.archGraphCache[cacheKey] = archGraphCacheEntry{graph: &graph, modTime: info.ModTime(), size: info.Size()}
+	s.archGraphCache[cacheKey] = archGraphCacheEntry{graph: graph, modTime: info.ModTime(), size: info.Size()}
 	s.archGraphMu.Unlock()
-	return &graph, nil
+	return graph, nil
 }
 
 func (s *Server) persistedArchGraphForRunFast(pid, rid string, r *http.Request) (*ArchGraph, error) {
@@ -914,4 +925,27 @@ func errorString(err error) string {
 		return ""
 	}
 	return err.Error()
+}
+
+// Match the query service's saved-run selection without parsing large graphs on
+// every readiness poll. The artifact cache revalidates file size and mtime.
+func (s *Server) readinessGraphRun(pid string) (*store.RunManifest, error) {
+	runs, err := s.store.ListRuns(pid)
+	if err != nil {
+		return nil, err
+	}
+	for _, run := range runs {
+		if run.Status != store.RunCompleted {
+			continue
+		}
+		_, err := s.persistedArchGraphForRun(pid, run.ID)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		return &run, nil
+	}
+	return nil, querysvc.ErrNoCompletedGraph
 }

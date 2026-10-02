@@ -4,7 +4,7 @@ import { parseHTML } from 'linkedom'
 import { render } from 'preact'
 import { act } from 'preact/test-utils'
 import { Projects } from './Projects.jsx'
-import { ImportOrgModal } from './ProjectWorkspace.jsx'
+import { ImportOrgModal, ReadinessNotice, ProjectWorkspace } from './ProjectWorkspace.jsx'
 import { ContractComparison } from './GraphCompare.jsx'
 import { PullRequestsView } from './PullRequestsView.jsx'
 import { EvidenceList } from './GraphDetails.jsx'
@@ -153,4 +153,38 @@ test('late provider responses cannot replace a different workspace', async (t) =
   await act(async () => older(response('Previous workspace repository'))); await settle()
   assert.match(root.textContent, /Current workspace repository/)
   assert.doesNotMatch(root.textContent, /Previous workspace repository/)
+})
+
+
+test('readiness notice separates saved graph from partial, failed and completed work', async (t) => {
+ const { root, show } = await dom(t)
+ for (const status of ['partial', 'failed', 'completed']) {
+  await show(<ReadinessNotice readiness={{ graph: 'queryable', saved_run_id: 'older', saved_at: '2026-10-01T12:00:00Z', work: { status } }} />)
+  const notice = root.querySelector('[aria-label="Workspace readiness"]')
+  assert.match(notice.textContent, /older remains queryable/)
+  assert.match(notice.textContent, /Saved at 2026-10-01/)
+  if (status === 'completed') assert.match(notice.textContent, /coverage remains unverified/)
+  else assert.match(notice.textContent, /Inspect work before retrying/)
+ }
+})
+
+
+test('a late workspace read cannot replace the newly selected project', async (t) => {
+ const { root, show } = await dom(t)
+ const response = (data) => ({ ok: true, status: 200, text: async () => JSON.stringify(data) })
+ let resolveOld
+ globalThis.fetch = async (url) => {
+  if (url.includes('/capabilities')) return response({ role: 'admin', mode: 'legacy', can_refresh: true, can_configure: true })
+  if (url.includes('/ingestion')) return response({ status: 'not_started' })
+  if (url.includes('/old/workspace')) return new Promise((resolve) => { resolveOld = resolve })
+  return response({ project: { name: 'New workspace' }, repos: [], teams: [], readiness: { graph: 'missing', work: { status: 'empty' }, actions: { configure: true } } })
+ }
+ await show(<ProjectWorkspace pid="old" />)
+ assert.ok(resolveOld)
+ await show(<ProjectWorkspace pid="new" />)
+ assert.match(root.querySelector('h1').textContent, /New workspace/)
+ resolveOld(response({ project: { name: 'Old workspace' }, repos: [], teams: [] }))
+ await settle()
+ assert.match(root.querySelector('h1').textContent, /New workspace/)
+ assert.doesNotMatch(root.textContent, /Old workspace/)
 })
