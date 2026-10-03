@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-03",
+  "implementation_commit": "6c6c8d65bb2d1fb110c2d236d90ec38d9e879386",
+  "branch": "codex/diffmind-backlog-batch",
+  "pushed": false,
+  "linear_readback": [
+    {
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-178/standardize-actionable-feedback-and-recovery-across-ui-and-agents",
+      "id": "MNI-178"
+    },
+    {
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-184/make-graph-selection-readable-keyboard-accessible-and-fully",
+      "id": "MNI-184"
+    },
+    {
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-185/distinguish-empty-loading-denied-failed-and-partial-workspace-states",
+      "id": "MNI-185"
+    },
+    {
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-188/explain-evidence-origin-uncertainty-and-coverage-consistently",
+      "id": "MNI-188"
+    },
+    {
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-190/explain-snapshot-differences-through-input-provenance-and-evidence",
+      "id": "MNI-190"
+    },
+    {
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-194/make-joining-browser-and-agent-setup-a-clear-role-aware-handoff",
+      "id": "MNI-194"
+    },
+    {
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-195/make-access-loss-and-offboarding-understandable-across-independent",
+      "id": "MNI-195"
+    },
+    {
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-198/make-pr-revision-eligibility-and-deletion-limitations-actionable",
+      "id": "MNI-198"
+    },
+    {
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-199/present-pr-evidence-before-heuristic-scores-and-clarify-delivery",
+      "id": "MNI-199"
+    },
+    {
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-200/align-installation-operation-and-evaluation-docs-with-the-implemented",
+      "id": "MNI-200"
+    }
+  ]
+}
