@@ -241,3 +241,19 @@ Put generally useful packs under `packs/<id>/`. Every official pack needs:
 - no company, customer, credential, or private infrastructure data.
 
 CI lints and runs every official pack in addition to the Go test suite.
+
+
+## Project pack selectors and rollback
+
+The project API returns a storage key for CRUD routes. A manifest ID such as
+example.conventions can have the storage key example-conventions. Repository
+pack_ids accepts either key or manifest ID; graph assembly resolves them before
+matching and fails visibly if a selected pack is missing or ambiguous. This
+prevents a completed graph from silently omitting an explicitly selected pack.
+
+An empty repository pack_ids list means automatic project matching, not disable
+all packs. To roll back a project correction, remove its repository selections
+and remove the trial pack through the admin-only pack API, or restore the
+reviewed previous manifest. Inspect the rebuilt graph and retain earlier
+snapshots. The improvement-gap rolled_back state records the review; it does
+not perform these mutations.
