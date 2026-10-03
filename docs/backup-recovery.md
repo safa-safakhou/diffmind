@@ -60,6 +60,37 @@ external, dangling, and chained links are rejected. Sockets, FIFOs, devices and
 unsupported archive types are rejected, not silently omitted. Use a filesystem
 backup for excluded source layouts; do not delete source just to make this pass.
 
+## Reconcile access before reopening
+
+Treat restoring authority as a separate step from verifying archive integrity.
+Keep the identity proxy, ordinary MCP clients and webhook ingress disconnected
+while the operator inspects the restored home. Retain the current offboarding
+register outside backups. Read each restored membership policy, remove exact
+departed subjects using its current revision, and revoke explicitly assigned
+project token IDs independently. A membership edit does not revoke a token.
+
+Probe the isolated restored instance with departed proxy identities and revoked
+tokens: expect inaccessible-project responses and authentication denial,
+respectively. Verify unrelated service credentials and admin recovery still
+work. Inspect interrupted jobs in Operations and cancel unwanted admitted work
+before reconnecting ingress. Record verification times, archive digest, restored
+version/path and reviewed grants privately. Failed reconciliation keeps ordinary
+traffic disconnected; switching to legacy is not a recovery workaround.
+
+The disposable regression drill uses the actual archive create/verify/restore,
+store and authenticated HTTP handlers with JSON and SQLite queues:
+
+```bash
+go test ./internal/workspace/ui -run TestOfflineRestoreRequiresAccessReconciliation -v -count=1
+go test ./internal/workspace/backup ./internal/workspace/store
+```
+
+It proves that a snapshot taken before offboarding restores both the departed
+membership and token, then verifies explicit removal while preserving unrelated
+service and recovery grants. It also recovers an interrupted queue job. No
+ordinary listener opens during this test. Its small synthetic fixture timings
+are observations, not a production recovery-time promise.
+
 ## Recovery drill
 
 Verification extracts nothing. Also practice restoration to an isolated new path:
