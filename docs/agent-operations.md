@@ -163,7 +163,12 @@ status again. Stop does not erase data; subsequent management starts the backend
 
 One local controller holds a separate lifecycle lock even during maintenance.
 Do not run two controllers for one home. Additional clients may use that
-backend's HTTP MCP while it lives. Normal disconnect stops the child; an inherited
+backend's HTTP MCP while it lives only after the owner enables scoped access
+and issues an appropriate project token. Read `agent_runtime status` for the
+current dashboard URL and append `/mcp`; do not reuse a pre-restart port.
+Keep this backend on loopback and never forward its unauthenticated admin route.
+A separate `DIFFMIND_HOME` creates an independent workspace, not a second writer
+for the same data. Normal disconnect stops the child; an inherited
 lifetime pipe also stops it if the controller is killed. Work/history remain
 durable; reconnect starts recovery. This is not an always-on OS service: use
 shared deployment for refresh independent of developer agent sessions.

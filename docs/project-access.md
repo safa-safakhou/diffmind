@@ -1,8 +1,10 @@
 # Project access
 
 Shared Diffmind installations can restrict each trusted-proxy user to explicit
-projects across the UI, HTTP API, and remote MCP. This is **opt-in**:
-`DIFFMIND_PROJECT_ACCESS=legacy` is the default and retains global roles.
+projects across the UI, HTTP API, and remote MCP. New shared deployments using
+`.env.example` select scoped access. Direct CLI launches and existing deployments
+with no explicit mode retain the legacy fallback and global roles; upgrading
+does not silently migrate their authority.
 `scoped` denies non-admin access unless a project membership or an explicitly
 issued [project agent token](agent-tokens.md) grants it. This also
 applies to old projects and newly created projects; no grants are inferred.
@@ -21,8 +23,12 @@ applies to old projects and newly created projects; no grants are inferred.
 3. Set `DIFFMIND_PROJECT_ACCESS=scoped` in the server environment or Compose
    `.env`, then restart/recreate the service. The binary also accepts
    `diffmind ui --project-access scoped`. Invalid modes prevent startup.
-4. Test with a non-admin identity: only its projects should appear, guessed
-   project URLs should fail, and its agent should discover the same projects.
+4. Before inviting users, verify scoped mode and admin recovery access. Test
+   separate viewer, editor and ungranted identities in browser/API and remote MCP:
+   only granted projects appear, guessed URLs fail, viewers cannot refresh, and
+   editors can refresh without configuring host paths. A saved grant does not
+   verify that the proxy emits the intended identity. Record the reviewed mode,
+   exact subjects and observed results.
    Grant changes require no restart. Changing the mode does require a restart.
 
 Global admins can always access every project, including membership management.

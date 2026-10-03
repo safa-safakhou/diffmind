@@ -31,6 +31,9 @@ export function ProjectAccess({ pid }) {
     <header class="operations-header"><button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}`)}>← {pid}</button><div><h1>Project access</h1><p class="muted">User memberships and project-scoped agent tokens. Global admins retain recovery access.</p></div></header>
     {error && <p class="banner error" role="alert">{error}</p>}{notice && <p class="banner ok" role="status">{notice}</p>}
     {policy && <>
+      <p role="status">Active access mode: {caps?.mode || 'unknown'}.</p>
+      <p>Every member can read all repository evidence in this project. Code-host repository permissions are not mirrored. Import only data suitable for every project member.</p>
+      <p class="muted">Before inviting users, verify viewer, editor, ungranted and administrator recovery identities in both browser and remote MCP. Saved grants do not verify proxy identity setup.</p>
       {caps?.mode === 'legacy' && <p class="banner warn">Legacy mode: grants are saved but not enforced. Start with --project-access scoped to activate restrictions.</p>}
       <p>Viewers can query this project. Editors can also queue, retry, and cancel refresh work. Host paths, imports, packs, configuration, and access changes are admin-only in scoped mode.</p>
       <p class="muted">Use the exact stable X-DiffMind-User subject. The proxy role limits each grant. No members means no proxy-user access in scoped mode; agent tokens below are separate grants.</p>

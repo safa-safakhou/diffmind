@@ -59,7 +59,7 @@ func runAgent(args []string) error {
 	// backend is stopped for an offline operation. Never remove lock files.
 	release, err := homelock.AcquireServer(filepath.Join(home, "agent-controller"))
 	if err != nil {
-		return fmt.Errorf("another local agent controller owns this home; use its HTTP /mcp endpoint for additional agents or a separate home: %w", err)
+		return fmt.Errorf("another local agent controller owns this home; keep one stdio owner, use a separate DIFFMIND_HOME, or ask the owner for a scoped project token and its current HTTP /mcp endpoint (agent_runtime status); never forward the unauthenticated local backend or remove locks: %w", err)
 	}
 	defer release()
 	host, err := agenthost.New(binary, home)

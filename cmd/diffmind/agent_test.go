@@ -74,6 +74,16 @@ func TestAgentAcceptance(t *testing.T) {
 		return session
 	}
 	session := connect()
+	// A second host initialization must fail promptly instead of creating a
+	// duplicate owner or schedule, and provide a safe supported connection route.
+	secondary := exec.CommandContext(ctx, binary, "agent")
+	secondary.Env = env
+	secondary.Dir = tmp
+	if output, err := secondary.CombinedOutput(); err == nil ||
+		!strings.Contains(string(output), "scoped project token") ||
+		!strings.Contains(string(output), "never forward") {
+		t.Fatalf("secondary controller ownership guidance: %v %s", err, output)
+	}
 	defer func() {
 		if session != nil {
 			session.Close()
