@@ -378,7 +378,7 @@ func (s *Server) handleSyncRepo(w http.ResponseWriter, r *http.Request) {
 		s.writeStoreErr(w, err)
 		return
 	}
-	if repo.SourceType != "git" && repo.GitURL == "" {
+	if repo.SourceType == "local" || (repo.SourceType != "git" && repo.GitURL == "") {
 		info := inspectLocalGit(r.Context(), repo.Path, repo.DefaultBranch)
 		updated, err := s.store.UpdateRepo(pid, rid, func(rp *store.Repo) {
 			applyGitInfo(rp, info)
@@ -402,6 +402,9 @@ func (s *Server) handleSyncRepo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) syncGitRepo(ctx context.Context, pid string, repo store.Repo) (*store.Repo, error) {
+	if repo.SourceType == "local" {
+		return nil, fmt.Errorf("local source is analyzed in place; remote metadata does not authorize a managed checkout")
+	}
 	release, err := s.acquireRepository(ctx, pid)
 	if err != nil {
 		return nil, err
@@ -657,7 +660,7 @@ func (s *Server) runDiffMindForRepoContext(ctx context.Context, pid, rid string,
 	if repoPath == "" {
 		repoPath = repo.ClonePath
 	}
-	if _, statErr := os.Stat(repoPath); statErr != nil && repo.GitURL != "" {
+	if _, statErr := os.Stat(repoPath); statErr != nil && repo.SourceType != "local" && repo.GitURL != "" {
 		if updated, syncErr := s.syncGitRepo(ctx, pid, repo); syncErr == nil && updated != nil {
 			repo = *updated
 			repoPath = repo.Path

@@ -1,0 +1,35 @@
+✔ visual relationship grouping preserves mixed provenance and original facts (0.658875ms)
+✔ confirmation failure stays inside the dialog and never retries the mutation (5.7305ms)
+✔ viewer joining handoff separates browser identity, project token and renewal ownership (0.68625ms)
+✔ relationship origins show answering run, unknown scope and correction guidance (0.742333ms)
+✔ PR evidence and eligibility precede a collapsed uncalibrated heuristic (0.949375ms)
+✔ first use stays dismissible; project load failure is not an empty workspace (1.58175ms)
+✔ import retains reviewed candidates and draft, invalidates changed scope and shows local errors (2.949709ms)
+✔ all extracted evidence remains reachable past the initial display limit (1.287542ms)
+✔ contract comparison pins direction, exposes evidence, and never claims complete compatibility (0.811833ms)
+✔ access checks retain prior data on transient failure and clear it on denial (0.704667ms)
+✔ PR providers distinguish local-only, query failure and successfully empty results (2.118042ms)
+✔ late provider responses cannot replace a different workspace (0.847625ms)
+✔ readiness notice separates saved graph from partial, failed and completed work (0.326125ms)
+✔ a late workspace read cannot replace the newly selected project (3.089458ms)
+✔ admin saves bounded limits with revision and reloads effective usage (5.854542ms)
+✔ reader sees limits without editing controls (1.224791ms)
+✔ invalid drafts never reach the server (0.982709ms)
+✔ conflicting saves retain drafts, require reload and do not silently overwrite (1.261333ms)
+✔ unavailable policy fails closed in the screen (0.614792ms)
+✔ token screen issues once, hides secrets, confirms/cancels revocation and retains history (18.9805ms)
+✔ revoking the newly issued token removes its displayed secret (2.98625ms)
+▶ legacy mode and unavailable registries cannot issue via the screen
+  ✔ legacy (0.795625ms)
+  ✔ unavailable (0.44875ms)
+✔ legacy mode and unavailable registries cannot issue via the screen (1.501167ms)
+✔ issuance errors do not leak a secret or claim success (0.930667ms)
+✔ failed revocation preserves the active record and permits a retry (1.219791ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 430.507166

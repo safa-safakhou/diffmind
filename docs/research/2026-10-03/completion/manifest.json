@@ -1,0 +1,46 @@
+{
+  "parent_commit": "9b164df37c5976501ac35cdb3a3d7e5ad4e10733",
+  "branch": "codex/diffmind-backlog-batch",
+  "platform": "darwin/arm64",
+  "go_version": "1.26.6",
+  "human_observations": 0,
+  "independent_blind_reviewers": 0,
+  "model_turns": 0,
+  "completed_child_scopes": [
+    "MNI-178",
+    "MNI-194",
+    "MNI-200"
+  ],
+  "remaining_child_scopes": [
+    "MNI-198",
+    "MNI-199"
+  ],
+  "files": {
+    "README.md": "215e69c1dee999925dc728c301acb81220a23a75373be08d08f35d8f3f568058",
+    "browser-recovery.json": "345568991cb326f8455266b9571e1a2142ce910aa235133c90902caeeecdd178",
+    "browser-recovery.mjs.txt": "d084d220501e0b4aa61ef75295f63e5e99fc28f25e6a0aa4de743864e1b46d15",
+    "frontend-components.log": "90eeb20ef0e2a1dd43a208b5834e144fb133c633f4d634844ffbfce037295049",
+    "frontend-library.log": "9e5d06ac46e565052a68a4a09fd1e8d849be6cc5696e6c3a45edcd58c930e784",
+    "go-tests.log": "058a5936066f8ce6c0fc8228d53d2b2a96c9e811548c5fb50877528e6e6a71fd",
+    "human-study.md": "b5caa0cd9a9c4c85a20ec6ffdb34f9d6e1fcbff74458056a67114f3796336cea",
+    "installed-build-info.txt": "128997e6c4a0cf7a41815548c4e1839c3e66d31c6cdcf9a31e2cee4c695b3ec1",
+    "installed-cli-commands.json": "ca19a77aea956ece8a914af3937f266beb22bffa9c1ddc650261758d4803bb6e",
+    "installed-company-client.json": "ed97a1d922b77b55a4c16b4616d7854f95716c0d5327a823b5331e9f51f767af",
+    "public-corpus-complete.mjs.txt": "f5c6f7da6808fac6ed34c2a9a002d6b4b80d23503ff6d9ec52f2949659dde7d8",
+    "public-corpus.json": "90b6e93586960433103f142ad10c80c53b83b075d18e9321947e16d1d43b0d25",
+    "public-source-labels.json": "19595fda020d8cbbe2585eb2e32fc8cefd1d6332d0a5c9f659af10cd797a8b10",
+    "race-tests.log": "b18f44d46cd968c351c2034e2149cfbb5e19457a2a39624ec92a2620b729da9f",
+    "release-observation.json": "c812f76198ec256a9dd11a5499336c6b27b8221aeee446ad89ca8a7e7ab755e1",
+    "remote-client-installed.mjs.txt": "6f36d5bf64672956732f72a8c952ba4773ae5eb10879f3b966bc348d4dac6dee",
+    "showcase.log": "bb33068db693db852e31168e0d0896ed2a42a0845a70de53e84543493b472e2d",
+    "trial-build-info.txt": "888204acac1e6fcdd4e9ac7bbdce77ce598f61b00f291b63cca7816b18a472e2"
+  },
+  "product_source_sha256": {
+    "internal/workspace/store/store.go": "5903c127b56afb71404f575d8e3e284103a1c935124c453c556ef5d695c3f9f8",
+    "internal/workspace/ui/handlers_pull_requests.go": "2783526ac01c74c43e540ede77ee72cc2b21aaa24b39a90fdde1215ddf75db60",
+    "internal/workspace/ui/handlers_workspace.go": "cf249d89dc0c4efabec186f86ce6c19beab5c54bea0b62f49fe3546f161ec2c5",
+    "internal/workspace/ui/refresh.go": "c9e09ca96f601c0d82b659d13d95bf0cad9a3d64279e19550f764b9b131763ab"
+  },
+  "production_bundle_rebuilt_unchanged": true,
+  "local_document_links_checked": 8
+}

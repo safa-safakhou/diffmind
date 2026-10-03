@@ -250,3 +250,32 @@ API endpoint require configuration rather than a guessed endpoint.
 ## Shared readiness before work
 
 Call native MCP `get_readiness` (or management `inspect_workspace` with operation `get_readiness`) before setup, refresh or investigation. It works before a graph exists and separates the saved run and its input provenance from current work, checkout freshness, coverage limits and currently permitted actions. HTTP clients use `GET /api/v1/projects/{pid}/readiness`; browser workspace metadata includes the same contract. Query-only connections never advertise mutation authority. Follow `next_action`, recheck after acceptance or connection failures, and pin `saved_run_id` for evidence queries. See [the complete state table](shared-readiness.md).
+
+
+## Installed-client and PR-head validation boundaries
+
+The scoped company route was exercised through an installed Codex CLI app-server:
+14 viewer read tools, project isolation, source-backed dependencies, replacement
+credential verification and explicit old-token revocation. The client configuration
+references a bearer-token environment variable; it does not contain the secret.
+Browser login remains separate. See the exact candidate record in
+[completion verification](research/2026-10-03/completion/README.md).
+
+These were automated client operations without a model turn. They do not establish
+unprompted agent adoption or independent human comprehension. Full-management local
+stdio has a single lifecycle owner per home. Hosts that initialize several local
+MCP processes for one home can encounter competing-controller startup failure;
+use the existing service's authenticated HTTP connection for shared clients rather
+than deleting locks or starting competing writers.
+
+Exact PR callers require extracted origin and their own recorded clean analysis
+revision matching the linked fact revision. This is a saved-source claim, not
+runtime traffic. Dirty, older, declared and missing caller provenance stays outside
+exact scoring even when the changed service matches the PR head. Explicitly local
+sources stay in place when remote/provider metadata is supplied for PR retrieval;
+that metadata does not authorize managed cloning, pulling or branch changes.
+
+Use [current validation commands](validation.md) rather than historical extractor
+evaluator instructions. The independently source-labeled public PR projections are
+controlled provider fixtures over public source; they do not measure actual
+upstream review outcomes, calibrated scores or universal framework coverage.

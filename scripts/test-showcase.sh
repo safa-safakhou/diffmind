@@ -3,7 +3,7 @@
 set -eu
 
 project_root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
-binary=$project_root/bin/diffmind
+binary=${DIFFMIND_BINARY:-$project_root/bin/diffmind}
 test -x "$binary"
 
 showcase_tmp=$(mktemp -d "${TMPDIR:-/tmp}/diffmind-showcase.XXXXXX")

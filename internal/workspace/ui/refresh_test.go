@@ -194,6 +194,56 @@ func runGitForTest(t *testing.T, dir string, args ...string) {
 	}
 }
 
+func TestLocalPRRemoteMetadataNeverAuthorizesCheckoutMutation(t *testing.T) {
+	s := newAuthTestServer(t)
+	t.Setenv("DIFFMIND_BINARY", "/bin/false")
+	p, err := s.store.CreateProject(store.Project{Name: "Local PR head"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := t.TempDir()
+	runGitForTest(t, source, "init", "-b", "feature")
+	runGitForTest(t, source, "config", "user.email", "fixture@example.test")
+	runGitForTest(t, source, "config", "user.name", "Fixture")
+	file := filepath.Join(source, "main.go")
+	if err = os.WriteFile(file, []byte("package main\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	runGitForTest(t, source, "add", ".")
+	runGitForTest(t, source, "commit", "-m", "head")
+	head := gitOutput(context.Background(), source, "rev-parse", "HEAD")
+	if err = os.WriteFile(file, []byte("package main\n// retained draft\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	repo, err := s.store.CreateRepo(p.ID, store.Repo{Name: "local", Path: source, SourceType: "local", Kind: "service_repo", GitURL: "https://example.invalid/never-clone.git"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := httptest.NewRecorder()
+	s.Handler().ServeHTTP(w, httptest.NewRequest("POST", "/api/projects/"+p.ID+"/repos/"+repo.ID+"/sync", nil))
+	if w.Code != 200 {
+		t.Fatal(w.Code, w.Body)
+	}
+	result := s.refreshOneProject(context.Background(), p.ID)
+	if result.Synced != 0 {
+		t.Fatal("local metadata entered managed sync")
+	}
+	if _, err = s.syncGitRepo(context.Background(), p.ID, *repo); err == nil {
+		t.Fatal("direct managed helper accepted local source")
+	}
+	if gitOutput(context.Background(), source, "rev-parse", "HEAD") != head || gitOutput(context.Background(), source, "branch", "--show-current") != "feature" {
+		t.Fatal("local branch changed")
+	}
+	assertFileContents(t, file, "package main\n// retained draft\n")
+	after, err := s.store.GetRepo(p.ID, repo.ID)
+	if err != nil || after.SourceType != "local" || after.Path != source || after.ClonePath != "" {
+		t.Fatal("local registration was replaced")
+	}
+	if _, err = os.Stat(s.store.WorktreeDir(p.ID, repo.ID)); !os.IsNotExist(err) {
+		t.Fatal("managed checkout created")
+	}
+}
+
 func TestSyncHonorsConfiguredBranchOnInitialCloneAndFailsMissingBranch(t *testing.T) {
 	s := newAuthTestServer(t)
 	p, _ := s.store.CreateProject(store.Project{Name: "branch-test"})

@@ -1,0 +1,19 @@
+{
+  "source": "https://api.github.com/repos/safa-safakhou/diffmind/releases/latest",
+  "tag_name": "v0.1.0",
+  "published_at": "2026-09-13T13:26:38Z",
+  "draft": false,
+  "prerelease": false,
+  "assets": [
+    "checksums.txt",
+    "diffmind.rb",
+    "diffmind_0.1.0_darwin_amd64.tar.gz",
+    "diffmind_0.1.0_darwin_arm64.tar.gz",
+    "diffmind_0.1.0_linux_amd64.tar.gz",
+    "diffmind_0.1.0_linux_arm64.tar.gz",
+    "diffmind_latest_darwin_amd64.tar.gz",
+    "diffmind_latest_darwin_arm64.tar.gz",
+    "diffmind_latest_linux_amd64.tar.gz",
+    "diffmind_latest_linux_arm64.tar.gz"
+  ]
+}
