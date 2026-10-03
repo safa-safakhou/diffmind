@@ -53,6 +53,7 @@ export function ProjectTokens({ pid }) {
     <h2>Agent tokens</h2>
     <p>Credentials for this project only. Use a viewer token for an agent; editor tokens can also queue, retry, and cancel refresh work. These service grants are independent of user memberships.</p>
     <p class="muted">Send the token as an Authorization: Bearer header to your server’s /mcp endpoint or HTTP API over HTTPS. Keep the admin recovery token private. Tokens expire and can be revoked here.</p>
+    <p class="muted">Browser login does not configure agent identity. The workspace administrator owns renewal and support. Record the token ID and its explicitly assigned owner in your private access register; the token name and issuer do not establish who uses it.</p>
     {error && <p class="banner error" role="alert">{error}</p>}{notice && <p class="banner ok" role="status">{notice}</p>}
     {pendingRevoke && <div class="banner warn" role="alert">
       <p>Revoke “{pendingRevoke.name}”? New requests will be denied. This cannot be undone.</p>

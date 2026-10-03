@@ -192,15 +192,19 @@ type companyImpact struct {
 	GraphRevision          graphRevision          `json:"graph_revision,omitempty"`
 	ScoreEligible          bool                   `json:"score_eligible"`
 	Notes                  []string               `json:"notes,omitempty"`
+	NextAction             string                 `json:"next_action"`
+	Limitations            []string               `json:"limitations"`
 }
 
 type pullRequestImpactResponse struct {
-	PullRequest pullRequestSummary `json:"pull_request"`
-	Codebase    codebaseImpact     `json:"codebase"`
-	Company     companyImpact      `json:"company"`
-	RiskScore   int                `json:"risk_score"`
-	RiskLevel   string             `json:"risk_level"`
-	GeneratedAt time.Time          `json:"generated_at"`
+	PullRequest  pullRequestSummary `json:"pull_request"`
+	Codebase     codebaseImpact     `json:"codebase"`
+	Company      companyImpact      `json:"company"`
+	RiskScore    int                `json:"risk_score"`
+	RiskLevel    string             `json:"risk_level"`
+	GeneratedAt  time.Time          `json:"generated_at"`
+	ScoreMeaning string             `json:"score_meaning"`
+	Delivery     string             `json:"delivery"`
 }
 
 func (s *Server) handlePullRequests(w http.ResponseWriter, r *http.Request) {
@@ -325,6 +329,8 @@ func (s *Server) handlePullRequestImpact(w http.ResponseWriter, r *http.Request)
 	writeJSON(w, http.StatusOK, pullRequestImpactResponse{
 		PullRequest: pullSummary(pull, *repo), Codebase: codebase, Company: company,
 		RiskScore: overall, RiskLevel: riskLevel(overall), GeneratedAt: time.Now().UTC(),
+		ScoreMeaning: "Uncalibrated attention heuristic from file categories and eligible changed-surface evidence; not a probability, merge recommendation or proof of safety. Ineligible company context is excluded.",
+		Delivery:     "On-demand inspection only. No automatic code-host comments, checks or merge decisions are delivered.",
 	})
 }
 
@@ -625,7 +631,11 @@ func signalLabel(kind string) (string, string) {
 }
 
 func (s *Server) pullRequestCompanyImpact(pid, requestedRun string, repo store.Repo, pull githubPull, files []githubPullFile) companyImpact {
-	result := companyImpact{Confidence: "unavailable", Freshness: "unknown", Notes: []string{}}
+	result := companyImpact{Confidence: "unavailable", Freshness: "unknown", Notes: []string{}, NextAction: "Inspect available PR files; select saved evidence from a matching clean PR-head revision for exact caller checks.", Limitations: []string{
+		"Removed entrypoints may be absent from the head graph. No matching merge-base evidence is used here, so deleted-surface callers remain unproven.",
+		"Internal, transitive and configuration changes may affect unchanged routes without intersecting their source locations; file-scope matches are candidates only.",
+		"No exact matches is incomplete evidence, not proof that a PR is safe to merge. Extracted request-field compatibility is a separate saved-snapshot comparison.",
+	}}
 	runID := strings.TrimSpace(requestedRun)
 	if runID == "" {
 		if run := s.latestCompletedWorkspaceRun(pid); run != nil {
@@ -693,7 +703,8 @@ func (s *Server) pullRequestCompanyImpact(pid, requestedRun string, repo store.R
 	switch {
 	case result.Freshness != "fresh":
 		result.Confidence = "stale_graph_estimate"
-		result.Notes = append(result.Notes, fmt.Sprintf("graph snapshot is %s relative to PR head; refresh the repository analysis before treating graph results as current", result.Freshness))
+		result.Notes = append(result.Notes, fmt.Sprintf("graph snapshot is %s relative to PR head; updating the same default branch does not guarantee a PR-head match", result.Freshness))
+		result.NextAction = "With explicit authority, analyze the PR-head revision in a separate temporary checkout and select its saved graph. Keep the user's active branch unchanged; use clean matching baseline evidence separately for deletions. No checkout or capture is performed by this query."
 	case len(result.Services) > 0:
 		result.Confidence = "changed_surface_evidence"
 	default:
@@ -777,7 +788,7 @@ func changedEntrypoints(service *archgraph.ServiceNode, files []githubPullFile, 
 			// older revision (including the base branch) cannot use those lines.
 			// GitHub's PR diff starts at the merge base, which need not be Base.SHA.
 			revision := entityGraphRevision(entity)
-			atHead := pullRequestGraphFreshness(revision, headSHA) == "fresh"
+			atHead := pullRequestGraphFreshness(revision, headSHA) == "fresh" && archgraph.DescribeRelationship("", entity).Class == "source_extracted"
 			for _, location := range entitySourceLocations(entity) {
 				lines, changed := byPath[filepath.ToSlash(location.File)]
 				if !changed {
@@ -849,6 +860,9 @@ func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changed
 			continue
 		}
 		for _, detail := range edge.Details {
+			if archgraph.DescribeRelationship(graph.RunID, detail).Class != "source_extracted" {
+				continue
+			}
 			matched := ids[detail.ID]
 			if matched == "" {
 				matched = operations[normalizedOperation(detail.Name)]

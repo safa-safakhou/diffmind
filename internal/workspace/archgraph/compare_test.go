@@ -43,6 +43,31 @@ func TestComparisonIgnoresPresentationAndGeneratedIDs(t *testing.T) {
 	}
 }
 
+func TestEvidenceOnlyClassificationRetainsOriginalSources(t *testing.T) {
+	a := comparisonFixture()
+	b := cloneComparison(a)
+	b.Services[0].Dependencies[0].Details["source_locations"] = []any{map[string]any{"file": "main.go", "start_line": 99}}
+	changes, err := Compare(context.Background(), a, b)
+	if err != nil || len(changes) != 1 || !changes[0].EvidenceOnly {
+		t.Fatalf("provenance classification: %+v %v", changes, err)
+	}
+	body, _ := json.Marshal(changes)
+	if !strings.Contains(string(body), "99") {
+		t.Fatal("evidence-only label dropped source evidence")
+	}
+	b.Services[0].Dependencies[0].Details["method"] = "POST"
+	changes, err = Compare(context.Background(), a, b)
+	if err != nil || len(changes) != 1 || changes[0].EvidenceOnly {
+		t.Fatalf("behavior labeled evidence-only: %+v %v", changes, err)
+	}
+	b.Services[0].Dependencies[0].Details["method"] = "GET"
+	b.Services[0].Dependencies[0].Details["future_unknown_field"] = "meaningful"
+	changes, _ = Compare(context.Background(), a, b)
+	if changes[0].EvidenceOnly {
+		t.Fatal("unrecognized field silently discarded")
+	}
+}
+
 func TestComparisonExactKindsAndEvidenceChanges(t *testing.T) {
 	a := comparisonFixture()
 	b := cloneComparison(a)

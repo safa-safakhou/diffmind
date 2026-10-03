@@ -32,7 +32,7 @@ export function Projects() {
   }
 
   const doDelete = async (id) => {
-    try { await deleteProject(id) } catch (e) { setError(e.message) }
+    await deleteProject(id)
     setConfirmDel(null)
     refresh()
   }

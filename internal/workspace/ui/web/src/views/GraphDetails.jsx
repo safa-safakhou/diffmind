@@ -76,16 +76,25 @@ function TraceCard({ trace, service, pid, rid }) {
   )
 }
 
-function EdgeDetail({ e }) {
+export function EdgeDetail({ e }) {
   const details = (e.details || []).filter(Boolean)
   return (
     <div>
       <KV rows={[['From', e.from], ['To', e.to], ['Type', e.type], ['Label', e.label || '-'], ['Facts', details.length]]} />
+      <div class="detail-sec" aria-label="Relationship evidence">
+        <h4>Evidence origin</h4>
+        {(e.evidence || []).map((evidence, i) => <div key={i}>
+          <KV rows={compactRows([['Class', evidence.class?.replaceAll('_', ' ')], ['Saved run', evidence.run_id], ['Origin', evidence.origin], ['Pack', evidence.pack_id], ['Pack version', evidence.pack_version], ['Identity resolution', evidence.resolution || 'not recorded'], ['Coverage', evidence.coverage]])} compact />
+          <DetailJSON title="Saved revision" value={evidence.revision} />
+          <DetailJSON title="Recorded source locations" value={evidence.file_scope} />
+          <p>Analysis file scope: {evidence.scope_state || 'unknown'}</p>
+          <DetailJSON title="Saved include/exclude rules" value={evidence.analysis_scope} />
+        </div>)}
+        {!e.evidence?.length && <p>Evidence origin was not recorded in this snapshot.</p>}
+        <p class="muted small">Saved evidence is incomplete. Static calls and declared relationships do not establish runtime traffic or PR-head eligibility. Missing relationships may reflect unsupported patterns or excluded files. Ask your workspace administrator to review a private improvement gap and a tested detector or knowledge-pack correction.</p>
+      </div>
       {details.length > 0 && (
-        <div class="detail-sec">
-          <h4>Linked objects</h4>
-          {details.map((item, i) => <ObjectCard key={i} item={item} />)}
-        </div>
+        <EvidenceList key={`${e.from}:${e.to}:${e.type}`} title="Linked objects" items={details} renderItem={(item, i) => <ObjectCard key={i} item={item} />} />
       )}
     </div>
   )

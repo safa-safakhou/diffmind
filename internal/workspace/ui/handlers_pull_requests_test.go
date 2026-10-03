@@ -115,7 +115,7 @@ func TestExactChangedSurfaceCallersRejectsUnrelatedServiceEdge(t *testing.T) {
 	graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{
 		{Name: "api"}, {Name: "exact-client"}, {Name: "other-client"},
 	}, Edges: []*archgraph.GraphEdge{
-		{From: "exact-client", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "PATCH /items/${itemId}"}}},
+		{From: "exact-client", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "PATCH /items/${itemId}", Details: map[string]any{"evidence_origin": "deterministic"}}}},
 		{From: "other-client", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "GET /other"}}},
 	}}
 	changed := []changedEntrypoint{{ID: "patch-item", Name: "PATCH /items/{id}", Match: "changed_line"}}
@@ -216,15 +216,25 @@ func TestChangedEntrypointsHeadDoesNotUseDeletedBaseLines(t *testing.T) {
 
 func TestExactChangedSurfaceCallersPreservesPathIdentity(t *testing.T) {
 	graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "exact"}, {Name: "case"}, {Name: "slash"}, {Name: "empty"}}, Edges: []*archgraph.GraphEdge{
-		{From: "exact", To: "api", Details: []archgraph.EntitySummary{{Name: "get /Items/:id"}}},
-		{From: "case", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /items/{id}"}}},
-		{From: "slash", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /Items/{id}/"}}},
-		{From: "empty", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /elsewhere"}}},
+		{From: "exact", To: "api", Details: []archgraph.EntitySummary{{Name: "get /Items/:id", Details: map[string]any{"evidence_origin": "deterministic"}}}},
+		{From: "case", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /items/{id}", Details: map[string]any{"evidence_origin": "deterministic"}}}},
+		{From: "slash", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /Items/{id}/", Details: map[string]any{"evidence_origin": "deterministic"}}}},
+		{From: "empty", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /elsewhere", Details: map[string]any{"evidence_origin": "deterministic"}}}},
 	}}
 	// Older artifacts may lack IDs; empty IDs must never establish a match.
 	got := exactChangedSurfaceCallers(graph, "api", []changedEntrypoint{{Name: "GET /Items/{id}", Match: "changed_line"}})
 	if len(got) != 1 || len(got["exact"]) != 1 {
 		t.Fatalf("callers = %+v, want only exact", got)
+	}
+}
+
+func TestDeclaredOrUnknownRelationshipsCannotBecomeExactPRCallers(t *testing.T) {
+	for _, details := range []map[string]any{nil, {"pack_id": "approved-pack", "source_locations": []model.Location{{File: "app.go", StartLine: 1}}}, {"evidence_origin": "manual"}, {"evidence_origin": "llm"}, {"evidence_origin": "runtime"}} {
+		graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "caller"}}, Edges: []*archgraph.GraphEdge{{From: "caller", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /items", Details: details}}}}}
+		got := exactChangedSurfaceCallers(graph, "api", []changedEntrypoint{{Name: "GET /items", Match: "changed_line"}})
+		if len(got) != 0 {
+			t.Fatalf("promoted origin: %+v", details)
+		}
 	}
 }
 

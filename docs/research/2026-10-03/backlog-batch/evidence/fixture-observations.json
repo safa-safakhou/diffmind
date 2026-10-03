@@ -1,0 +1,40 @@
+[
+  {
+    "at": "2026-10-03T01:12:56.544Z",
+    "name": "labeled_relationship_http_mcp_parity",
+    "edges": 3,
+    "classes": [
+      "source_extracted",
+      "pack_declared",
+      "unknown"
+    ],
+    "scope": "recorded",
+    "dirty_revision_retained": true
+  },
+  {
+    "at": "2026-10-03T01:12:57.060Z",
+    "name": "browser_mixed_relationship_evidence",
+    "classes_preserved": true,
+    "keyboard": true,
+    "run_pinned": true
+  },
+  {
+    "at": "2026-10-03T01:12:57.076Z",
+    "name": "labeled_scope_pack_evidence_comparison",
+    "changed_facts": 1,
+    "evidence_only": true,
+    "scope_visible": true,
+    "pack_change_visible": true,
+    "http_mcp_parity": true
+  },
+  {
+    "at": "2026-10-03T01:12:57.173Z",
+    "name": "browser_saved_input_comparison",
+    "passed": true
+  },
+  {
+    "at": "2026-10-03T01:12:57.174Z",
+    "name": "fixture_browser_exceptions",
+    "count": 0
+  }
+]

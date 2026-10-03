@@ -11,12 +11,13 @@ import (
 // are semantic tuples; unstable object IDs, layout and checkout paths are not
 // identities. Same-name occurrences are compared as multisets, not collapsed.
 type Change struct {
-	Kind   string   `json:"kind"`
-	Key    string   `json:"key"`
-	Change string   `json:"change"`
-	Fields []string `json:"fields,omitempty"`
-	Before any      `json:"before,omitempty"`
-	After  any      `json:"after,omitempty"`
+	Kind         string   `json:"kind"`
+	Key          string   `json:"key"`
+	Change       string   `json:"change"`
+	EvidenceOnly bool     `json:"evidence_only,omitempty"`
+	Fields       []string `json:"fields,omitempty"`
+	Before       any      `json:"before,omitempty"`
+	After        any      `json:"after,omitempty"`
 }
 
 type comparisonFact struct {
@@ -63,11 +64,50 @@ func Compare(ctx context.Context, before, after *ArchGraph) ([]Change, error) {
 		default:
 			fields := changedFields(a.value, b.value)
 			if len(fields) > 0 {
-				out = append(out, Change{Kind: a.kind, Key: a.key, Change: "modified", Fields: fields, Before: a.value, After: b.value})
+				out = append(out, Change{Kind: a.kind, Key: a.key, Change: "modified", EvidenceOnly: jsonKey(withoutProvenance(a.value)) == jsonKey(withoutProvenance(b.value)), Fields: fields, Before: a.value, After: b.value})
 			}
 		}
 	}
 	return out, nil
+}
+
+// Only known provenance fields are removed for this label. All original
+// evidence remains in Before/After; unfamiliar fields remain meaningful.
+func withoutProvenance(value any) any {
+	switch v := value.(type) {
+	case map[string]any:
+		out := map[string]any{}
+		for key, child := range v {
+			switch key {
+			case "evidence", "source_locations", "locations", "repository_revision", "plugin_source", "evidence_origin", "detection_confidence", "resolution_confidence", "confidence":
+				continue
+			}
+			out[key] = withoutProvenance(child)
+			if key == "occurrences" {
+				if values, ok := out[key].([]any); ok {
+					out[key] = sortedValues(values)
+				}
+			}
+		}
+		return out
+	case []any:
+		out := make([]any, len(v))
+		for i, child := range v {
+			out[i] = withoutProvenance(child)
+		}
+		return out
+	default:
+		// Typed evidence slices/maps are normalized too.
+		body, _ := json.Marshal(v)
+		var normalized any
+		if json.Unmarshal(body, &normalized) == nil {
+			switch normalized.(type) {
+			case map[string]any, []any:
+				return withoutProvenance(normalized)
+			}
+		}
+		return v
+	}
 }
 
 func comparisonFacts(ctx context.Context, g *ArchGraph) (map[string]comparisonFact, error) {

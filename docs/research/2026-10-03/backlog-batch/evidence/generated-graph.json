@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "rows": [
+    {
+      "name": "generated_graph_labels",
+      "count": 6,
+      "width": 1280,
+      "height": 720,
+      "min": 12,
+      "visible": 6
+    },
+    {
+      "name": "generated_graph_labels",
+      "count": 6,
+      "width": 1440,
+      "height": 900,
+      "min": 12,
+      "visible": 6
+    },
+    {
+      "name": "generated_graph_labels",
+      "count": 6,
+      "width": 1920,
+      "height": 1080,
+      "min": 12,
+      "visible": 6
+    },
+    {
+      "name": "generated_graph_labels",
+      "count": 150,
+      "width": 1280,
+      "height": 720,
+      "min": 12,
+      "visible": 30
+    },
+    {
+      "name": "generated_graph_labels",
+      "count": 150,
+      "width": 1440,
+      "height": 900,
+      "min": 12,
+      "visible": 30
+    },
+    {
+      "name": "generated_graph_labels",
+      "count": 150,
+      "width": 1920,
+      "height": 1080,
+      "min": 12,
+      "visible": 30
+    },
+    {
+      "name": "keyboard_service",
+      "passed": true
+    },
+    {
+      "name": "large_evidence_continuation",
+      "objects": 163,
+      "traces": 125
+    },
+    {
+      "name": "keyboard_relationship_source",
+      "passed": true
+    },
+    {
+      "name": "keyboard_resource",
+      "passed": true
+    },
+    {
+      "name": "full_detail_labels",
+      "min": 17.25
+    },
+    {
+      "name": "browser_exceptions",
+      "count": 0
+    }
+  ]
+}

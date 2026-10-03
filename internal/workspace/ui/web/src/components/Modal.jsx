@@ -1,4 +1,4 @@
-import { useLayoutEffect, useId, useRef } from 'preact/hooks'
+import { useLayoutEffect, useId, useRef, useState } from 'preact/hooks'
 
 // One keyboard and focus boundary for every dialog, including confirmations.
 const dialogs = []
@@ -54,10 +54,23 @@ export function Modal({ title, onClose, children, wide, initialFocus }) {
 }
 
 export function ConfirmDialog({ title, message, confirmLabel = 'Delete', onConfirm, onCancel }) {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const submitting = useRef(false)
+  const confirm = async (event) => {
+    event.preventDefault(); event.stopPropagation()
+    if (submitting.current) return
+    submitting.current = true
+    setBusy(true); setError('')
+    try { await onConfirm() } catch (e) { setError(e.message) }
+    finally { submitting.current = false; setBusy(false) }
+  }
   return <Modal title={title} onClose={onCancel} initialFocus="[data-dialog-focus]">
     <p class="confirm-message">{message}</p>
+    {error && <p class="banner error" role="alert">{error}</p>}
+    {busy && <p role="status">Submitting… Check persisted work if the connection is lost.</p>}
     <div class="actions">
-      <button class="btn danger" onClick={onConfirm}>{confirmLabel}</button>
+      <button class="btn danger" disabled={busy} onClick={confirm}>{confirmLabel}</button>
       <button class="btn ghost" data-dialog-focus onClick={onCancel}>Cancel</button>
     </div>
   </Modal>

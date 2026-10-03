@@ -95,12 +95,14 @@ export function GraphCompare({ pid, params }) {
           <span>→</span><button class="btn ghost tiny" onClick={() => openRun(result.to.id)}>After: {result.to.id}</button>
         </div>
         <p class="muted">Repository artifacts changed: {result.repository_artifacts_changed?.join(', ') || 'none recorded'}. Pack digests: {result.from.pack_set_digest || 'not recorded'} → {result.to.pack_set_digest || 'not recorded'}.</p>
+        <details><summary>Saved analysis inputs and file scope</summary><p>Revision, analyzer, schema and file scope are recorded inputs. Missing historical metadata is unknown. A changed input does not prove the cause of a graph change.</p><div class="comparison-evidence"><div><h3>Before: {result.from.id}</h3><pre>{JSON.stringify(result.inputs_before || [], null, 2)}</pre></div><div><h3>After: {result.to.id}</h3><pre>{JSON.stringify(result.inputs_after || [], null, 2)}</pre></div></div></details>
         <ul>{result.notes.map((note) => <li key={note}>{note}</li>)}</ul>
       </div>
       {result.total === 0 && <p class="banner">No architectural fact changes between these snapshots.</p>}
       {result.changes.map((change) => <details class={`comparison-change change-${change.change}`} key={`${change.kind}:${change.key}`}>
         <summary><span class="comparison-kind">{change.change} · {change.kind}</span> {comparisonKeyLabel(change.key)}</summary>
         {change.fields?.length > 0 && <p>Changed fields: {change.fields.join(', ')}</p>}
+        {change.evidence_only && <p>Only recorded provenance or confidence changed. The saved fact is retained; this does not establish a runtime regression.</p>}
         <div class="comparison-evidence">
           <div><h3>Before</h3><pre>{change.before == null ? 'Not present' : JSON.stringify(change.before, null, 2)}</pre></div>
           <div><h3>After</h3><pre>{change.after == null ? 'Not present' : JSON.stringify(change.after, null, 2)}</pre></div>
