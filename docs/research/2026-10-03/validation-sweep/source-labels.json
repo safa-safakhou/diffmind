@@ -1,0 +1,146 @@
+{
+  "revision": "b9a978db9e01f4ad3dca9494a22cb9edc17548fe",
+  "label_author": "implementation-agent source-first review before candidate output; no independent blind reviewer",
+  "scope": "eight src directories plus exact corresponding deployment files copied without execution",
+  "mappings": [
+    {
+      "repository": "frontend",
+      "deployment_source": "kubernetes-manifests/frontend.yaml",
+      "sha256": "3f74f35588c80760a25fda936d5d008fec4bd08b80282f66b4eae8e42f453e26"
+    },
+    {
+      "repository": "cartservice",
+      "deployment_source": "kubernetes-manifests/cartservice.yaml",
+      "sha256": "e4ad956409551a90e7c2fc8065f285b65255e81bc15b7b722debf3a6ec761428"
+    },
+    {
+      "repository": "productcatalogservice",
+      "deployment_source": "kubernetes-manifests/productcatalogservice.yaml",
+      "sha256": "a2d7d1eb5923b54ca37cfbe0a65da8c8ea10aad2d1cab24274b5cd64a96488d9"
+    },
+    {
+      "repository": "currencyservice",
+      "deployment_source": "kubernetes-manifests/currencyservice.yaml",
+      "sha256": "9719c00aa72236b8a72100f937719df1ef80f3c705894e8d6a2ac01acaec1382"
+    },
+    {
+      "repository": "shippingservice",
+      "deployment_source": "kubernetes-manifests/shippingservice.yaml",
+      "sha256": "b10de1eab50accc163cd80b07fad8311aacb5ff6a0c0113c1ef770d3b7a418e2"
+    },
+    {
+      "repository": "recommendationservice",
+      "deployment_source": "kubernetes-manifests/recommendationservice.yaml",
+      "sha256": "ecdf5496ecd9b4543b6aaced38287be7ab1a019e3cb3e929a982c1dc9aa2179a"
+    },
+    {
+      "repository": "adservice",
+      "deployment_source": "kubernetes-manifests/adservice.yaml",
+      "sha256": "0ade8f5abc5edd0ee25d4e7cc423c9728fd3577b266ebd0ba09f9c725c16fb82"
+    },
+    {
+      "repository": "checkoutservice",
+      "deployment_source": "kubernetes-manifests/checkoutservice.yaml",
+      "sha256": "84441514b468118abfcef95d5042e956db3ebce2f41ec8d3a0118d8950be0f9b"
+    }
+  ],
+  "expected_declared_edges": [
+    {
+      "from": "frontend",
+      "to": "productcatalogservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/frontend.yaml",
+      "line": 69,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "frontend",
+      "to": "currencyservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/frontend.yaml",
+      "line": 71,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "frontend",
+      "to": "cartservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/frontend.yaml",
+      "line": 73,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "frontend",
+      "to": "recommendationservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/frontend.yaml",
+      "line": 75,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "frontend",
+      "to": "shippingservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/frontend.yaml",
+      "line": 77,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "frontend",
+      "to": "checkoutservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/frontend.yaml",
+      "line": 79,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "frontend",
+      "to": "adservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/frontend.yaml",
+      "line": 81,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "recommendationservice",
+      "to": "productcatalogservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/recommendationservice.yaml",
+      "line": 60,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "checkoutservice",
+      "to": "productcatalogservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/checkoutservice.yaml",
+      "line": 57,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "checkoutservice",
+      "to": "shippingservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/checkoutservice.yaml",
+      "line": 59,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "checkoutservice",
+      "to": "currencyservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/checkoutservice.yaml",
+      "line": 65,
+      "basis": "literal configured address, declared evidence only"
+    },
+    {
+      "from": "checkoutservice",
+      "to": "cartservice",
+      "type": "rpc",
+      "source": "kubernetes-manifests/checkoutservice.yaml",
+      "line": 67,
+      "basis": "literal configured address, declared evidence only"
+    }
+  ],
+  "excluded": "Other variable names, comments, placeholders, indirect/runtime calls; source-extracted extras remain unlabeled"
+}

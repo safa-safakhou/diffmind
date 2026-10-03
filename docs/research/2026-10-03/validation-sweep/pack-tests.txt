@@ -1,0 +1,4 @@
+ok	validation.boutique-addresses	literal positive
+ok	validation.boutique-addresses	near-match comments placeholders and unrelated variables
+ok	validation.boutique-addresses	exact declared relationship
+ok	validation.boutique-addresses	no phantom negative relationships

@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "ordinary_ingress": "never attached; isolated loopback operator probes",
+  "rows": [
+    {
+      "backend": "json",
+      "prior_graph_bytes_preserved": true,
+      "rollback_copy_retained": true,
+      "resurrection_reproduced": true,
+      "membership_and_assigned_token_reconciled": true,
+      "unrelated_service_and_recovery_preserved": true,
+      "archive_private": true,
+      "integrity_verified": true,
+      "nonoverwrite_and_live_lock_guard": true,
+      "observed_create_seconds": 0.007,
+      "observed_restore_seconds": 0.032,
+      "archive_sha256": "9877c6a1524d1cc932a7fb71d7cf7aaca4ba73cff5f3650d5f24896329a19c54"
+    },
+    {
+      "backend": "sqlite",
+      "prior_graph_bytes_preserved": true,
+      "rollback_copy_retained": true,
+      "resurrection_reproduced": true,
+      "membership_and_assigned_token_reconciled": true,
+      "unrelated_service_and_recovery_preserved": true,
+      "archive_private": true,
+      "integrity_verified": true,
+      "nonoverwrite_and_live_lock_guard": true,
+      "observed_create_seconds": 0.006,
+      "observed_restore_seconds": 0.034,
+      "archive_sha256": "552db8ad158836053ef7322003c3d44de2053b055fd675538c4a4a711edd5578"
+    }
+  ],
+  "limits": "small public fixture, prior implementation commit not a published release; no production RTO or cross-platform claim"
+}
