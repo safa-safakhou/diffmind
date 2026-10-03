@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/mcpserver"
 	querysvc "github.com/mohammad-safakhou/diffmind/internal/workspace/query"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/runmgr"
@@ -350,7 +351,7 @@ func writeJSON(w http.ResponseWriter, code int, v any) {
 }
 
 func writeErr(w http.ResponseWriter, code int, err error) {
-	writeJSON(w, code, map[string]any{"error": err.Error()})
+	writeJSON(w, code, map[string]any{"error": err.Error(), "recovery": agentapi.RecoveryForStatus(code)})
 }
 
 func decodeJSON(r *http.Request, v any) error {

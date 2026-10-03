@@ -91,6 +91,8 @@ type Comparison struct {
 	NextOffset                 *int               `json:"next_offset,omitempty"`
 	RepositoryArtifactsChanged []string           `json:"repository_artifacts_changed"`
 	Notes                      []string           `json:"notes"`
+	InputsBefore               []SnapshotInput    `json:"inputs_before"`
+	InputsAfter                []SnapshotInput    `json:"inputs_after"`
 }
 
 func (s *Service) CompareGraphs(ctx context.Context, projectID, from, to string, offset, limit int) (*Comparison, error) {
@@ -126,6 +128,8 @@ func (s *Service) CompareGraphs(ctx context.Context, projectID, from, to string,
 	}}
 	out.From.GraphAvailable = true
 	out.To.GraphAvailable = true
+	out.InputsBefore = snapshotInputs(a, left)
+	out.InputsAfter = snapshotInputs(b, right)
 	for _, change := range changes {
 		out.Counts[change.Change]++
 	}
@@ -156,4 +160,37 @@ func (s *Service) CompareGraphs(ctx context.Context, projectID, from, to string,
 		out.Notes = append(out.Notes, "The recorded knowledge-pack set differs (or is missing in one run); this is context, not proof that packs caused a particular change.")
 	}
 	return out, nil
+}
+
+type SnapshotInput struct {
+	RepoID        string                              `json:"repo_id,omitempty"`
+	AnalysisRunID string                              `json:"analysis_run_id,omitempty"`
+	Service       string                              `json:"service,omitempty"`
+	Status        *archgraph.RepositoryAnalysisStatus `json:"analysis,omitempty"`
+	ScopeState    string                              `json:"scope_state"`
+}
+
+func snapshotInputs(run *store.RunManifest, graph *archgraph.ArchGraph) []SnapshotInput {
+	out := []SnapshotInput{}
+	for _, ref := range run.Repos {
+		out = append(out, SnapshotInput{RepoID: ref.RepoID, AnalysisRunID: ref.DiffMindRunID, ScopeState: "unknown"})
+	}
+	for _, service := range graph.Services {
+		if service == nil {
+			continue
+		}
+		item := SnapshotInput{Service: service.Name, ScopeState: "unknown"}
+		if service.AnalysisStatus != nil {
+			status := *service.AnalysisStatus
+			// Historical inputs must never borrow the current checkout state.
+			status.CurrentState, status.CheckedAt = "", ""
+			item.Status = &status
+			if status.FileScope != nil {
+				item.ScopeState = "recorded"
+			}
+		}
+		out = append(out, item)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].RepoID+"\x00"+out[i].Service < out[j].RepoID+"\x00"+out[j].Service })
+	return out
 }

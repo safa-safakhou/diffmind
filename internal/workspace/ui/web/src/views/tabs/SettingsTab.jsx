@@ -24,8 +24,7 @@ export function SettingsTab({ project, onChanged }) {
   }
 
   const doDelete = async () => {
-    try { await deleteProject(project.id); navigate('/') }
-    catch (e) { setError(e.message); setConfirmDel(false) }
+    await deleteProject(project.id); navigate('/')
   }
 
   return (

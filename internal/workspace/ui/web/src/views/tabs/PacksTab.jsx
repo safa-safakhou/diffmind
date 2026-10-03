@@ -39,7 +39,7 @@ export function PacksTab({ pid, capabilities }) {
   }
 
   const doDelete = async (id) => {
-    try { await deletePack(pid, id) } catch (e) { setError(e.message) }
+    await deletePack(pid, id)
     setConfirmDel(null); refresh()
   }
 
@@ -49,7 +49,7 @@ export function PacksTab({ pid, capabilities }) {
         <h2>Packs</h2>
         <button class="btn" disabled={!capabilities?.can_configure} onClick={openNew}>+ New Pack</button>
       </div>
-      {error && <div class="banner error">{error}</div>}
+      {error && <div class="banner error" role="alert">{error}</div>}
       {packs.length === 0 && <p class="muted">No packs yet.</p>}
       <table class="data-table">
         <thead><tr><th>Name</th><th>ID</th><th>Version</th><th>Priority</th><th></th></tr></thead>

@@ -6,11 +6,56 @@ import { act } from 'preact/test-utils'
 import { Projects } from './Projects.jsx'
 import { ImportOrgModal, ReadinessNotice, ProjectWorkspace } from './ProjectWorkspace.jsx'
 import { ContractComparison } from './GraphCompare.jsx'
-import { PullRequestsView } from './PullRequestsView.jsx'
-import { EvidenceList } from './GraphDetails.jsx'
+import { PullRequestsView, ImpactDetail } from './PullRequestsView.jsx'
+import { EvidenceList, EdgeDetail } from './GraphDetails.jsx'
 import { useProjectCapabilities } from '../lib/access.js'
+import { AgentConnectionHelp } from '../components/AgentConnectionHelp.jsx'
+import { ConfirmDialog } from '../components/Modal.jsx'
+import { visualEdges } from './GraphCanvas.jsx'
 
 const settle = () => act(async () => { await new Promise(setImmediate) })
+
+test('visual relationship grouping preserves mixed provenance and original facts', () => {
+ const edges=[{from:'a',to:'b',type:'http',details:[{name:'static'}],evidence:[{class:'source_extracted'}]},{from:'a',to:'b',type:'http',details:[{name:'declared'}],evidence:[{class:'pack_declared'}]}]
+ const grouped=visualEdges(edges)
+ assert.equal(grouped.length,1);assert.deepEqual(grouped[0].evidence.map(e=>e.class),['source_extracted','pack_declared'])
+ assert.equal(grouped[0].details.length,2);assert.equal(edges[0].evidence.length,1)
+})
+
+test('confirmation failure stays inside the dialog and never retries the mutation', async (t) => {
+ const {root,show,click}=await dom(t);let calls=0
+ await show(<ConfirmDialog title="Remove repository" message="Review this exact scope" confirmLabel="Remove" onConfirm={async()=>{calls++;throw new Error('Conflict. Reload and review the retained scope.')}} onCancel={()=>{}} />)
+ await click('Remove')
+ assert.equal(calls,1);assert.match(root.querySelector('[role="dialog"] [role="alert"]').textContent,/Reload and review/)
+ await settle();assert.equal(calls,1);assert.ok(root.querySelector('[role="dialog"]'))
+})
+
+test('viewer joining handoff separates browser identity, project token and renewal ownership', async (t) => {
+ const {root,show}=await dom(t)
+ await show(<AgentConnectionHelp pid="approved-company" role="viewer" endpoint="https://context.example/mcp" />)
+ assert.match(root.textContent,/approved-company/);assert.match(root.textContent,/https:\/\/context.example\/mcp/)
+ assert.match(root.textContent,/browser login does not configure/);assert.match(root.textContent,/cannot import or update/)
+ assert.match(root.textContent,/administrator owns token expiry, renewal and support/)
+ assert.equal(root.querySelector('input,textarea'),null)
+})
+
+test('relationship origins show answering run, unknown scope and correction guidance', async (t) => {
+ const {root,show}=await dom(t)
+ await show(<EdgeDetail e={{from:'a',to:'external',type:'http',evidence:[{class:'pack_declared',run_id:'saved-old',pack_id:'company',resolution:'approved alias',coverage:'unverified',scope_state:'unknown',revision:{commit:'old',dirty:true}}]}} />)
+ assert.match(root.textContent,/pack declared/);assert.match(root.textContent,/saved-old/);assert.match(root.textContent,/approved alias/)
+ assert.match(root.textContent,/file scope: unknown/);assert.match(root.textContent,/private improvement gap/);assert.match(root.textContent,/do not establish runtime traffic/)
+})
+
+test('PR evidence and eligibility precede a collapsed uncalibrated heuristic', async (t) => {
+ const {root,show}=await dom(t)
+ await show(<ImpactDetail impact={{pull_request:{repo_name:'app',number:1,title:'Remove route',head:'feature',head_sha:'head',base:'main'},codebase:{changed_files:1,files:[],categories:[],risk_reasons:['file category']},company:{available:false,run_id:'saved-default',freshness:'stale',graph_revision:{commit:'default'},next_action:'Analyze PR head separately; updating main cannot guarantee a match.',limitations:['Deleted surfaces remain unproven.']},risk_score:0,risk_level:'low'}} />)
+ const text=root.textContent
+ assert.ok(text.indexOf('Codebase impact')<text.indexOf('Attention heuristic:'))
+ assert.ok(text.indexOf('Company impact')<text.indexOf('Attention heuristic:'))
+ assert.match(text,/saved-default/);assert.match(text,/Deleted surfaces remain unproven/);assert.match(text,/not a probability, merge recommendation or proof of safety/)
+ assert.equal(root.querySelector('[aria-label="Attention heuristic"] details').hasAttribute('open'),false)
+ assert.match(text,/No automatic code-host comments/)
+})
 async function dom(t) {
   const { window, document } = parseHTML('<html><body><div id="root"></div><button id="outside">Outside</button></body></html>')
   const old = { window: globalThis.window, document: globalThis.document, fetch: globalThis.fetch }

@@ -1,0 +1,28 @@
+✔ project creation respects scoped administration (0.359583ms)
+✔ member drafts preserve exact subjects and reject unsafe grants (0.449917ms)
+✔ access route preserves project identity (0.163ms)
+✔ lost write responses retain safe recovery without replaying the request (0.745125ms)
+✔ conflict feedback preserves recovery and validation without automatic write retries (0.184083ms)
+✔ comparison defaults select available snapshots and respect pinned IDs (1.103333ms)
+✔ comparison routes preserve explicit direction and escaped identifiers (0.219416ms)
+✔ semantic keys display safely without requiring a known schema (0.084666ms)
+✔ only recoverable jobs with saved requests offer resume (0.362625ms)
+✔ progress includes terminal checkpoints, not just successful analyses (0.082042ms)
+✔ pack provenance includes source lines and declaration limits (0.429791ms)
+✔ legacy objects and malformed evidence do not invent provenance (0.298917ms)
+✔ quota requests preserve revision and explicit inherit, with bounded integer caps (0.870375ms)
+✔ operation actions respect roles and persisted lifecycle (0.801542ms)
+✔ operation labels distinguish retry and draining cancellation (0.073042ms)
+✔ operations routes decode project identity (0.442ms)
+✔ disconnection preserves provenance and pauses every action; denial loses graph claims (0.429875ms)
+✔ partial and failed maintenance preserve the saved graph explanation (0.167583ms)
+✔ token issuance is bounded and never grants admin (0.837833ms)
+✔ expiry boundary and revocation take effect in the token list (0.091125ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 57.903583

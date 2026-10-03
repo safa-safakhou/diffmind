@@ -61,7 +61,7 @@ var Operations = []Operation{
 	{Name: "cancel_run", Method: "POST", Path: "/api/projects/{pid}/runs/{rid}/cancel", Description: "Cancel graph build.", Destructive: false, BodyExample: example("{}")},
 	{Name: "delete_run", Method: "DELETE", Path: "/api/projects/{pid}/runs/{rid}", Description: "Delete saved graph run/artifacts; irreversible without backup.", Destructive: true},
 	{Name: "list_pull_requests", Method: "GET", Path: "/api/projects/{pid}/pull-requests", Description: "List provider pull requests, using server credentials.", Destructive: false},
-	{Name: "pull_request_impact", Method: "GET", Path: "/api/projects/{pid}/pull-requests/{repo_id}/{number}/impact", Description: "Inspect pull request impact.", Destructive: false},
+	{Name: "pull_request_impact", Method: "GET", Path: "/api/projects/{pid}/pull-requests/{repo_id}/{number}/impact", Description: "On-demand PR evidence: changed files, attention signals, matching clean-head caller evidence, separate candidates, limitations and next_action. Optional run_id pins a saved graph. Read evidence before the uncalibrated heuristic score; no/low score or absent exact callers does not establish merge safety. Updating a default branch cannot guarantee PR-head eligibility. Does not clone, switch branches, post comments or create code-host checks.", Destructive: false},
 }
 
 func example(s string) any {

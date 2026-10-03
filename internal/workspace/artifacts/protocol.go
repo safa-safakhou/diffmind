@@ -176,6 +176,7 @@ func baseFromProtocol(base protocol.ObjectiveBase, typ, name, platform string, d
 		name = base.Name
 	}
 	locations, hydratedEvidence := hydrateProtocolEvidence(base.EvidenceRefs, evidence)
+	details["evidence_origin"] = string(base.Origin)
 	if confidence := confidenceFloat(base.Confidence); confidence > 0 {
 		details["detection_confidence"] = confidence
 	}

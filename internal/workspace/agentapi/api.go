@@ -34,9 +34,10 @@ type Input struct {
 	Confirm   string            `json:"confirm,omitempty" jsonschema:"For destructive operations, repeat the exact operation name to confirm its intended scope."`
 }
 type Result struct {
-	Status     int    `json:"status"`
-	Data       any    `json:"data"`
-	RetryAfter string `json:"retry_after,omitempty"`
+	Status     int       `json:"status"`
+	Data       any       `json:"data"`
+	RetryAfter string    `json:"retry_after,omitempty"`
+	Recovery   *Recovery `json:"recovery,omitempty"`
 }
 type Invoke func(context.Context, *mcp.CallToolRequest, *http.Request) (Result, error)
 
@@ -125,7 +126,12 @@ func Decode(status int, headers http.Header, body io.Reader) (Result, error) {
 			data = string(b)
 		}
 	}
-	return Result{Status: status, Data: data, RetryAfter: headers.Get("Retry-After")}, nil
+	result := Result{Status: status, Data: data, RetryAfter: headers.Get("Retry-After")}
+	if status >= 400 {
+		recovery := RecoveryForStatus(status)
+		result.Recovery = &recovery
+	}
+	return result, nil
 }
 
 func AddTools(server *mcp.Server, invoke Invoke) {
@@ -152,11 +158,11 @@ func AddTools(server *mcp.Server, invoke Invoke) {
 			func(ctx context.Context, call *mcp.CallToolRequest, in Input) (*mcp.CallToolResult, any, error) {
 				req, err := Request(ctx, in, readOnly)
 				if err != nil {
-					return nil, nil, err
+					return managementFailure(400, err.Error()), nil, nil
 				}
 				result, err := invoke(ctx, call, req)
 				if err != nil {
-					return nil, nil, err
+					return managementFailure(502, "Workspace connection unavailable; inspect persisted work before submitting a mutation again."), nil, nil
 				}
 				if result.Status >= 400 {
 					raw, _ := json.Marshal(result)
@@ -165,5 +171,12 @@ func AddTools(server *mcp.Server, invoke Invoke) {
 				return nil, result, nil
 			})
 	}
+}
+
+func managementFailure(status int, message string) *mcp.CallToolResult {
+	recovery := RecoveryForStatus(status)
+	result := Result{Status: status, Data: map[string]any{"error": message, "recovery": recovery}, Recovery: &recovery}
+	body, _ := json.Marshal(result)
+	return &mcp.CallToolResult{IsError: true, Content: []mcp.Content{&mcp.TextContent{Text: string(body)}}, StructuredContent: result}
 }
 func boolPointer(v bool) *bool { return &v }

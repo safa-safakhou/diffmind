@@ -29,7 +29,7 @@ export function ProjectAccess({ pid }) {
   const update = (index, patch) => setRows(rows.map((row, i) => i === index ? { ...row, ...patch } : row))
   return <main class="operations-page">
     <header class="operations-header"><button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}`)}>← {pid}</button><div><h1>Project access</h1><p class="muted">User memberships and project-scoped agent tokens. Global admins retain recovery access.</p></div></header>
-    {error && <p class="banner error">{error}</p>}{notice && <p class="banner ok">{notice}</p>}
+    {error && <p class="banner error" role="alert">{error}</p>}{notice && <p class="banner ok" role="status">{notice}</p>}
     {policy && <>
       {caps?.mode === 'legacy' && <p class="banner warn">Legacy mode: grants are saved but not enforced. Start with --project-access scoped to activate restrictions.</p>}
       <p>Viewers can query this project. Editors can also queue, retry, and cancel refresh work. Host paths, imports, packs, configuration, and access changes are admin-only in scoped mode.</p>
@@ -37,6 +37,12 @@ export function ProjectAccess({ pid }) {
       <table class="data-table"><thead><tr><th>Proxy subject</th><th>Project role</th><th></th></tr></thead><tbody>{rows.map((row, i) => <tr key={i}><td><input aria-label={`Member ${i + 1} subject`} value={row.subject} disabled={busy} onInput={(e) => update(i, { subject: e.target.value })} /></td><td><select aria-label={`Member ${i + 1} role`} value={row.role} disabled={busy} onChange={(e) => update(i, { role: e.target.value })}><option value="viewer">Viewer</option><option value="editor">Editor</option></select></td><td><button class="btn danger tiny" disabled={busy} onClick={() => setRows(rows.filter((_, index) => index !== i))}>Remove member</button></td></tr>)}</tbody></table>
       <div class="actions"><button class="btn ghost" disabled={busy || rows.length >= 1000} onClick={() => setRows([...rows, { subject: '', role: 'viewer' }])}>Add member</button><button class="btn" disabled={busy || !caps?.can_manage_access} onClick={save}>{busy ? 'Working…' : 'Save access'}</button><button class="btn ghost" disabled={busy} onClick={load}>Reload policy</button></div>
       <p class="muted">Revision {policy.revision}. Concurrent changes cause a conflict. Reload discards your unsaved edits; review before saving again.</p>
+      <details><summary>Offboard a person safely</summary><ol>
+        <li>Remove their exact proxy subject from every applicable project and save the reviewed memberships.</li>
+        <li>Review the private access register for project token IDs explicitly assigned to that person. Token names and the issuing administrator do not prove ownership.</li>
+        <li>Revoke each confirmed token separately below, then verify denied browser and agent requests. Membership removal alone leaves independent service tokens active.</li>
+        <li>Review admitted jobs and shared integrations separately. Downloaded data cannot be withdrawn; unrelated service grants must remain intact.</li>
+      </ol></details>
       {caps?.can_manage_access && <ProjectTokens key={pid} pid={pid} />}
     </>}
   </main>

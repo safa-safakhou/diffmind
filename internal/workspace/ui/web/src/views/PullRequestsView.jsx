@@ -152,7 +152,7 @@ export function PullRequestsView({ pid }) {
           </div>
         </div>
         <div class="pr-top-actions">
-          <span class="pr-estimate-badge">Estimated impact</span>
+          <span class="pr-estimate-badge">On-demand evidence</span>
           <button class="btn ghost" disabled={loading} onClick={refresh}>{loading ? 'Refreshing…' : 'Refresh GitHub'}</button>
         </div>
       </header>
@@ -162,7 +162,7 @@ export function PullRequestsView({ pid }) {
         <Metric value={observedCount} label="Observed open PRs in scope" tone="blue" />
         <Metric value={observedCount === '—' ? '—' : activeRepos.length} label="Observed repos with PRs in scope" tone="cyan" />
         <Metric value={data ? checkedCount : '—'} label="Repositories checked" />
-        <Metric value={impact ? `${impact.risk_score}/100` : '—'} label="Selected risk" tone={impact?.risk_level} />
+        <Metric value={impact?.codebase?.changed_files ?? '—'} label="Selected changed files" />
         <Metric value={impact?.company?.available ? companyCount : '—'} label="Exact caller matches" tone={companyCount > 3 ? 'high' : 'green'} />
       </section>
 
@@ -234,7 +234,7 @@ export function PullRequestsView({ pid }) {
   )
 }
 
-function ImpactDetail({ impact }) {
+export function ImpactDetail({ impact }) {
   const pr = impact.pull_request
   const code = impact.codebase
   const company = impact.company
@@ -248,9 +248,6 @@ function ImpactDetail({ impact }) {
           <div class="pr-impact-eyebrow">{pr.repo_name} · #{pr.number}</div>
           <h2>{pr.title}</h2>
           <div class="pr-branch"><code>{pr.head}</code><span>→</span><code>{pr.base}</code></div>
-        </div>
-        <div class={'pr-risk ' + impact.risk_level}>
-          <strong>{impact.risk_score}</strong><span>{impact.risk_level} risk</span>
         </div>
       </header>
       <div class="pr-impact-actions">
@@ -288,10 +285,6 @@ function ImpactDetail({ impact }) {
             {(code.signals || []).map((signal) => <div class={'pr-signal ' + signal.severity} key={signal.kind}><b>{signal.label}</b><span>{signal.files.length} file{signal.files.length === 1 ? '' : 's'}</span></div>)}
           </div>
         )}
-        <div class="pr-reasons">
-          <h3>Why this score</h3>
-          <ul>{(code.risk_reasons || []).map((reason) => <li key={reason}>{reason}</li>)}</ul>
-        </div>
         <details class="pr-files" open>
           <summary>{selectedCategory ? selectedCategory.label : 'All changed files'} <span>{visibleFiles.length}</span></summary>
           <div class="pr-file-list">
@@ -309,6 +302,7 @@ function ImpactDetail({ impact }) {
 
       <section class="pr-impact-section company">
         <SectionTitle title="Company impact" subtitle="PR-correlated callers, separated from repository-wide dependency candidates" />
+        <div class="pr-provider-note"><strong>Evidence eligibility and next step</strong><p>Saved graph: {company.run_id || 'unavailable'} · analyzed revision: {company.graph_revision?.commit || 'unknown'} · PR head: {pr.head_sha || 'unknown'} · eligibility: {company.freshness || 'unknown'}.</p><p>{company.next_action || 'Exact caller checks require saved evidence from a matching clean PR-head revision.'}</p><ul>{(company.limitations || ['Missing matches do not establish merge safety. Deleted surfaces, indirect changes and unsupported patterns may be unproven.']).map((note) => <li key={note}>{note}</li>)}</ul></div>
         {!company.available ? (
           <div class="pr-company-empty"><strong>Company impact unavailable</strong><p>{(company.notes || []).join(' ')}</p></div>
         ) : (
@@ -361,6 +355,14 @@ function ImpactDetail({ impact }) {
             <p class="pr-confidence">Confidence: {company.confidence}. {(company.notes || []).join(' ')}</p>
           </>
         )}
+      </section>
+      <section class="pr-impact-section" aria-label="Attention heuristic">
+        <details><summary>Attention heuristic: {impact.risk_score}/100 · {impact.risk_level}</summary>
+          <p>{impact.score_meaning || 'Uncalibrated attention heuristic, not a probability, merge recommendation or proof of safety. Ineligible company context is excluded.'}</p>
+          <h3>Heuristic reasons</h3><ul>{(code.risk_reasons || []).map((reason) => <li key={reason}>{reason}</li>)}</ul>
+          <p>Company evidence included: {company.score_eligible ? 'eligible changed-surface matches' : 'no; context is ineligible or lacks exact matches'}.</p>
+        </details>
+        <p>{impact.delivery || 'On-demand inspection only. No automatic code-host comments or checks are delivered.'}</p>
       </section>
     </div>
   )

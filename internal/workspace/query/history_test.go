@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -24,6 +25,72 @@ func saveGraph(t *testing.T, q *Service, pid, rid string, g *archgraph.ArchGraph
 	}
 	if err := os.WriteFile(filepath.Join(q.store.RunDir(pid, rid), "graph.json"), body, 0o644); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestComparisonInputProvenanceIsPinnedAndNeverCurrent(t *testing.T) {
+	q, pid, rid := testQueryService(t)
+	_, g, err := q.Load(pid, rid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	g.Services[0].AnalysisStatus = &archgraph.RepositoryAnalysisStatus{State: "analyzed_dirty", AnalyzedRevision: "saved-old", Dirty: true, AnalyzerVersion: "candidate", FileScope: map[string]any{"include": []string{"src/**"}}, CurrentState: "fresh", CheckedAt: "now"}
+	saveGraph(t, q, pid, rid, g)
+	result, err := q.CompareGraphs(context.Background(), pid, rid, rid, 0, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Total != 0 || result.From.ID != rid || result.To.ID != rid {
+		t.Fatalf("self compare: %+v", result)
+	}
+	var found bool
+	for _, input := range result.InputsBefore {
+		if input.Service == g.Services[0].Name {
+			found = true
+			if input.ScopeState != "recorded" || input.Status.AnalyzedRevision != "saved-old" || !input.Status.Dirty || input.Status.CurrentState != "" || input.Status.CheckedAt != "" {
+				t.Fatalf("historical inputs: %+v", input)
+			}
+		}
+	}
+	if !found {
+		t.Fatal("saved inputs missing")
+	}
+	for _, input := range result.InputsAfter {
+		if input.Service == g.Services[1].Name && input.ScopeState != "unknown" {
+			t.Fatal("invented historical scope")
+		}
+	}
+}
+
+func TestScopeAndAnalyzerInputChangesRemainVisibleWithoutInventingFactChanges(t *testing.T) {
+	q, pid, rid := testQueryService(t)
+	_, graph, err := q.Load(pid, rid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.Services[0].AnalysisStatus = &archgraph.RepositoryAnalysisStatus{State: "analyzed_clean", AnalyzedRevision: "same-source", AnalyzerVersion: "v1", FileScope: map[string]any{"exclude": []string{"examples/**"}}}
+	saveGraph(t, q, pid, rid, graph)
+	next, err := q.store.CreateRun(pid, store.RunManifest{Status: store.RunCompleted})
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.RunID = next.ID
+	graph.Services[0].AnalysisStatus = &archgraph.RepositoryAnalysisStatus{State: "analyzed_clean", AnalyzedRevision: "same-source", AnalyzerVersion: "v2", FileScope: map[string]any{"exclude": []string{"examples/**", "fixtures/**"}}}
+	saveGraph(t, q, pid, next.ID, graph)
+	result, err := q.CompareGraphs(context.Background(), pid, rid, next.ID, 0, 100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Total != 0 {
+		t.Fatal("input-only changes invented architectural facts")
+	}
+	before, _ := json.Marshal(result.InputsBefore)
+	after, _ := json.Marshal(result.InputsAfter)
+	if string(before) == string(after) {
+		t.Fatal("changed scope/analyzer hidden")
+	}
+	if !strings.Contains(string(after), "fixtures/**") || !strings.Contains(string(before), "v1") {
+		t.Fatal("recorded inputs missing")
 	}
 }
 

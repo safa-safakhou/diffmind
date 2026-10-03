@@ -11,8 +11,10 @@ import { ingestionCanResume, ingestionProgress } from '../lib/ingestion.js'
 import { useProjectCapabilities } from '../lib/access.js'
 import { enqueueRefresh } from '../lib/api.js'
 import { connectionReadiness, readinessMessage } from '../lib/readiness.js'
+import { AgentConnectionHelp } from '../components/AgentConnectionHelp.jsx'
 
 export function ProjectWorkspace({ pid }) {
+	const [agentHelp, setAgentHelp] = useState(false)
   const { data: retainedCaps, error: accessError, unavailable: accessUnavailable } = useProjectCapabilities(pid)
   const [workspace, setWorkspace] = useState(null)
   const [ingestion, setIngestion] = useState(null)
@@ -221,7 +223,7 @@ export function ProjectWorkspace({ pid }) {
     setDiffMindRepo(null)
     setTimeout(refresh, 500)
   }, true)
-  const doDelete = async (repo) => runAction('delete:' + repo.id, async () => { await deleteRepo(pid, repo.id); setDeleteTarget(null); await refresh() })
+  const doDelete = async (repo) => runAction('delete:' + repo.id, async () => { await deleteRepo(pid, repo.id); setDeleteTarget(null); await refresh() }, true)
   const doImport = async (body) => {
     setBusy('import')
     try {
@@ -259,6 +261,7 @@ export function ProjectWorkspace({ pid }) {
           {workspace?.latest_run && <StatusBadge status={workspace.latest_run.status} />}
         </div>
         <div class="workspace-actions">
+          <button class="btn ghost" aria-expanded={agentHelp} onClick={() => setAgentHelp(!agentHelp)}>Connect agent</button>
           <button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}/operations`)}>Operations</button>
           {caps?.can_manage_access && <button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}/access`)}>Project access</button>}
           <button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}/compare`)}>Compare graphs</button>
@@ -278,6 +281,7 @@ export function ProjectWorkspace({ pid }) {
           </details>}
         </div>
       </header>
+      {agentHelp && <AgentConnectionHelp pid={pid} role={caps?.role} endpoint={`${window.location.origin}/mcp`} />}
 
       <section class="workspace-alerts" aria-live="polite">
         <ReadinessNotice readiness={readiness} />

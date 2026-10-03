@@ -259,6 +259,7 @@ func pageDependencies(result *query.DependencyResult, offset, limit int) map[str
 		"project_id": result.ProjectID, "run_id": result.RunID, "service": result.Service,
 		"direction": result.Direction, "edges": result.Edges[offset:end], "offset": offset,
 		"limit": limit, "total": total, "has_more": end < total,
+		"notes": result.Notes,
 	}
 }
 

@@ -1,0 +1,5 @@
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/archgraph	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/query	5.883s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	39.738s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/mcpserver	(cached)

@@ -8,9 +8,9 @@ registration. Users provide intent and access; the agent operates the platform.
 
 | Connection | Tools | Authority/lifecycle |
 | --- | --- | --- |
-| Local `diffmind agent` | 13 graph + 3 management + 2 host tools | Full local workspace control; starts backend automatically, owns it until disconnect/crash |
-| Local `diffmind mcp` | 13 graph tools | Original trusted read-only integration; no backend ownership |
-| HTTP `/mcp`, viewer | 13 graph tools | Read-only, restricted to accessible projects |
+| Local `diffmind agent` | 14 read + 3 management + 2 host tools | Full local workspace control; starts backend automatically, owns it until disconnect/crash |
+| Local `diffmind mcp` | 14 read tools | Original trusted read-only integration; no backend ownership |
+| HTTP `/mcp`, viewer | 14 read tools | Read-only, restricted to accessible projects |
 | HTTP `/mcp`, editor/admin | Graph and management tools | Same role/membership/host-operation checks as the HTTP API; no local lifecycle/CLI tools |
 
 Local mode is trusted OS-level access, not a sandbox. Its backend binds only
@@ -39,6 +39,37 @@ Graph summaries distinguish a saved run, repository analysis freshness and
 unverified static coverage. `freshness_basis: live_checkout_status` uses the same read-only check as the dashboard; `freshness_reference: latest_repository_analysis` compares current source against the latest repository analysis, not the selected graph snapshot. Missing or inaccessible local checkouts report unknown.
 These states do not assert that the chosen graph incorporates a newer analysis
 or that PR-head evidence is eligible.
+
+Relationship `evidence` records preserve each linked object's class, answering
+run, recorded revision/source locations, file-scope policy, pack declaration and
+identity-resolution reason. `source_extracted`, `source_inferred`, `pack_declared`,
+`declared` and `unknown` are distinct; even a runtime-origin label remains
+unverified. Missing findings may be excluded or unsupported. Report gaps
+privately to the administrator using the existing improvement workflow; use
+synthetic positive and negative fixtures before changing detectors/config/packs.
+
+`compare_graphs` returns `inputs_before` and `inputs_after` from the pinned saved
+snapshots, including analysis artifact references, revision, schema, analyzer and
+recorded file scope. Missing historical inputs stay unknown. `evidence_only`
+labels changes limited to recognized provenance/confidence fields; original
+before/after evidence is retained. Changed scope, packs or artifacts are possible
+inputs, not an established cause. Use `compare_contracts` for request fields.
+
+PR inspection is on demand through `inspect_workspace(operation="pull_request_impact")`.
+Read changed files, attention signals, exact caller matches, separate candidates,
+eligibility and limitations before the uncalibrated score. A low score is not a
+probability or merge recommendation. Refreshing a default branch does not ensure
+a PR-head match. With explicit authority, analyze a separate clean PR-head checkout
+and select its saved graph via `run_id`; do not switch the user's active branch.
+Deleted surfaces require separate matching baseline evidence; internal/transitive
+and configuration effects may remain unproven. This query neither captures new
+revisions nor posts code-host comments/checks.
+
+Management failures return a conservative `recovery` category and next action
+alongside their HTTP status; browser feedback carries the same guidance. Retain
+the input, reload/review conflicts, and inspect persisted work after a lost write
+response. `retryable:false` prevents interpreting a status as permission to
+replay a mutation. A 202 response is still acceptance rather than completion.
 
 ## Discover, inspect, mutate
 

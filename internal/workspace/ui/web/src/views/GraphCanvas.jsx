@@ -735,17 +735,18 @@ function drawText(g, text, x, y, cls, anchor = 'middle') {
   return g.append('text').attr('class', cls).attr('x', x).attr('y', y).attr('text-anchor', anchor).text(text)
 }
 
-function visualEdges(edges) {
+export function visualEdges(edges) {
   const byKey = new Map()
   edges.forEach((edge) => {
     const key = `${edge.from}|${edge.to}|${edge.type}`
     if (!byKey.has(key)) {
-      byKey.set(key, { ...edge, label: edge.label, details: [], count: 0, raw: [] })
+      byKey.set(key, { ...edge, label: edge.label, details: [], evidence: [], count: 0, raw: [] })
     }
     const merged = byKey.get(key)
     merged.count += 1
     merged.raw.push(edge)
     merged.details.push(...(edge.details || []))
+    merged.evidence.push(...(edge.evidence || []))
   })
   return Array.from(byKey.values()).map((edge) => ({
     ...edge,
@@ -1208,7 +1209,9 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
       const availableW = Math.max(240, W - pad * 2)
       const availableH = Math.max(240, H - overlayTopPad - pad)
       const fitScale = Math.min(availableW / graphW, availableH / graphH, 1.05)
-		const minScale = mode === 'detail' ? 0.04 : 0.75
+		// Keep service labels readable in full-detail mode too. Large graphs
+		// remain navigable through focus, search and keyboard panning.
+		const minScale = 0.75
       const scale = Math.min(Math.max(fitScale, minScale), 1.05)
       const tx = (W - graphW * scale) / 2
       const ty = overlayTopPad + (H - overlayTopPad - graphH * scale) / 2
@@ -1220,7 +1223,7 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
     const focusName = focusServiceRef.current
     const focusNode = focusName && top.hasNode(focusName) ? top.node(focusName) : null
     if (focusNode) {
-      const focusScale = mode === 'detail' ? 0.5 : 0.9
+      const focusScale = mode === 'detail' ? 0.75 : 0.9
       const focusTransform = d3.zoomIdentity
         .translate(W / 2 - focusNode.x * focusScale, H / 2 - focusNode.y * focusScale)
         .scale(focusScale)

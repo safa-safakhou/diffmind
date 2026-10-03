@@ -27,7 +27,7 @@ export function RunsTab({ pid }) {
   }, [runs])
 
   const doDelete = async (rid) => {
-    try { await deleteRun(pid, rid) } catch (e) { setError(e.message) }
+    await deleteRun(pid, rid)
     setConfirmDel(null); refresh()
   }
   const doCancel = async (rid) => {

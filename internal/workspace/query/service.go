@@ -105,6 +105,7 @@ type DependencyResult struct {
 	Service   string                 `json:"service"`
 	Direction string                 `json:"direction"`
 	Edges     []*archgraph.GraphEdge `json:"edges"`
+	Notes     []string               `json:"notes"`
 }
 
 type SearchResult struct {
@@ -239,7 +240,7 @@ func (s *Service) loadGraph(projectID, runID string) (*store.RunManifest, *archg
 	}
 	graph.RunID = run.ID
 	s.enrichCurrentRepositoryStatus(projectID, graph)
-	return run, graph, nil
+	return run, archgraph.WithRelationshipEvidence(graph), nil
 }
 
 func (s *Service) enrichCurrentRepositoryStatus(projectID string, graph *archgraph.ArchGraph) {
@@ -392,7 +393,7 @@ func (s *Service) Dependencies(projectID, runID, name, direction string) (*Depen
 		}
 		return edges[i].Type < edges[j].Type
 	})
-	return &DependencyResult{ProjectID: run.ProjectID, RunID: run.ID, Service: name, Direction: direction, Edges: edges}, nil
+	return &DependencyResult{ProjectID: run.ProjectID, RunID: run.ID, Service: name, Direction: direction, Edges: edges, Notes: []string{"Saved static and declared evidence, not observed runtime traffic. Empty results can reflect excluded files, unresolved destinations or unsupported conventions; coverage is unverified. Ask the workspace administrator to review a private improvement gap and a tested detector/configuration/knowledge-pack correction."}}, nil
 }
 
 func (s *Service) Impact(projectID, runID, target string, depth int) (*archgraph.FlowView, error) {
