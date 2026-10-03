@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "scenario_id": "",
+  "status": "NOT_RUN",
+  "subcases": [],
+  "owning_issues": [],
+  "candidate": {
+    "product_commit": "",
+    "tree_clean": null,
+    "version": "",
+    "binary_sha256": "",
+    "archive_sha256": "",
+    "embedded_ui_identity": ""
+  },
+  "environment": {
+    "os": "",
+    "architecture": "",
+    "browser": "",
+    "host_agent": "",
+    "host_version": "",
+    "model": "",
+    "connection_mode": "",
+    "queue_backend": ""
+  },
+  "source": {
+    "upstream_url": "",
+    "upstream_commit": "",
+    "registered_root": "",
+    "derived_commit": "",
+    "pr_number": null,
+    "base_sha": "",
+    "head_sha": "",
+    "merge_base_sha": "",
+    "files_complete": null,
+    "label_receipts": []
+  },
+  "execution": {
+    "started_at": "",
+    "ended_at": "",
+    "commands_or_task_card": [],
+    "expected": "",
+    "actual": "",
+    "interventions": []
+  },
+  "evidence": [],
+  "findings": [],
+  "blocked_prerequisites": [],
+  "limitations": [],
+  "retest_of": null
+}

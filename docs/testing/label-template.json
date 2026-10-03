@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "case_id": "",
+  "reviewer_pseudonym": "",
+  "independent_of_implementation": null,
+  "candidate_output_seen": false,
+  "frozen_at": "",
+  "source": {
+    "url": "",
+    "upstream_commit": "",
+    "registered_root": "",
+    "derived_commit": "",
+    "pr_number": null,
+    "base_sha": "",
+    "head_sha": "",
+    "merge_base_sha": "",
+    "patch_sha256": ""
+  },
+  "labels": [],
+  "label_fields": {
+    "relationship": [
+      "from_service",
+      "to_service",
+      "direction",
+      "protocol",
+      "operation",
+      "source_file",
+      "start_line",
+      "end_line",
+      "revision",
+      "evidence_class",
+      "certainty",
+      "rationale"
+    ],
+    "pr": [
+      "change_category",
+      "changed_surface",
+      "known_callers",
+      "supported_exact",
+      "candidate_or_unknown",
+      "deletion_or_transitive_limit",
+      "source_evidence",
+      "rationale"
+    ]
+  },
+  "disagreements": [],
+  "reconciliation": {
+    "reviewer_receipts": [],
+    "resolved": null,
+    "rationale": "",
+    "unknown_cases": []
+  }
+}

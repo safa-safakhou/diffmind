@@ -58,3 +58,9 @@ The [release verifier](distribution.md) exercises installed archives; publishing
 release is a separate action. Background maintenance and access migration retain
 their [operational](operations.md) and [shared deployment](company-deployment.md)
 requirements.
+
+## Remaining acceptance scenarios
+
+Use the [test scenario pack](testing/README.md) for executable checks, independent
+labels, unprompted persona sessions, Enterprise trials and evidence templates.
+Preparation is not an execution or completion receipt.
