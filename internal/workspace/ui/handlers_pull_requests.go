@@ -847,11 +847,19 @@ func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changed
 		if entrypoint.Match != "changed_line" {
 			continue
 		}
-		if key := normalizedOperation(entrypoint.Name); key != "" {
-			operations[key] = entrypoint.Name
+		// Names and IDs are not proof across protocols. Unknown surface kinds
+		// remain candidates instead of borrowing another protocol's identity.
+		protocol := exactSurfaceProtocol(entrypoint.Kind)
+		if protocol == "" {
+			continue
+		}
+		if protocol == "http" {
+			if key := normalizedOperation(entrypoint.Name); key != "" {
+				operations[key] = entrypoint.Name
+			}
 		}
 		if entrypoint.ID != "" {
-			ids[entrypoint.ID] = entrypoint.Name
+			ids[protocol+"\x00"+entrypoint.ID] = entrypoint.Name
 		}
 	}
 	result := map[string][]string{}
@@ -868,8 +876,11 @@ func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changed
 			if archgraph.DescribeRelationship(graph.RunID, detail).Class != "source_extracted" || pullRequestGraphFreshness(entityGraphRevision(detail), status.AnalyzedRevision) != "fresh" {
 				continue
 			}
-			matched := ids[detail.ID]
-			if matched == "" {
+			matched := ""
+			if detail.ID != "" {
+				matched = ids[edge.Type+"\x00"+detail.ID]
+			}
+			if matched == "" && edge.Type == "http" {
 				matched = operations[normalizedOperation(detail.Name)]
 			}
 			if matched != "" {
@@ -878,6 +889,17 @@ func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changed
 		}
 	}
 	return result
+}
+
+func exactSurfaceProtocol(kind string) string {
+	switch kind {
+	case "http_route", "http_endpoint", "webhook":
+		return "http"
+	case "rpc_endpoint":
+		return "rpc"
+	default:
+		return ""
+	}
 }
 
 func normalizedOperation(value string) string {

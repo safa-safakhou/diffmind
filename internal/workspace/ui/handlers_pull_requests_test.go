@@ -118,7 +118,7 @@ func TestExactChangedSurfaceCallersRejectsUnrelatedServiceEdge(t *testing.T) {
 		{From: "exact-client", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "PATCH /items/${itemId}", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}},
 		{From: "other-client", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "GET /other", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}},
 	}}
-	changed := []changedEntrypoint{{ID: "patch-item", Name: "PATCH /items/{id}", Match: "changed_line"}}
+	changed := []changedEntrypoint{{ID: "patch-item", Kind: "http_route", Name: "PATCH /items/{id}", Match: "changed_line"}}
 
 	got := exactChangedSurfaceCallers(graph, "api", changed)
 	if len(got) != 1 || len(got["exact-client"]) != 1 {
@@ -181,7 +181,7 @@ func TestChangedEntrypointsRequiresHeadCoordinates(t *testing.T) {
 				}
 			}
 			if tc.want == "file_scope" {
-				graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "client"}}, Edges: []*archgraph.GraphEdge{{From: "client", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /changed"}}}}}
+				graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "client"}}, Edges: []*archgraph.GraphEdge{{From: "client", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "GET /changed"}}}}}
 				if callers := exactChangedSurfaceCallers(graph, "api", got); len(callers) != 0 {
 					t.Fatalf("unverified snapshot promoted callers: %+v", callers)
 				}
@@ -216,16 +216,16 @@ func TestChangedEntrypointsHeadDoesNotUseDeletedBaseLines(t *testing.T) {
 
 func TestExactChangedSurfaceCallersPreservesPathIdentity(t *testing.T) {
 	graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "exact"}, {Name: "case"}, {Name: "slash"}, {Name: "empty"}}, Edges: []*archgraph.GraphEdge{
-		{From: "exact", To: "api", Details: []archgraph.EntitySummary{{Name: "get /Items/:id", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}},
-		{From: "case", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /items/{id}", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}},
-		{From: "slash", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /Items/{id}/", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}},
-		{From: "empty", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /elsewhere", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}},
+		{From: "exact", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "get /Items/:id", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}},
+		{From: "case", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "GET /items/{id}", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}},
+		{From: "slash", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "GET /Items/{id}/", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}},
+		{From: "empty", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "GET /elsewhere", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}},
 	}}
 	for _, service := range graph.Services[1:] {
 		service.AnalysisStatus = &archgraph.RepositoryAnalysisStatus{State: "analyzed_clean", AnalyzedRevision: "caller-head"}
 	}
 	// Older artifacts may lack IDs; empty IDs must never establish a match.
-	got := exactChangedSurfaceCallers(graph, "api", []changedEntrypoint{{Name: "GET /Items/{id}", Match: "changed_line"}})
+	got := exactChangedSurfaceCallers(graph, "api", []changedEntrypoint{{Kind: "http_route", Name: "GET /Items/{id}", Match: "changed_line"}})
 	if len(got) != 1 || len(got["exact"]) != 1 {
 		t.Fatalf("callers = %+v, want only exact", got)
 	}
@@ -237,8 +237,8 @@ func TestDeclaredOrUnknownRelationshipsCannotBecomeExactPRCallers(t *testing.T) 
 			details = map[string]any{}
 		}
 		details["repository_revision"] = map[string]any{"commit": "caller-head"}
-		graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "caller", AnalysisStatus: &archgraph.RepositoryAnalysisStatus{State: "analyzed_clean", AnalyzedRevision: "caller-head"}}}, Edges: []*archgraph.GraphEdge{{From: "caller", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /items", Details: details}}}}}
-		got := exactChangedSurfaceCallers(graph, "api", []changedEntrypoint{{Name: "GET /items", Match: "changed_line"}})
+		graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "caller", AnalysisStatus: &archgraph.RepositoryAnalysisStatus{State: "analyzed_clean", AnalyzedRevision: "caller-head"}}}, Edges: []*archgraph.GraphEdge{{From: "caller", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "GET /items", Details: details}}}}}
+		got := exactChangedSurfaceCallers(graph, "api", []changedEntrypoint{{Kind: "http_route", Name: "GET /items", Match: "changed_line"}})
 		if len(got) != 0 {
 			t.Fatalf("promoted origin: %+v", details)
 		}
@@ -260,8 +260,8 @@ func TestExactPRCallerRequiresItsOwnCleanSavedRevision(t *testing.T) {
 		{"dirty fact", &archgraph.RepositoryAnalysisStatus{State: "analyzed_clean", AnalyzedRevision: "caller-head"}, map[string]any{"commit": "caller-head", "dirty": true}, 0},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "caller", AnalysisStatus: tc.status}}, Edges: []*archgraph.GraphEdge{{From: "caller", To: "api", Details: []archgraph.EntitySummary{{Name: "GET /items", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": tc.revision}}}}}}
-			got := exactChangedSurfaceCallers(graph, "api", []changedEntrypoint{{Name: "GET /items", Match: "changed_line"}})
+			graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "caller", AnalysisStatus: tc.status}}, Edges: []*archgraph.GraphEdge{{From: "caller", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "GET /items", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": tc.revision}}}}}}
+			got := exactChangedSurfaceCallers(graph, "api", []changedEntrypoint{{Kind: "http_route", Name: "GET /items", Match: "changed_line"}})
 			if len(got) != tc.want {
 				t.Fatalf("callers = %+v, want %d", got, tc.want)
 			}
@@ -324,4 +324,28 @@ func containsExactString(values []string, want string) bool {
 		}
 	}
 	return false
+}
+
+func TestExactPRCallerRejectsCrossProtocolAndUnknownSurface(t *testing.T) {
+	for _, tc := range []struct {
+		name, kind, edgeType, detailID string
+		want                           int
+	}{
+		{"HTTP operation", "http_route", "http", "", 1},
+		{"RPC operation lookalike", "http_route", "rpc", "", 0},
+		{"unknown edge operation", "http_route", "", "", 0},
+		{"RPC colliding ID", "http_route", "rpc", "shared-id", 0},
+		{"HTTP matching ID", "http_route", "http", "shared-id", 1},
+		{"RPC matching ID", "rpc_endpoint", "rpc", "shared-id", 1},
+		{"HTTP colliding RPC ID", "rpc_endpoint", "http", "shared-id", 0},
+		{"unknown surface", "", "http", "shared-id", 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			graph := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "caller", AnalysisStatus: &archgraph.RepositoryAnalysisStatus{State: "analyzed_clean", AnalyzedRevision: "caller-head"}}}, Edges: []*archgraph.GraphEdge{{From: "caller", To: "api", Type: tc.edgeType, Details: []archgraph.EntitySummary{{ID: tc.detailID, Name: "GET /items", Details: map[string]any{"evidence_origin": "deterministic", "repository_revision": map[string]any{"commit": "caller-head"}}}}}}}
+			got := exactChangedSurfaceCallers(graph, "api", []changedEntrypoint{{ID: "shared-id", Kind: tc.kind, Name: "GET /items", Match: "changed_line"}})
+			if len(got) != tc.want {
+				t.Fatalf("exact callers = %+v, want %d", got, tc.want)
+			}
+		})
+	}
 }
