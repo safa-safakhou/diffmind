@@ -18,7 +18,7 @@ const sock=net.createServer();await new Promise(r=>sock.listen(0,'127.0.0.1',r))
 const url='http://127.0.0.1:'+port,proxy=randomBytes(32).toString('hex'),recovery=randomBytes(32).toString('hex');
 const headers=(role='admin')=>({'Content-Type':'application/json','X-DiffMind-Proxy-Secret':proxy,'X-DiffMind-User':'trial-'+role,'X-DiffMind-Role':role==='ungranted'?'viewer':role});
 const log=fs.createWriteStream(path.join(root,'private-server.log'));
-const start=mode=>{const child=spawn(binary,['ui','--no-spa-rebuild','--host','127.0.0.1','--port',String(port),'--project-access',mode],{env:{...env,DIFFMIND_HOME:home,DIFFMIND_BINARY:binary,DIFFMIND_TRUSTED_PROXY_SECRET:proxy,DIFFMIND_AUTH_TOKEN:recovery},stdio:['ignore','pipe','pipe']});child.stdout.pipe(log,{end:false});child.stderr.pipe(log,{end:false});return child};
+const start=(mode,interval='0',onStart=false)=>{const child=spawn(binary,['ui','--no-spa-rebuild','--host','127.0.0.1','--port',String(port),'--project-access',mode,'--refresh-interval',interval,'--refresh-on-start='+String(onStart)],{env:{...env,DIFFMIND_HOME:home,DIFFMIND_BINARY:binary,DIFFMIND_TRUSTED_PROXY_SECRET:proxy,DIFFMIND_AUTH_TOKEN:recovery},stdio:['ignore','pipe','pipe']});child.stdout.pipe(log,{end:false});child.stderr.pipe(log,{end:false});return child};
 let server=start('legacy');
 let browser;const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const request=async(route,method='GET',body,role='admin')=>{const res=await fetch(url+route,{method,headers:headers(role),...(body===undefined?{}:{body:JSON.stringify(body)})});return {status:res.status,data:await res.json()}};
@@ -56,6 +56,7 @@ const corrected=await ingest(pid),after=await graph(pid,corrected),declared=afte
 const expected=new Set(labels.expected_declared_edges.map(key)),actual=new Set(declared.map(key));
 assert.deepEqual([...actual].sort(),[...expected].sort());
 for(const edge of declared){const ev=edge.evidence.find(v=>v.pack_id===pack.id);assert.equal(ev.class,'pack_declared');assert.equal(ev.run_id,corrected);assert.equal(ev.coverage,'unverified');assert.ok(Array.isArray(ev.file_scope)&&ev.file_scope.length>0);const result=await tool('get_dependencies',{project:pid,run:corrected,service:edge.from,direction:'outbound'});assert.deepEqual(result.edges.find(e=>key(e)===key(edge))?.evidence,edge.evidence);}
+const repeat=await ingest(pid),repeatState=await api(base+'/ingestion');assert.equal(repeatState.reused,8);assert.equal(repeatState.analyzed,0);record('unchanged_public_artifact_reuse',{repositories:8,reused:8,analyzed:0});
 record('corrected_declared_graph',{run:corrected,known_edges:expected.size,pack_edges:actual.size,declared_subset_precision:1,declared_subset_recall:1,http_mcp_evidence_parity:true,source_extracted_extras:'unlabeled; no complete graph precision',runtime_reachability:'unverified'});
 browser=await chromium.launch({headless:true,executablePath:process.env.DIFFMIND_CHROMIUM});
 const page=await browser.newPage({extraHTTPHeaders:headers(),viewport:{width:1440,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -76,6 +77,36 @@ const ungranted=await browser.newPage({extraHTTPHeaders:headers('ungranted')});a
 const unknownProjects=await tool('list_projects',{},'ungranted');assert.equal(unknownProjects.projects.length,0);
 const editor=await tool('get_readiness',{project:pid},'editor');assert.equal(editor.actions.refresh,true);assert.equal(editor.actions.configure,false);
 record('ordinary_viewer_editor_admin_and_ungranted',{viewer_readonly:true,editor_reporting_without_pack_authority:true,admin_recovery:true,ungranted_denied:true});
+// Compare the same browser draft with MCP and reject expansion before registration.
+// Approve a shortened shared policy after the scope is registered; test
+// scheduled source edits, persisted cadence and explicit manual pause.
+const restart=async(interval,onStart=false)=>{const old=server,closed=new Promise(r=>old.once('exit',r));old.kill('SIGTERM');await closed;server=start('scoped',interval,onStart);for(let i=0;i<100;i++){try{if((await fetch(url+'/healthz')).ok)return}catch{}await sleep(100)}throw Error('restart timeout')};
+await restart('2s',true);
+for(let i=0;i<50;i++){const state=await api('/api/v1/refresh/status');if(!state.running&&state.projects.some(p=>p.project_id===pid&&p.skipped==='not_due'))break;await sleep(30)}
+const edit=path.join(root,'repositories','frontend','deployment.yaml'),original=fs.readFileSync(edit,'utf8'),changed=original.replace('cartservice:7070','cartservice:7071');assert.notEqual(changed,original);fs.writeFileSync(edit,changed);
+let scheduled;for(let i=0;i<200;i++){const state=await api('/api/v1/refresh/status');scheduled=state.projects.find(p=>p.project_id===pid&&p.graph_run_id&&p.analyzed===1&&p.reused===7);if(scheduled&&!state.running)break;await sleep(100)}
+assert.ok(scheduled,'scheduled public-source edit was not analyzed');assert.equal(fs.readFileSync(edit,'utf8'),changed);
+assert.equal((await api(base+'/repos')).repos.length,8);
+await restart('0',false);const paused=await api('/api/v1/refresh/status');assert.equal(paused.enabled,false);await sleep(2200);assert.equal((await api('/api/v1/refresh/status')).last_started_at,undefined);
+record('shared_maintenance_edit_and_pause',{test_cadence:'2s',policy_approved_after_registration:true,changed_local_sources:1,analyzed:1,reused:7,local_edit_preserved:true,registered_count:8,manual_pause_preserved:true,production_default_cadence_not_measured:true});
+const scopeRoot=path.join(root,'scope-repositories');fs.mkdirSync(scopeRoot);
+const makeCandidate=name=>{const dir=path.join(scopeRoot,name);fs.mkdirSync(dir);execFileSync('git',['init','-q',dir]);};
+makeCandidate('alpha');makeCandidate('beta');
+const scopeProject=await api('/api/projects','POST',{name:'Reviewed scope negative trial'}),scopePid=scopeProject.id;
+await page.goto(url+'/#/projects/'+scopePid);await page.getByRole('button',{name:'Import repositories',exact:true}).waitFor();await page.getByRole('button',{name:'Import repositories',exact:true}).click();
+await page.getByRole('button',{name:'Local directory',exact:true}).click();await page.getByLabel('Root directory',{exact:true}).fill(scopeRoot);
+const responsePromise=page.waitForResponse(r=>r.url().endsWith('/repo-imports')&&r.request().method()==='POST');
+await page.getByRole('button',{name:'Preview repositories',exact:true}).click();
+const response=await responsePromise,preview=await response.json(),draft=response.request().postDataJSON();
+assert.equal(preview.count,2);const mPreview=await tool('manage_workspace',{operation:'import_repositories',selectors:{pid:scopePid},body:draft},'admin');
+assert.deepEqual(mPreview.data.results,preview.results);assert.equal(mPreview.data.preview_digest,preview.preview_digest);
+assert.equal((await api('/api/projects/'+scopePid+'/repos')).repos.length,0);
+await page.getByLabel('Include regex',{exact:true}).fill('alpha');assert.equal(await page.getByText('Reviewed repository scope',{exact:true}).count(),0);
+makeCandidate('gamma');
+const rejected=await request('/api/projects/'+scopePid+'/repo-imports','POST',{...draft,dry_run:false,preview_digest:preview.preview_digest});assert.equal(rejected.status,409);assert.equal((await api('/api/projects/'+scopePid+'/repos')).repos.length,0);
+const filtered=await api('/api/projects/'+scopePid+'/repo-imports','POST',{...draft,include:'alpha'});assert.equal(filtered.count,1);
+const invalid=await request('/api/projects/'+scopePid+'/repo-imports','POST',{...draft,root:path.join(root,'absent-root')});assert.equal(invalid.status,400);
+record('reviewed_browser_mcp_scope',{preview_candidates:2,preview_parity:true,no_preview_mutation:true,filter_invalidates_review:true,changed_candidates_status:409,no_registration_on_conflict:true,filtered_count:1,invalid_root_status:400});
 for(const repo of repos)await api(base+'/repos/'+repo.id,'PATCH',{pack_ids:[]});
 await api(base+'/packs/'+installed.id,'DELETE');
 await transition('rolled_back','Remove bindings and trial pack; empty bindings otherwise use project matching. Preserve earlier snapshots');

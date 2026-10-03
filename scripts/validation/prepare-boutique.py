@@ -29,6 +29,13 @@ for name in NAMES:
     shutil.copytree(source / "src" / name, destination)
     upstream = source / "kubernetes-manifests" / (name + ".yaml")
     (destination / "deployment.yaml").write_bytes(upstream.read_bytes())
+    # Private derived corpus commits allow honest clean/dirty/cache checks.
+    # The upstream pin and copied deployment digests remain recorded separately.
+    subprocess.run(["git", "init", "-q", str(destination)], check=True)
+    subprocess.run(["git", "-C", str(destination), "add", "."], check=True)
+    subprocess.run(["git", "-C", str(destination), "-c", "user.name=Public Corpus",
+                    "-c", "user.email=fixture@example.test", "-c", "commit.gpgsign=false",
+                    "commit", "-qm", "Pinned public service plus reviewed deployment scope"], check=True)
     mapping.append({"repository": name, "deployment_source": str(upstream.relative_to(source)),
                     "sha256": hashlib.sha256(upstream.read_bytes()).hexdigest()})
     lines = upstream.read_text().splitlines()

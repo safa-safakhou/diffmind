@@ -86,3 +86,21 @@ refreshes wait for busy projects. [Project-scoped permissions](project-access.md
 [offline backups](backup-recovery.md), [managed rotation](backup-automation.md)
 and [SQLite queue migration](queue-storage.md) are available. Distributed execution,
 automatic application-schema migration and workspace-path relocation remain future work.
+
+
+## Reviewed scope across clients
+
+Browser and full-management MCP imports should preview identical request bodies
+and carry the returned preview_digest into registration or ingestion. Changed
+repository candidates, provider/default branch, filters or effective local file
+rules invalidate that review with 409 before registration. Preview does not
+clone or analyze; accepted work uses its reviewed candidate set. Automatic
+maintenance operates only on registrations and never rediscoveries a company.
+
+Legacy direct admin API callers may still omit the digest for an explicitly
+authorized immediate import. This is not a reviewed-preview guarantee; callers
+must obtain scope authorization themselves. The digest is consistency evidence,
+not an authorization credential or a lock on source content. Managed checkout
+file rules are explicitly unknown before checkout, rather than inferred from
+an organization listing. Review subsequent recorded analysis scope before using
+its graph as evidence.
