@@ -1,0 +1,114 @@
+
+DiffMind Demo Shop prepared at:
+  /var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo
+Repositories:
+  /var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories
+Workspace:
+  /var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/workspace
+All names and hostnames are synthetic and public-safe.
+2026-10-03T01:47:04.375236Z level=INFO component=cli.run msg="run command started" config="" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/catalog" workers="0"
+2026-10-03T01:47:04.375266Z level=INFO component=app.run msg="starting run" min_confidence="0.7" pipeline="deterministic" repo_input="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/catalog" workers="6"
+2026-10-03T01:47:04.375556Z level=INFO component=app.run msg="deterministic pipeline selected"
+2026-10-03T01:47:04.375572Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" min_confidence="0.7" pipeline="deterministic" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/catalog" source_root="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/catalog" sub_dir="" workers="6"
+2026-10-03T01:47:04.375578Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/catalog"
+2026-10-03T01:47:04.380501Z level=INFO component=ast.index msg="project index built" callgraph="1" configs="1" files="1" frameworks="1" languages="[python]" rejected_frameworks="0" symbols="1"
+2026-10-03T01:47:04.380923Z level=INFO component=agents.ast_index msg="index built" call_edges="3" configs="1" duration_ms="4" files="1" frameworks="1" languages="[python]" symbols="1"
+2026-10-03T01:47:04.381821Z level=INFO component=agents.deterministic_discovery msg="deterministic discovery completed" items="3" objectives="2"
+2026-10-03T01:47:04.390094Z level=INFO component=agents.orchestrator msg="pipeline completed" connections="2" dependencies="2" elapsed_ms="14" exposures="1" unresolved="0" warnings="0"
+2026-10-03T01:47:04.39011Z level=INFO component=app.run msg="deterministic pipeline completed" connections="2" dependencies="2" exposures="1" unresolved="0"
+2026-10-03T01:47:04.390115Z level=INFO component=artifacts msg="writing artifacts" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/catalog/20261003T014704.375266000Z" run_id="20261003T014704.375266000Z"
+2026-10-03T01:47:04.449236Z level=INFO component=artifacts msg="artifact write complete" connections="2" dependencies="2" exposures="1" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/catalog/20261003T014704.375266000Z" unresolved="0"
+2026-10-03T01:47:04.449247Z level=INFO component=app.run msg="run completed" duration_ms="73" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/catalog/20261003T014704.375266000Z" run_id="20261003T014704.375266000Z" warnings="0"
+2026-10-03T01:47:04.44925Z level=INFO component=cli.run msg="run command finished" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/catalog/20261003T014704.375266000Z" run_id="20261003T014704.375266000Z"
+DiffMind run complete
+Run ID: 20261003T014704.375266000Z
+Artifacts: /var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/catalog/20261003T014704.375266000Z
+2026-10-03T01:47:04.46218Z level=INFO component=cli.run msg="run command started" config="" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/checkout" workers="0"
+2026-10-03T01:47:04.462212Z level=INFO component=app.run msg="starting run" min_confidence="0.7" pipeline="deterministic" repo_input="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/checkout" workers="6"
+2026-10-03T01:47:04.462626Z level=INFO component=app.run msg="deterministic pipeline selected"
+2026-10-03T01:47:04.462641Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" min_confidence="0.7" pipeline="deterministic" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/checkout" source_root="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/checkout" sub_dir="" workers="6"
+2026-10-03T01:47:04.462647Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/checkout"
+2026-10-03T01:47:04.46853Z level=INFO component=ast.index msg="project index built" callgraph="1" configs="2" files="4" frameworks="3" languages="[java]" rejected_frameworks="0" symbols="6"
+2026-10-03T01:47:04.469016Z level=INFO component=agents.ast_index msg="index built" call_edges="2" configs="2" duration_ms="5" files="4" frameworks="3" languages="[java]" symbols="6"
+2026-10-03T01:47:04.470378Z level=INFO component=agents.deterministic_discovery msg="deterministic discovery completed" items="3" objectives="3"
+2026-10-03T01:47:04.482349Z level=INFO component=agents.orchestrator msg="pipeline completed" connections="0" dependencies="2" elapsed_ms="19" exposures="1" unresolved="1" warnings="0"
+2026-10-03T01:47:04.482364Z level=INFO component=app.run msg="deterministic pipeline completed" connections="0" dependencies="2" exposures="1" unresolved="1"
+2026-10-03T01:47:04.482369Z level=INFO component=artifacts msg="writing artifacts" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/checkout/20261003T014704.462211000Z" run_id="20261003T014704.462211000Z"
+2026-10-03T01:47:04.545174Z level=INFO component=artifacts msg="artifact write complete" connections="0" dependencies="2" exposures="1" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/checkout/20261003T014704.462211000Z" unresolved="1"
+2026-10-03T01:47:04.545185Z level=INFO component=app.run msg="run completed" duration_ms="82" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/checkout/20261003T014704.462211000Z" run_id="20261003T014704.462211000Z" warnings="0"
+2026-10-03T01:47:04.545189Z level=INFO component=cli.run msg="run command finished" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/checkout/20261003T014704.462211000Z" run_id="20261003T014704.462211000Z"
+DiffMind run complete
+Run ID: 20261003T014704.462211000Z
+Artifacts: /var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/checkout/20261003T014704.462211000Z
+2026-10-03T01:47:04.557219Z level=INFO component=cli.run msg="run command started" config="" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/gateway" workers="0"
+2026-10-03T01:47:04.557245Z level=INFO component=app.run msg="starting run" min_confidence="0.7" pipeline="deterministic" repo_input="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/gateway" workers="6"
+2026-10-03T01:47:04.557643Z level=INFO component=app.run msg="deterministic pipeline selected"
+2026-10-03T01:47:04.557657Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" min_confidence="0.7" pipeline="deterministic" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/gateway" source_root="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/gateway" sub_dir="" workers="6"
+2026-10-03T01:47:04.557663Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/gateway"
+2026-10-03T01:47:04.55973Z level=INFO component=ast.index msg="project index built" callgraph="2" configs="1" files="1" frameworks="4" languages="[go]" rejected_frameworks="0" symbols="2"
+2026-10-03T01:47:04.560219Z level=INFO component=agents.ast_index msg="index built" call_edges="8" configs="1" duration_ms="2" files="1" frameworks="4" languages="[go]" symbols="2"
+2026-10-03T01:47:04.561232Z level=INFO component=agents.deterministic_discovery msg="deterministic discovery completed" items="4" objectives="2"
+2026-10-03T01:47:04.573539Z level=INFO component=agents.orchestrator msg="pipeline completed" connections="3" dependencies="3" elapsed_ms="15" exposures="1" unresolved="0" warnings="0"
+2026-10-03T01:47:04.573551Z level=INFO component=app.run msg="deterministic pipeline completed" connections="3" dependencies="3" exposures="1" unresolved="0"
+2026-10-03T01:47:04.573556Z level=INFO component=artifacts msg="writing artifacts" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/gateway/20261003T014704.557244000Z" run_id="20261003T014704.557244000Z"
+2026-10-03T01:47:04.63491Z level=INFO component=artifacts msg="artifact write complete" connections="3" dependencies="3" exposures="1" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/gateway/20261003T014704.557244000Z" unresolved="0"
+2026-10-03T01:47:04.634927Z level=INFO component=app.run msg="run completed" duration_ms="77" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/gateway/20261003T014704.557244000Z" run_id="20261003T014704.557244000Z" warnings="0"
+2026-10-03T01:47:04.634933Z level=INFO component=cli.run msg="run command finished" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/gateway/20261003T014704.557244000Z" run_id="20261003T014704.557244000Z"
+DiffMind run complete
+Run ID: 20261003T014704.557244000Z
+Artifacts: /var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/gateway/20261003T014704.557244000Z
+2026-10-03T01:47:04.646913Z level=INFO component=cli.run msg="run command started" config="" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/notification" workers="0"
+2026-10-03T01:47:04.646942Z level=INFO component=app.run msg="starting run" min_confidence="0.7" pipeline="deterministic" repo_input="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/notification" workers="6"
+2026-10-03T01:47:04.647502Z level=INFO component=app.run msg="deterministic pipeline selected"
+2026-10-03T01:47:04.647517Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" min_confidence="0.7" pipeline="deterministic" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/notification" source_root="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/notification" sub_dir="" workers="6"
+2026-10-03T01:47:04.647522Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/notification"
+2026-10-03T01:47:04.65228Z level=INFO component=ast.index msg="project index built" callgraph="0" configs="0" files="1" frameworks="1" languages="[java]" rejected_frameworks="0" symbols="2"
+2026-10-03T01:47:04.652855Z level=INFO component=agents.ast_index msg="index built" call_edges="0" configs="0" duration_ms="4" files="1" frameworks="1" languages="[java]" symbols="2"
+2026-10-03T01:47:04.653594Z level=INFO component=agents.deterministic_discovery msg="deterministic discovery completed" items="1" objectives="1"
+2026-10-03T01:47:04.659497Z level=INFO component=agents.orchestrator msg="pipeline completed" connections="0" dependencies="0" elapsed_ms="11" exposures="1" unresolved="0" warnings="0"
+2026-10-03T01:47:04.659508Z level=INFO component=app.run msg="deterministic pipeline completed" connections="0" dependencies="0" exposures="1" unresolved="0"
+2026-10-03T01:47:04.659517Z level=INFO component=artifacts msg="writing artifacts" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/notification/20261003T014704.646942000Z" run_id="20261003T014704.646942000Z"
+2026-10-03T01:47:04.721787Z level=INFO component=artifacts msg="artifact write complete" connections="0" dependencies="0" exposures="1" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/notification/20261003T014704.646942000Z" unresolved="0"
+2026-10-03T01:47:04.721805Z level=INFO component=app.run msg="run completed" duration_ms="74" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/notification/20261003T014704.646942000Z" run_id="20261003T014704.646942000Z" warnings="0"
+2026-10-03T01:47:04.72181Z level=INFO component=cli.run msg="run command finished" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/notification/20261003T014704.646942000Z" run_id="20261003T014704.646942000Z"
+DiffMind run complete
+Run ID: 20261003T014704.646942000Z
+Artifacts: /var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/notification/20261003T014704.646942000Z
+2026-10-03T01:47:04.735913Z level=INFO component=cli.run msg="run command started" config="" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/payment" workers="0"
+2026-10-03T01:47:04.735936Z level=INFO component=app.run msg="starting run" min_confidence="0.7" pipeline="deterministic" repo_input="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/payment" workers="6"
+2026-10-03T01:47:04.736351Z level=INFO component=app.run msg="deterministic pipeline selected"
+2026-10-03T01:47:04.736368Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" min_confidence="0.7" pipeline="deterministic" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/payment" source_root="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/payment" sub_dir="" workers="6"
+2026-10-03T01:47:04.736377Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/payment"
+2026-10-03T01:47:04.738242Z level=INFO component=ast.index msg="project index built" callgraph="2" configs="0" files="1" frameworks="1" languages="[go]" rejected_frameworks="0" symbols="2"
+2026-10-03T01:47:04.742292Z level=INFO component=agents.ast_index msg="index built" call_edges="7" configs="0" duration_ms="5" files="1" frameworks="1" languages="[go]" symbols="2"
+2026-10-03T01:47:04.743085Z level=INFO component=agents.deterministic_discovery msg="deterministic discovery completed" items="2" objectives="2"
+2026-10-03T01:47:04.771614Z level=WARN component=agents.connections msg="ast walk produced no connections; falling back to shallow matcher"
+2026-10-03T01:47:04.771634Z level=WARN component=agents.connections msg="no ast index available; using shallow name matcher"
+2026-10-03T01:47:04.772159Z level=INFO component=agents.orchestrator msg="pipeline completed" connections="0" dependencies="1" elapsed_ms="35" exposures="1" unresolved="0" warnings="0"
+2026-10-03T01:47:04.772172Z level=INFO component=app.run msg="deterministic pipeline completed" connections="0" dependencies="1" exposures="1" unresolved="0"
+2026-10-03T01:47:04.772177Z level=INFO component=artifacts msg="writing artifacts" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/payment/20261003T014704.735936000Z" run_id="20261003T014704.735936000Z"
+2026-10-03T01:47:04.85144Z level=INFO component=artifacts msg="artifact write complete" connections="0" dependencies="1" exposures="1" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/payment/20261003T014704.735936000Z" unresolved="0"
+2026-10-03T01:47:04.851457Z level=INFO component=app.run msg="run completed" duration_ms="115" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/payment/20261003T014704.735936000Z" run_id="20261003T014704.735936000Z" warnings="0"
+2026-10-03T01:47:04.851461Z level=INFO component=cli.run msg="run command finished" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/payment/20261003T014704.735936000Z" run_id="20261003T014704.735936000Z"
+DiffMind run complete
+Run ID: 20261003T014704.735936000Z
+Artifacts: /var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/payment/20261003T014704.735936000Z
+2026-10-03T01:47:04.864934Z level=INFO component=cli.run msg="run command started" config="" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/storefront" workers="0"
+2026-10-03T01:47:04.864964Z level=INFO component=app.run msg="starting run" min_confidence="0.7" pipeline="deterministic" repo_input="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/storefront" workers="6"
+2026-10-03T01:47:04.865528Z level=INFO component=app.run msg="deterministic pipeline selected"
+2026-10-03T01:47:04.865555Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" min_confidence="0.7" pipeline="deterministic" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/storefront" source_root="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/storefront" sub_dir="" workers="6"
+2026-10-03T01:47:04.865566Z level=INFO component=agents.orchestrator msg="deterministic pipeline starting" repo="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/repositories/storefront"
+2026-10-03T01:47:04.867405Z level=INFO component=ast.index msg="project index built" callgraph="2" configs="0" files="1" frameworks="1" languages="[go]" rejected_frameworks="0" symbols="2"
+2026-10-03T01:47:04.867928Z level=INFO component=agents.ast_index msg="index built" call_edges="3" configs="0" duration_ms="1" files="1" frameworks="1" languages="[go]" symbols="2"
+2026-10-03T01:47:04.868787Z level=INFO component=agents.deterministic_discovery msg="deterministic discovery completed" items="1" objectives="1"
+2026-10-03T01:47:04.87706Z level=INFO component=agents.orchestrator msg="pipeline completed" connections="0" dependencies="1" elapsed_ms="11" exposures="0" unresolved="0" warnings="0"
+2026-10-03T01:47:04.877075Z level=INFO component=app.run msg="deterministic pipeline completed" connections="0" dependencies="1" exposures="0" unresolved="0"
+2026-10-03T01:47:04.877081Z level=INFO component=artifacts msg="writing artifacts" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/storefront/20261003T014704.864964000Z" run_id="20261003T014704.864964000Z"
+2026-10-03T01:47:04.93869Z level=INFO component=artifacts msg="artifact write complete" connections="0" dependencies="1" exposures="0" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/storefront/20261003T014704.864964000Z" unresolved="0"
+2026-10-03T01:47:04.938707Z level=INFO component=app.run msg="run completed" duration_ms="73" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/storefront/20261003T014704.864964000Z" run_id="20261003T014704.864964000Z" warnings="0"
+2026-10-03T01:47:04.938712Z level=INFO component=cli.run msg="run command finished" run_dir="/var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/storefront/20261003T014704.864964000Z" run_id="20261003T014704.864964000Z"
+DiffMind run complete
+Run ID: 20261003T014704.864964000Z
+Artifacts: /var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T/diffmind-showcase.GtkmG3/demo/analysis/storefront/20261003T014704.864964000Z
+Applied checkout contract v2 in /var/folders/c6/1h0yq2711wqb6r8pv519svlxhr603t/T//diffmind-showcase.GtkmG3/demo/repositories/checkout
+DiffMind Demo Shop validation passed.

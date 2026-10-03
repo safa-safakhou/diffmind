@@ -1,5 +1,10 @@
 # Investigation: enterprise readiness — instance identity, stability, accuracy, token cost
 
+> **Historical investigation, not current commands or validation.** The LLM,
+> floor and evaluator subsystems discussed below were removed. Use the
+> [current validation guide](../../validation.md) and [architecture](../../ARCHITECTURE.md).
+
+
 > **Date:** 2026-06-11. **Branch:** `codex/backend-architecture-rewrite` (post
 > stage/llmrun/floor refactor). **Reference run:** `~/.diffmind/runs/20260610T105436Z`
 > (Spring `routing-service`, sha `fcd84d58`: 46 exposures, 45

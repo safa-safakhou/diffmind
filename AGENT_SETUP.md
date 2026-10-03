@@ -109,8 +109,9 @@ owns a home; additional query/management clients can share its HTTP endpoint.
    include/exclude regex and an explicit limit where useful. Credentials must be
    available in the backend environment or approved GitHub CLI account. Obtain
    them through approved secret handling, never by asking for a token in chat.
-3. Inspect the preview and narrow it to scope. Start `start_ingestion` with an
-   `import` body using the same fields, without dry-run. For existing
+3. Inspect the preview and narrow it to scope. Retain its `preview_digest`.
+   Start `start_ingestion` with an `import` body using the same reviewed fields
+   and that digest, without dry-run. A 409 requires a fresh preview and review. For existing
    repositories, an empty body runs incremental sync/analysis/graph construction.
 4. Poll `inspect_workspace(operation="get_ingestion")` using the returned
    project selector until terminal. A 202 is acceptance, **not completion**.

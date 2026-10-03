@@ -1,0 +1,93 @@
+{
+  "labeled_before_candidate_scoring": true,
+  "label_author": "source review by implementation agent, independent of candidate output; no second blind reviewer",
+  "source": "https://github.com/GoogleCloudPlatform/microservices-demo",
+  "revision": "b9a978db9e01f4ad3dca9494a22cb9edc17548fe",
+  "source_scope": "src/frontend,src/cartservice,src/productcatalogservice,src/currencyservice,src/shippingservice,src/recommendationservice,src/adservice,src/checkoutservice; no execution of upstream services",
+  "known_source_relationships": [
+    {
+      "from": "frontend",
+      "to": "currencyservice",
+      "basis": "src/frontend/rpc.go NewCurrencyServiceClient",
+      "supported_label": "unverified gRPC/config resolution; not included in supported-case precision/recall"
+    },
+    {
+      "from": "frontend",
+      "to": "productcatalogservice",
+      "basis": "src/frontend/rpc.go NewProductCatalogServiceClient",
+      "supported_label": "unverified gRPC/config resolution; not included in supported-case precision/recall"
+    },
+    {
+      "from": "frontend",
+      "to": "cartservice",
+      "basis": "src/frontend/rpc.go NewCartServiceClient",
+      "supported_label": "unverified gRPC/config resolution; not included in supported-case precision/recall"
+    },
+    {
+      "from": "frontend",
+      "to": "shippingservice",
+      "basis": "src/frontend/rpc.go NewShippingServiceClient",
+      "supported_label": "unverified gRPC/config resolution; not included in supported-case precision/recall"
+    },
+    {
+      "from": "frontend",
+      "to": "recommendationservice",
+      "basis": "src/frontend/rpc.go NewRecommendationServiceClient",
+      "supported_label": "unverified gRPC/config resolution; not included in supported-case precision/recall"
+    },
+    {
+      "from": "frontend",
+      "to": "adservice",
+      "basis": "src/frontend/rpc.go NewAdServiceClient",
+      "supported_label": "unverified gRPC/config resolution; not included in supported-case precision/recall"
+    },
+    {
+      "from": "frontend",
+      "to": "checkoutservice",
+      "basis": "src/frontend/handlers.go NewCheckoutServiceClient",
+      "supported_label": "unverified gRPC/config resolution; not included in supported-case precision/recall"
+    }
+  ],
+  "cases": [
+    {
+      "id": "addition",
+      "file": "src/frontend/main.go",
+      "change": "add GET /review-fixture wired to existing homeHandler",
+      "expected": "A new registered surface; exact callers require saved clean matching revision and caller/source evidence. Missing detection remains unknown."
+    },
+    {
+      "id": "removal",
+      "file": "src/frontend/main.go",
+      "change": "remove GET /product/{id} registration",
+      "expected": "Deleted surface cannot be proven from head-only graph; retain explicit deletion limitation."
+    },
+    {
+      "id": "transitive",
+      "file": "src/frontend/rpc.go",
+      "change": "getProducts returns an empty product list while HTTP route registrations are unchanged",
+      "expected": "Unchanged-route internal/transitive effects not established by changed-route coordinates."
+    },
+    {
+      "id": "configuration",
+      "file": "kubernetes-manifests/frontend.yaml",
+      "change": "change configured cartservice endpoint port from 7070 to 7071",
+      "expected": "Configuration match is attention/candidate evidence; not proof of changed service traffic."
+    },
+    {
+      "id": "contract",
+      "file": "protos/demo.proto",
+      "change": "rename GetProductRequest.id to product_key, retaining field number 1; JSON/source compatibility may change, protobuf wire compatibility is not inferred",
+      "expected": "API-file attention is not an independently demonstrated compatibility break; request-field compatibility is separate."
+    },
+    {
+      "id": "no-impact-control",
+      "file": "README.md",
+      "change": "add ordinary documentation comment",
+      "expected": "No source-backed caller change; low/zero heuristic never means safe-to-merge."
+    }
+  ],
+  "limits": [
+    "Controlled PR records over pinned real public source, not observed upstream PR outcomes.",
+    "No runtime reachability, calibrated scores, independent blind-label agreement or human comprehension claim."
+  ]
+}

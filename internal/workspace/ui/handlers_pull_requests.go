@@ -859,8 +859,13 @@ func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changed
 		if edge == nil || edge.To != root || graphService(graph, edge.From) == nil {
 			continue
 		}
+		caller := graphService(graph, edge.From)
+		status := caller.AnalysisStatus
+		if status == nil || status.Dirty || status.State != "analyzed_clean" || status.AnalyzedRevision == "" {
+			continue
+		}
 		for _, detail := range edge.Details {
-			if archgraph.DescribeRelationship(graph.RunID, detail).Class != "source_extracted" {
+			if archgraph.DescribeRelationship(graph.RunID, detail).Class != "source_extracted" || pullRequestGraphFreshness(entityGraphRevision(detail), status.AnalyzedRevision) != "fresh" {
 				continue
 			}
 			matched := ids[detail.ID]

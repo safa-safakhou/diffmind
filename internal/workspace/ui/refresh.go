@@ -279,7 +279,7 @@ func (s *Server) runProjectRefreshWithControl(ctx context.Context, pid string, c
 			report("cancelled", ctx.Err().Error(), "")
 			return
 		}
-		if strings.TrimSpace(repo.GitURL) != "" {
+		if repo.SourceType != "local" && strings.TrimSpace(repo.GitURL) != "" {
 			report("syncing", "", "")
 			updated, err := s.syncGitRepo(ctx, pid, repo)
 			if err != nil {

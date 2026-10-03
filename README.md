@@ -429,6 +429,7 @@ docs/                  setup, operations, architecture and design references
 - [Operations](docs/operations.md), [queue storage](docs/queue-storage.md) and [backup/recovery](docs/backup-recovery.md)
 - [Architecture](docs/ARCHITECTURE.md), [roadmap](docs/ROADMAP.md) and [readiness evidence](docs/readiness-verification.md)
 - [Distribution and release maintenance](docs/distribution.md)
+- [Candidate validation and historical evaluator limits](docs/validation.md)
 
 ## License
 

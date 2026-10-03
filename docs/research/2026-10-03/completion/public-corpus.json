@@ -1,0 +1,112 @@
+{
+  "passed": true,
+  "labels_sha256": "19595fda020d8cbbe2585eb2e32fc8cefd1d6332d0a5c9f659af10cd797a8b10",
+  "source_pin_unchanged": true,
+  "rows": [
+    {
+      "name": "assembled pinned public graph",
+      "run_id": "20261003T014538Z",
+      "services": 8,
+      "edges": 2,
+      "known_source_gRPC_edges": 7,
+      "known_edges_found": 0,
+      "supported_case_precision": null,
+      "supported_case_recall": null,
+      "reason": "Predeclared gRPC/config patterns are unsupported/unverified; no supported-case accuracy claim. Unlabeled emitted facts are unknown truth."
+    },
+    {
+      "name": "addition",
+      "base": "b9a978db9e01f4ad3dca9494a22cb9edc17548fe",
+      "head": "e6095d19ca56413fc87973925d4671568b391274",
+      "run_id": "20261003T014540Z",
+      "changed_file": "src/frontend/main.go",
+      "label": "A new registered surface; exact callers require saved clean matching revision and caller/source evidence. Missing detection remains unknown.",
+      "freshness": "unknown",
+      "score_eligible": false,
+      "exact_services": 0,
+      "candidate_services": 0,
+      "limitations_retained": true,
+      "http_mcp_company_parity": true,
+      "controlled_provider_read_only": true
+    },
+    {
+      "name": "removal",
+      "base": "b9a978db9e01f4ad3dca9494a22cb9edc17548fe",
+      "head": "f50205faa05fe35fdfd734ede756f6e571841a02",
+      "run_id": "20261003T014542Z",
+      "changed_file": "src/frontend/main.go",
+      "label": "Deleted surface cannot be proven from head-only graph; retain explicit deletion limitation.",
+      "freshness": "unknown",
+      "score_eligible": false,
+      "exact_services": 0,
+      "candidate_services": 0,
+      "limitations_retained": true,
+      "http_mcp_company_parity": true,
+      "controlled_provider_read_only": true
+    },
+    {
+      "name": "transitive",
+      "base": "b9a978db9e01f4ad3dca9494a22cb9edc17548fe",
+      "head": "eb2b2dcf16a166a8a6eea3c727e2bf3d60e7e91f",
+      "run_id": "20261003T014544Z",
+      "changed_file": "src/frontend/rpc.go",
+      "label": "Unchanged-route internal/transitive effects not established by changed-route coordinates.",
+      "freshness": "unknown",
+      "score_eligible": false,
+      "exact_services": 0,
+      "candidate_services": 0,
+      "limitations_retained": true,
+      "http_mcp_company_parity": true,
+      "controlled_provider_read_only": true
+    },
+    {
+      "name": "configuration",
+      "base": "b9a978db9e01f4ad3dca9494a22cb9edc17548fe",
+      "head": "1ad69b46d0dba60143a1b604fb2c22de2a0dc070",
+      "run_id": "20261003T014546Z",
+      "changed_file": "kubernetes-manifests/frontend.yaml",
+      "label": "Configuration match is attention/candidate evidence; not proof of changed service traffic.",
+      "freshness": "unknown",
+      "score_eligible": false,
+      "exact_services": 0,
+      "candidate_services": 0,
+      "limitations_retained": true,
+      "http_mcp_company_parity": true,
+      "controlled_provider_read_only": true
+    },
+    {
+      "name": "contract",
+      "base": "b9a978db9e01f4ad3dca9494a22cb9edc17548fe",
+      "head": "869001ec3a0c6f84fc1fdc747f1f85571e740c10",
+      "run_id": "20261003T014548Z",
+      "changed_file": "protos/demo.proto",
+      "label": "API-file attention is not an independently demonstrated compatibility break; request-field compatibility is separate.",
+      "freshness": "unknown",
+      "score_eligible": false,
+      "exact_services": 0,
+      "candidate_services": 0,
+      "limitations_retained": true,
+      "http_mcp_company_parity": true,
+      "controlled_provider_read_only": true
+    },
+    {
+      "name": "no-impact-control",
+      "base": "b9a978db9e01f4ad3dca9494a22cb9edc17548fe",
+      "head": "eb324804ca999d68ecb21b1e0bb71aec73212618",
+      "run_id": "20261003T014549Z",
+      "changed_file": "README.md",
+      "label": "No source-backed caller change; low/zero heuristic never means safe-to-merge.",
+      "freshness": "unknown",
+      "score_eligible": false,
+      "exact_services": 0,
+      "candidate_services": 0,
+      "limitations_retained": true,
+      "http_mcp_company_parity": true,
+      "controlled_provider_read_only": true
+    }
+  ],
+  "limits": [
+    "Controlled PR records over pinned real public source, not observed upstream PR outcomes.",
+    "No runtime reachability, calibrated scores, independent blind-label agreement or human comprehension claim."
+  ]
+}

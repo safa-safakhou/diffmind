@@ -1,0 +1,97 @@
+ok  	github.com/mohammad-safakhou/diffmind/cmd/diffmind	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/indexerbuild	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/indexerbuild/wrapper	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/app	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/architecture	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/artifacts	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/ast	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/catalog	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/config	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/dotnet/http/aspnet	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/ai/openai	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/cache/redis	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/cli/cobra	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/di/wire	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/echo	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/fiber	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/gin	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/nethttp	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/httpclient/nethttp	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/httpclient/resty	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/rpc/grpc	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/internal/frameworkutil	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/db/jdbc	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/db/jpa	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/http/spring	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/httpclient/feign	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/httpclient/retrofit	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/internal/producer	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/jms	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/kafka	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/rabbitmq	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/sqs	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/javascript/http/express	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/php/http/laravel	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/aws/sam	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/cache/redis	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/cli/argparse	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/django	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/fastapi	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/flask	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/ruby/http/rails	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/typescript/http/nestjs	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/register	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/entitykey	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/events	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/extraction	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/indexer	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/indexerbuild/recipe	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/langdetect	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/model	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/objectives	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/pipeline	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/preflight	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/provenance	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/repositorycall	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/repostore	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/runner	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/runstate	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/scip	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/astindex	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/connections	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery/clientspec	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/reconcile	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/ui	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/util	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agenthost	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/archgraph	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/artifacts	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/backup	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/config	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/graph	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/homelock	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge/extractors	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/mcpserver	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/workspace/model	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/orchestrator	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/packtest	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/query	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/registry	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/resolver	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/runmgr	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/store	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	40.326s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/util	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/protocol	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/agent-setup	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/backup-maintenance	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/enterprise-showcase	(cached)
+?   	github.com/mohammad-safakhou/diffmind/scripts/readiness-report	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/scripts/release-check	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/release-formula	(cached)
