@@ -10,7 +10,9 @@ assert.ok(binary && artifacts && output,'BINARY EXISTING_ARTIFACTS NEW_EVIDENCE_
 fs.mkdirSync(output,{mode:0o700});
 fs.cpSync(artifacts,path.join(output,'runs'),{recursive:true});
 const rows=[],errors=[];
-const {chromium}=await import(pathToFileURL(process.env.DIFFMIND_PLAYWRIGHT_MODULE).href);
+const engines=await import(pathToFileURL(process.env.DIFFMIND_PLAYWRIGHT_MODULE).href);
+const engine=process.env.DIFFMIND_BROWSER || 'chromium';
+assert.ok(['chromium','firefox','webkit'].includes(engine), 'supported browser engine required');
 const {default:AxeBuilder}=await import(pathToFileURL(process.env.DIFFMIND_AXE_MODULE).href);
 const sock=net.createServer();
 await new Promise(r=>sock.listen(0,'127.0.0.1',r));
@@ -21,13 +23,13 @@ const log=fs.openSync(path.join(output,'private-server.log'),'w',0o600);
 const server=spawn(binary,['extractor-ui','--no-spa-rebuild','--host','127.0.0.1','--port',String(port),'--out',path.join(output,'runs')],{env:{...env,DIFFMIND_HOME:path.join(output,'home')},stdio:['ignore',log,log]});
 let browser;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms)),url='http://127.0.0.1:'+port;
-const save=()=>fs.writeFileSync(path.join(output,'results.json'),JSON.stringify({rows,errors},null,2));
+const save=()=>fs.writeFileSync(path.join(output,'results.json'),JSON.stringify({engine,browser_version:browser?.version(),rows,errors},null,2));
 try{
  for(let i=0;i<100;i++){try{if((await fetch(url+'/api/repos')).ok)break}catch{}await sleep(100);}
  const repos=await(await fetch(url+'/api/repos')).json();
  assert.equal(repos.repos.length,1,'use one source for this observer');
  const expectedPath=repos.repos[0].path;
- browser=await chromium.launch({headless:true,executablePath:process.env.DIFFMIND_CHROMIUM});
+ browser=await engines[engine].launch({headless:true,...(engine==='chromium' && process.env.DIFFMIND_CHROMIUM ? {executablePath:process.env.DIFFMIND_CHROMIUM} : {})});
  const context=await browser.newContext();
  const page=await context.newPage();
  page.on('pageerror',e=>errors.push(e.message));

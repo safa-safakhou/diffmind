@@ -9,7 +9,9 @@ import {pathToFileURL} from 'node:url';
 const [binary, home, output] = process.argv.slice(2);
 assert.ok(binary && home && output, 'BINARY EXISTING_PRIVATE_HOME NEW_EVIDENCE_DIRECTORY');
 fs.mkdirSync(output, {mode:0o700});
-const {chromium}=await import(pathToFileURL(process.env.DIFFMIND_PLAYWRIGHT_MODULE).href);
+const engines=await import(pathToFileURL(process.env.DIFFMIND_PLAYWRIGHT_MODULE).href);
+const engine=process.env.DIFFMIND_BROWSER || 'chromium';
+assert.ok(['chromium','firefox','webkit'].includes(engine), 'supported browser engine required');
 const {default:AxeBuilder}=await import(pathToFileURL(process.env.DIFFMIND_AXE_MODULE).href);
 const serverSocket=net.createServer();
 await new Promise(r=>serverSocket.listen(0,'127.0.0.1',r));
@@ -22,13 +24,13 @@ const url='http://127.0.0.1:'+port;
 const headers={'X-DiffMind-Proxy-Secret':secret,'X-DiffMind-User':'audit-admin','X-DiffMind-Role':'admin'};
 const rows=[], errors=[];let browser;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const save=()=>fs.writeFileSync(path.join(output,'browser-results.json'),JSON.stringify({rows,errors},null,2));
+const save=()=>fs.writeFileSync(path.join(output,'browser-results.json'),JSON.stringify({engine,browser_version:browser?.version(),rows,errors},null,2));
 try{
  for(let i=0;i<100;i++){try{if((await fetch(url+'/healthz')).ok)break;}catch{}await sleep(100);}
  const projects=await (await fetch(url+'/api/projects',{headers})).json();
  assert.ok(projects.projects.length);
  const pid=projects.projects[0].id;
- browser=await chromium.launch({headless:true,executablePath:process.env.DIFFMIND_CHROMIUM});
+ browser=await engines[engine].launch({headless:true,...(engine==='chromium' && process.env.DIFFMIND_CHROMIUM ? {executablePath:process.env.DIFFMIND_CHROMIUM} : {})});
  const context=await browser.newContext({extraHTTPHeaders:headers});
  const page=await context.newPage();
  page.on('pageerror',e=>errors.push(e.message));
