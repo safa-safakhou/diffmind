@@ -47,11 +47,19 @@ for name in ["direct","removal","internal-helper","configuration","contract","no
  runtime_env={**os.environ,"PYTHONPATH":packages,"PYTHONDONTWRITEBYTECODE":"1"}
  operations=json.loads(subprocess.check_output([sys.executable,"-c",runtime_code,str(repo)],env=runtime_env,text=True))
  client=directory/"caller";client.mkdir()
- (client/"client.py").write_text(f'import requests\n\ndef call():\n    return requests.{method}("http://flask{target}")\n')
+ payload=', data={"username": "alice", "password": "test"}' if name=="contract" else ""
+ (client/"client.py").write_text(f'import requests\n\ndef call():\n    return requests.{method}("http://flask{target}"{payload})\n')
  git(client,"init","-q");caller_head=commit(client,"Synthetic literal caller")
  filenames=git(repo,"diff","--name-only",base,head).splitlines()
  files=[{"filename":f,"status":"modified","patch":git(repo,"diff","--unified=3",base,head,"--",f),"additions":1,"deletions":1} for f in filenames]
  oracle={"case":name,"public_pin":pin,"derived_base":base,"derived_head":head,"caller_head":caller_head,"runtime_operations":operations,"expected_exact_callers":expected,"expected_caller":"caller" if expected else None,"caller_method":method.upper(),"caller_path":target,"controlled":True,"runtime_traffic_claim":False,"source_files":filenames,"patches":files}
+ if name=="contract":
+  form_code='import json,sys;sys.path.insert(0,sys.argv[1]);from flaskr import create_app;from flaskr.db import init_db;app=create_app({"TESTING":True,"DATABASE":sys.argv[2]});ctx=app.app_context();ctx.push();init_db();print(app.test_client().post("/auth/login",data={"username":"alice","password":"test"}).status_code);ctx.pop()'
+  statuses=[]
+  for label,scope in [("baseline",source/"examples/tutorial"),("head",repo)]:
+   statuses.append(int(subprocess.check_output([sys.executable,"-c",form_code,str(scope),str(directory/(label+".sqlite"))],env=runtime_env,text=True)))
+  assert statuses==[200,400],statuses
+  oracle["form_runtime_statuses"]={"baseline":statuses[0],"head":statuses[1],"payload":{"username":"alice","password":"test"},"oracle":"Flask test_client after init_db; runtime contract behavior, not network reachability"}
  receipt=directory/"oracle.json";receipt.write_text(json.dumps(oracle,indent=2))
  cases.append((name,repo,client,head,files,oracle,hashlib.sha256(receipt.read_bytes()).hexdigest()))
 current={}
