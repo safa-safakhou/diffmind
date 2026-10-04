@@ -131,6 +131,8 @@ func (s *Server) Handler() http.Handler {
 // server into an authenticated same-origin endpoint. Authenticated shared
 // deployments rely on their configured credential/proxy and may legitimately
 // receive a public Host through a reverse proxy.
+type validatedRequestHostKey struct{}
+
 func (s *Server) hostValidated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Direct in-process handler calls have no listener address. The real HTTP
@@ -141,7 +143,9 @@ func (s *Server) hostValidated(next http.Handler) http.Handler {
 			writeErr(w, http.StatusForbidden, fmt.Errorf("untrusted request host"))
 			return
 		}
-		next.ServeHTTP(w, r)
+		// Preserve the checked listener authority for in-process MCP dispatch.
+		ctx := context.WithValue(r.Context(), validatedRequestHostKey{}, r.Host)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 

@@ -272,3 +272,36 @@ func TestAgentShutdownDrainsActiveIngestion(t *testing.T) {
 		t.Fatal("graph admission remained open")
 	}
 }
+
+func TestLocalHTTPMCPManagementPreservesValidatedHost(t *testing.T) {
+	s := newAuthTestServer(t)
+	hs := httptest.NewServer(s.Handler())
+	defer hs.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client := mcp.NewClient(&mcp.Implementation{Name: "local-http-test", Version: "1"}, nil)
+	session, err := client.Connect(ctx, &mcp.StreamableClientTransport{Endpoint: hs.URL + "/mcp", DisableStandaloneSSE: true}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{Name: "manage_workspace", Arguments: agentapi.Input{Operation: "create_project", Body: map[string]any{"name": "Loopback MCP"}}})
+	if err != nil || result.IsError {
+		t.Fatalf("local MCP failed: result=%+v err=%v", result, err)
+	}
+	b, _ := json.Marshal(result.StructuredContent)
+	var outcome agentapi.Result
+	if err = json.Unmarshal(b, &outcome); err != nil || outcome.Status != 201 {
+		t.Fatalf("result=%s err=%v", b, err)
+	}
+	forged, _ := http.NewRequestWithContext(ctx, "GET", hs.URL+"/api/projects", nil)
+	forged.Host = "untrusted.example"
+	response, err := http.DefaultClient.Do(forged)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusForbidden {
+		t.Fatalf("forged Host status=%d", response.StatusCode)
+	}
+}
