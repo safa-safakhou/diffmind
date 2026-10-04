@@ -16,7 +16,7 @@ work=Path(spec["work"]).resolve();work.mkdir(parents=True,exist_ok=True)
 profile=Path(os.environ.get("CODEX_HOME",str(Path.home()/".codex")))/"config.toml"
 settings=tomllib.loads(profile.read_text()) if profile.exists() else {}
 args=["codex","exec","--ignore-user-config","--ephemeral","--skip-git-repo-check",
-      "--sandbox","read-only","--json","--color","never","-C",str(work),
+      "--sandbox","read-only","--disable","apps","--json","--color","never","-C",str(work),
       "-c",'approval_policy="never"']
 for key in ("model","model_reasoning_effort"):
  if settings.get(key):args+=["-c",key+"="+json.dumps(settings[key])]
@@ -30,7 +30,7 @@ else:
         "-c","mcp_servers.diffmind.args="+json.dumps([spec["mode"]]),
         "-c","mcp_servers.diffmind.env={ DIFFMIND_HOME = "+json.dumps(str(Path(spec["home"]).resolve()))+" }"]
 approved_tools=spec.get("approved_tools",[])
-assert all(name in ("manage_workspace","run_analysis","inspect_workspace") for name in approved_tools),"unsupported test approval"
+assert all(name in ("manage_workspace","agent_runtime") for name in approved_tools),"unsupported test approval"
 for name in approved_tools:
  args+=["-c",f'mcp_servers.diffmind.tools.{name}.approval_mode="approve"']
 args+=["-o",str(out/"answer.txt"),"-"]
@@ -51,13 +51,13 @@ for line in (out/"private-events.jsonl").read_text().splitlines():
  try:records.append(json.loads(line))
  except json.JSONDecodeError:pass
 items=[e["item"] for e in records if e.get("type")=="item.completed"]
-calls=[{"tool":x["tool"],"status":x.get("status"),"error":x.get("error"),"arguments":x.get("arguments")} for x in items if x.get("type")=="mcp_tool_call"]
+calls=[{"server":x.get("server"),"tool":x["tool"],"status":x.get("status"),"error":x.get("error"),"arguments":x.get("arguments")} for x in items if x.get("type")=="mcp_tool_call"]
 result={"id":spec["id"],"mode":spec["mode"],"host_version":subprocess.check_output(["codex","--version"],text=True).strip(),
         "model":settings.get("model","host default"),"effort":settings.get("model_reasoning_effort","host default"),
         "exit_code":process.returncode,"timed_out":timed_out,"elapsed_seconds":round(time.monotonic()-start,3),
         "prompt":spec["prompt"],"tools":calls,
         "shell_commands":[x.get("command") for x in items if x.get("type")=="command_execution"],
-        "answer_exists":(out/"answer.txt").exists(),"unrelated_mcp_config_loaded":False,"approved_tools":approved_tools,
+        "answer_exists":(out/"answer.txt").exists(),"unrelated_mcp_config_loaded":False,"approved_tools":approved_tools,"apps_feature_disabled":True,
         "binary_sha256":hashlib.sha256(Path(spec["binary"]).read_bytes()).hexdigest()}
 (out/"result.json").write_text(json.dumps(result,indent=2)+"\n")
 print(json.dumps({k:result[k] for k in ("id","exit_code","timed_out","elapsed_seconds","answer_exists")}),flush=True)
