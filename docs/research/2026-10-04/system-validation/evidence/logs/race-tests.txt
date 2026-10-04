@@ -1,0 +1,97 @@
+ok  	github.com/mohammad-safakhou/diffmind/cmd/diffmind	3.437s
+ok  	github.com/mohammad-safakhou/diffmind/indexerbuild	1.015s
+ok  	github.com/mohammad-safakhou/diffmind/indexerbuild/wrapper	1.031s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/app	1.043s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/architecture	1.027s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/artifacts	1.071s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/ast	1.357s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/catalog	1.045s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/config	1.026s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors	1.016s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/dotnet/http/aspnet	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/ai/openai	1.014s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/cache/redis	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/cli/cobra	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/di/wire	1.018s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/echo	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/fiber	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/gin	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/nethttp	1.011s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/httpclient/nethttp	1.015s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/httpclient/resty	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/rpc/grpc	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/internal/frameworkutil	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/db/jdbc	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/db/jpa	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/http/spring	1.018s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/httpclient/feign	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/httpclient/retrofit	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/internal/producer	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/jms	1.018s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/kafka	1.020s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/rabbitmq	1.020s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/sqs	1.017s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/javascript/http/express	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/php/http/laravel	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/aws/sam	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/cache/redis	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/cli/argparse	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/django	1.019s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/fastapi	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/flask	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/ruby/http/rails	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/typescript/http/nestjs	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/register	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/entitykey	1.017s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/events	1.535s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/extraction	1.017s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/indexer	1.030s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/indexerbuild/recipe	1.026s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/langdetect	1.026s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/model	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/objectives	1.016s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/pipeline	1.032s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/preflight	1.038s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/provenance	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/repositorycall	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/repostore	1.019s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/runner	1.030s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/runstate	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/scip	1.049s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig	1.028s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter	1.024s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/astindex	1.015s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/connections	1.091s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery	1.196s
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery/clientspec	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/reconcile	1.015s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/ui	1.039s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/util	1.010s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi	1.138s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agenthost	1.019s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/archgraph	1.055s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/artifacts	1.035s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/backup	1.726s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/config	1.014s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/graph	1.015s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/homelock	6.112s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge	1.168s
+?   	github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge/extractors	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/mcpserver	1.098s
+?   	github.com/mohammad-safakhou/diffmind/internal/workspace/model	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/orchestrator	1.048s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/packtest	1.082s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/query	3.534s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/registry	1.010s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/resolver	1.016s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/runmgr	1.136s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/store	4.964s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	18.429s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/util	1.011s
+ok  	github.com/mohammad-safakhou/diffmind/protocol	1.016s
+ok  	github.com/mohammad-safakhou/diffmind/scripts/agent-setup	2.710s
+ok  	github.com/mohammad-safakhou/diffmind/scripts/backup-maintenance	1.146s
+ok  	github.com/mohammad-safakhou/diffmind/scripts/enterprise-showcase	1.493s
+?   	github.com/mohammad-safakhou/diffmind/scripts/readiness-report	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/scripts/release-check	1.059s
+ok  	github.com/mohammad-safakhou/diffmind/scripts/release-formula	1.071s

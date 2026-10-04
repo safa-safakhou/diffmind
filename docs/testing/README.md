@@ -1,6 +1,6 @@
 # DiffMind candidate test pack
 
-Status: prepared, not executed. Product baseline: c02bf351b913bef6ddb84b72be55d56ca90d94cb. Prior live candidate e2e9530 does not verify the later protocol fix.
+Status: operator execution and fixes recorded in the [4 October system validation report](../research/2026-10-04/system-validation/README.md), with a [per-scenario result](../research/2026-10-04/system-validation/scenarios.md). Tested product: 2cd9d328cc24de955184fc8aab863892a6ae91b3. External host, independent-reviewer, human, Enterprise and other-native-platform gates remain open. The protocol was originally prepared against c02bf351b913bef6ddb84b72be55d56ca90d94cb; earlier reports are historical evidence.
 
 1. Freeze a clean candidate; follow [runbook](runbook.md).
 2. Independently freeze source labels before output; follow [corpus protocol](corpus.md).

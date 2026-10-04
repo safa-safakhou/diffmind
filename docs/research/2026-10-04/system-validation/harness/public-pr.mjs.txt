@@ -1,0 +1,42 @@
+import fs from 'node:fs';import net from 'node:net';import assert from 'node:assert/strict';import {spawn,execFileSync} from 'node:child_process';import {pathToFileURL} from 'node:url';
+const root='/tmp/diffmind-audit-20261004-27p7JA',v=root+'/candidate';
+const {chromium}=await import(pathToFileURL(root+'/browser-tools/node_modules/playwright/index.mjs').href);
+const {default:AxeBuilder}=await import(pathToFileURL(root+'/browser-tools/node_modules/@axe-core/playwright/dist/index.mjs').href);
+const home=v+'/flask-pr/home',pid=fs.readdirSync(home+'/projects')[0],source=v+'/flask-pr/flask';
+const before=execFileSync('git',['-C',source,'status','--porcelain'],{encoding:'utf8'});
+const sock=net.createServer();await new Promise(r=>sock.listen(0,'127.0.0.1',r));const port=sock.address().port;await new Promise(r=>sock.close(r));
+const env=Object.fromEntries(Object.entries(process.env).filter(([k])=>!k.startsWith('DIFFMIND_')&&!['GITHUB_TOKEN','GH_TOKEN'].includes(k)));
+const log=fs.openSync(v+'/public-pr-private.log','w',0o600),server=spawn(v+'/diffmind',['ui','--no-spa-rebuild','--port',String(port),'--refresh-interval','0','--refresh-on-start=false'],{env:{...env,DIFFMIND_HOME:home,DIFFMIND_BINARY:v+'/diffmind'},stdio:['ignore',log,log]});
+const base='http://127.0.0.1:'+port;let browser;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+try{
+ for(let i=0;i<100;i++){try{if((await fetch(base+'/healthz')).ok)break;}catch{}await sleep(100);}
+ let res=await fetch(base+'/api/projects/'+pid+'/repos/flask',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({git_api_base:''})});assert.ok(res.ok,await res.text());
+ const rows=await(await fetch(base+'/api/projects/'+pid+'/pull-requests')).json();assert.ok(rows.total_open>0,JSON.stringify(rows));
+ const number=rows.repositories.find(r=>r.repo_id==='flask').pull_requests[0].number;
+ res=await fetch(base+'/api/projects/'+pid+'/pull-requests/flask/'+number+'/impact');assert.ok(res.ok);const impact=await res.json();
+ let session='';
+ const mcpCall=async(body)=>{
+  const r=await fetch(base+'/mcp',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json, text/event-stream','MCP-Protocol-Version':'2025-11-25',...(session?{'Mcp-Session-Id':session}:{})},body:JSON.stringify(body)});
+  if(r.headers.get('Mcp-Session-Id'))session=r.headers.get('Mcp-Session-Id');
+  const raw=await r.text();assert.ok(r.ok,raw);
+  if(!raw)return null;
+  return JSON.parse(r.headers.get('Content-Type')?.startsWith('text/event-stream')?raw.split('\n').find(l=>l.startsWith('data:')).slice(5).trim():raw);
+ };
+ await mcpCall({jsonrpc:'2.0',id:0,method:'initialize',params:{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'public-pr-validation',version:'1'}}});
+ await mcpCall({jsonrpc:'2.0',method:'notifications/initialized'});
+ const mcp=await mcpCall({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'inspect_workspace',arguments:{operation:'pull_request_impact',selectors:{pid,repo_id:'flask',number:String(number)}}}});
+ assert.ok(!mcp.error&&!mcp.result?.isError,JSON.stringify(mcp));
+ assert.deepEqual(mcp.result.structuredContent.data.company,impact.company);
+ assert.equal(impact.company.freshness,'stale');assert.equal(impact.company.score_eligible,false);
+ browser=await chromium.launch({headless:true,executablePath:'/home/mnim/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome'});
+ const context=await browser.newContext();const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:1440,height:1000});await page.goto(base+'/#/projects/'+pid+'/pull-requests');
+ await page.locator('.pr-impact-detail').waitFor({timeout:30000});
+ const audit=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+ await page.screenshot({path:v+'/public-pr.png',fullPage:true});
+ const text=await page.locator('.pr-impact-detail').innerText();assert.match(text,/stale/i);assert.match(text,/uncalibrated|heuristic/i);
+ assert.equal(execFileSync('git',['-C',source,'status','--porcelain'],{encoding:'utf8'}),before);
+ fs.writeFileSync(v+'/public-pr.json',JSON.stringify({actual_public_read:true,http_mcp_company_parity:true,public_url:impact.pull_request.url,head:impact.pull_request.head_sha,number,company:impact.company,codebase:impact.codebase,browser:{errors,violations:audit.violations.map(x=>({id:x.id,impact:x.impact,nodes:x.nodes.map(n=>({html:n.html,summary:n.failureSummary}))}))},local_checkout_preserved:true},null,2));
+ console.log(JSON.stringify({number,head:impact.pull_request.head_sha,freshness:impact.company.freshness,violations:audit.violations.map(x=>x.id),errors}));
+}finally{if(browser)await browser.close();server.kill('SIGTERM');await Promise.race([new Promise(r=>server.once('exit',r)),sleep(5000)]);fs.closeSync(log)}

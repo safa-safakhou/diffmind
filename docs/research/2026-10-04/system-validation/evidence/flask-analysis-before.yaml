@@ -1,0 +1,1012 @@
+schema: diffmind.service.v1
+service:
+  id: tutorial
+  name: tutorial
+  team: default
+repository:
+  provider: github
+  url: https://github.com/pallets/flask.git
+  branch: HEAD
+  commit: 2c1b30d0503cfb064f1cb252e6614a06915a362a
+  path: /tmp/diffmind-audit-20261004-27p7JA/flask/examples/tutorial
+objects:
+  http_endpoints:
+    - id: http.get
+      kind: http_endpoint
+      name: GET /
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.http.get.1
+      evidence_refs:
+        - ev.http.get.1
+      metadata:
+        details:
+          direction: inbound
+          framework: flask
+          handler: index
+          instance: inbound-http
+          method: GET
+          operation_kind: get
+          operation_normalized: GET /
+          path: /
+          platform: http
+          reason: flask_decorator_literal_path
+        instance: inbound-http
+        legacy_id: 267ecff3f0cd48574c7965ec76d4e7f1
+        legacy_type: http_route
+        platform: http
+        plugin_source: diffmind.deterministic
+        summary: flask HTTP route detected from framework binding
+        tags:
+          - deterministic
+          - framework:flask
+      method: GET
+      path: /
+      visibility: inbound
+    - id: http.get_create
+      kind: http_endpoint
+      name: GET /create
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.http.get_create.1
+      evidence_refs:
+        - ev.http.get_create.1
+      metadata:
+        details:
+          direction: inbound
+          framework: flask
+          handler: create
+          instance: inbound-http
+          method: GET
+          operation_kind: get
+          operation_normalized: GET /create
+          path: /create
+          platform: http
+          reason: flask_decorator_literal_path
+        instance: inbound-http
+        legacy_id: 81fcd3d2e18165b7e3d7dd37c92bff54
+        legacy_type: http_route
+        platform: http
+        plugin_source: diffmind.deterministic
+        summary: flask HTTP route detected from framework binding
+        tags:
+          - deterministic
+          - framework:flask
+      method: GET
+      path: /create
+      visibility: inbound
+    - id: http.get_hello
+      kind: http_endpoint
+      name: GET /hello
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.http.get_hello.1
+      evidence_refs:
+        - ev.http.get_hello.1
+      metadata:
+        details:
+          direction: inbound
+          framework: flask
+          handler: hello
+          instance: inbound-http
+          method: GET
+          operation_kind: get
+          operation_normalized: GET /hello
+          path: /hello
+          platform: http
+          reason: flask_decorator_literal_path
+        instance: inbound-http
+        legacy_id: d0b7f6e41e34fb251a08dadff4fed417
+        legacy_type: http_route
+        platform: http
+        plugin_source: diffmind.deterministic
+        summary: flask HTTP route detected from framework binding
+        tags:
+          - deterministic
+          - framework:flask
+      method: GET
+      path: /hello
+      visibility: inbound
+    - id: http.get_int_id_update
+      kind: http_endpoint
+      name: GET /<int:id>/update
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.http.get_int_id_update.1
+      evidence_refs:
+        - ev.http.get_int_id_update.1
+      metadata:
+        details:
+          direction: inbound
+          framework: flask
+          handler: update
+          instance: inbound-http
+          method: GET
+          operation_kind: get
+          operation_normalized: GET /<int:id>/update
+          path: /<int:id>/update
+          platform: http
+          reason: flask_decorator_literal_path
+        instance: inbound-http
+        legacy_id: 429674545bbc982055746dec2ef3bd4b
+        legacy_type: http_route
+        platform: http
+        plugin_source: diffmind.deterministic
+        summary: flask HTTP route detected from framework binding
+        tags:
+          - deterministic
+          - framework:flask
+      method: GET
+      path: /<int:id>/update
+      visibility: inbound
+    - id: http.get_login
+      kind: http_endpoint
+      name: GET /login
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.http.get_login.1
+      evidence_refs:
+        - ev.http.get_login.1
+      metadata:
+        details:
+          direction: inbound
+          framework: flask
+          handler: login
+          instance: inbound-http
+          method: GET
+          operation_kind: get
+          operation_normalized: GET /login
+          path: /login
+          platform: http
+          reason: flask_decorator_literal_path
+        instance: inbound-http
+        legacy_id: f8de2da013054ea5cbaa82e2981c0e90
+        legacy_type: http_route
+        platform: http
+        plugin_source: diffmind.deterministic
+        summary: flask HTTP route detected from framework binding
+        tags:
+          - deterministic
+          - framework:flask
+      method: GET
+      path: /login
+      visibility: inbound
+    - id: http.get_logout
+      kind: http_endpoint
+      name: GET /logout
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.http.get_logout.1
+      evidence_refs:
+        - ev.http.get_logout.1
+      metadata:
+        details:
+          direction: inbound
+          framework: flask
+          handler: logout
+          instance: inbound-http
+          method: GET
+          operation_kind: get
+          operation_normalized: GET /logout
+          path: /logout
+          platform: http
+          reason: flask_decorator_literal_path
+        instance: inbound-http
+        legacy_id: 8dfc1401556018bd36009d4ba06eaef5
+        legacy_type: http_route
+        platform: http
+        plugin_source: diffmind.deterministic
+        summary: flask HTTP route detected from framework binding
+        tags:
+          - deterministic
+          - framework:flask
+      method: GET
+      path: /logout
+      visibility: inbound
+    - id: http.get_register
+      kind: http_endpoint
+      name: GET /register
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.http.get_register.1
+      evidence_refs:
+        - ev.http.get_register.1
+      metadata:
+        details:
+          direction: inbound
+          framework: flask
+          handler: register
+          instance: inbound-http
+          method: GET
+          operation_kind: get
+          operation_normalized: GET /register
+          path: /register
+          platform: http
+          reason: flask_decorator_literal_path
+        instance: inbound-http
+        legacy_id: e760810a328b26bc221a99b4cbbf58f2
+        legacy_type: http_route
+        platform: http
+        plugin_source: diffmind.deterministic
+        summary: flask HTTP route detected from framework binding
+        tags:
+          - deterministic
+          - framework:flask
+      method: GET
+      path: /register
+      visibility: inbound
+    - id: http.post_int_id_delete
+      kind: http_endpoint
+      name: POST /<int:id>/delete
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.http.post_int_id_delete.1
+      evidence_refs:
+        - ev.http.post_int_id_delete.1
+      metadata:
+        details:
+          direction: inbound
+          framework: flask
+          handler: delete
+          instance: inbound-http
+          method: POST
+          operation_kind: post
+          operation_normalized: POST /<int:id>/delete
+          path: /<int:id>/delete
+          platform: http
+          reason: flask_decorator_literal_path
+        instance: inbound-http
+        legacy_id: 03eb600580dda9d875aa2d717a77399d
+        legacy_type: http_route
+        platform: http
+        plugin_source: diffmind.deterministic
+        summary: flask HTTP route detected from framework binding
+        tags:
+          - deterministic
+          - framework:flask
+      method: POST
+      path: /<int:id>/delete
+      visibility: inbound
+  http_calls: []
+  db_resources:
+    - id: db.post
+      kind: db_resource
+      name: post
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.db.post.1
+      evidence_refs:
+        - ev.dbq.delete_post.1
+      metadata:
+        derived_from: 4d8c4ca9b6c4cbd2d1520b4aaf3922e8
+      engine: database
+      resource_type: table
+      table: post
+      ownership: used
+      data:
+        classification: unknown
+    - id: db.user
+      kind: db_resource
+      name: user
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.db.user.1
+      evidence_refs:
+        - ev.dbq.read_user.1
+      metadata:
+        derived_from: ac5979f1f7dc1930550c5c449973b61a
+      engine: database
+      resource_type: table
+      table: user
+      ownership: used
+      data:
+        classification: unknown
+  db_queries:
+    - id: dbq.create_post
+      kind: db_query
+      name: write post
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.dbq.create_post.1
+      evidence_refs:
+        - ev.dbq.create_post.1
+      metadata:
+        details:
+          discovered_by: ast_sql_literal
+          instance: database
+          operation: write
+          operation_kind: write
+          operation_normalized: write
+          platform: database
+          sql: INSERT INTO post (title, body, author_id) VALUES (?, ?, ?)
+          table: post
+          writes:
+            - author_id
+            - body
+            - title
+        instance: database
+        legacy_id: b1814b03568d4719264bb3e3ded342b0
+        legacy_type: db_operation
+        platform: database
+        plugin_source: diffmind.deterministic
+        summary: AST-derived write on post (raw SQL)
+        tags:
+          - deterministic
+          - sql
+      engine: database
+      operation: create
+      access: write
+      target:
+        resource_ref: db.post
+        tables:
+          - post
+      query:
+        language: unknown
+        template: INSERT INTO post (title, body, author_id) VALUES (?, ?, ?)
+        fingerprint: sha256:aaa6aecce64c02343cb962b4711f930355df8817f600baf719f700492c4cabfb
+        redacted: true
+      orm:
+        method: write
+      columns:
+        writes:
+          - author_id
+          - body
+          - title
+    - id: dbq.create_user
+      kind: db_query
+      name: write user
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.dbq.create_user.1
+      evidence_refs:
+        - ev.dbq.create_user.1
+      metadata:
+        details:
+          discovered_by: ast_sql_literal
+          instance: database
+          operation: write
+          operation_kind: write
+          operation_normalized: write
+          platform: database
+          sql: INSERT INTO user (username, password) VALUES (?, ?)
+          table: user
+          writes:
+            - password
+            - username
+        instance: database
+        legacy_id: bbbce797917c7be090ef1bcb4379f17a
+        legacy_type: db_operation
+        platform: database
+        plugin_source: diffmind.deterministic
+        summary: AST-derived write on user (raw SQL)
+        tags:
+          - deterministic
+          - sql
+      engine: database
+      operation: create
+      access: write
+      target:
+        resource_ref: db.user
+        tables:
+          - user
+      query:
+        language: unknown
+        template: INSERT INTO user (username, password) VALUES (?, ?)
+        fingerprint: sha256:03621ac411f842e365db429927e41dfbe2088740a0acd763d36add0853a3c8b9
+        redacted: true
+      orm:
+        method: write
+      columns:
+        writes:
+          - password
+          - username
+    - id: dbq.delete_post
+      kind: db_query
+      name: delete post
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.dbq.delete_post.1
+      evidence_refs:
+        - ev.dbq.delete_post.1
+      metadata:
+        details:
+          discovered_by: ast_sql_literal
+          instance: database
+          operation: delete
+          operation_kind: delete
+          operation_normalized: delete
+          platform: database
+          sql: DELETE FROM post WHERE id = ?
+          table: post
+        instance: database
+        legacy_id: 4d8c4ca9b6c4cbd2d1520b4aaf3922e8
+        legacy_type: db_operation
+        platform: database
+        plugin_source: diffmind.deterministic
+        summary: AST-derived delete on post (raw SQL)
+        tags:
+          - deterministic
+          - sql
+      engine: database
+      operation: delete
+      access: delete
+      target:
+        resource_ref: db.post
+        tables:
+          - post
+      query:
+        language: unknown
+        template: DELETE FROM post WHERE id = ?
+        fingerprint: sha256:924b68130d12d5c22b8c573ad5f35a093cecddf22d5d8ebad1867b5950101b4b
+        redacted: true
+      orm:
+        method: delete
+      columns: {}
+    - id: dbq.read_post
+      kind: db_query
+      name: read post
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.dbq.read_post.1
+      evidence_refs:
+        - ev.dbq.read_post.1
+      metadata:
+        details:
+          discovered_by: ast_sql_literal
+          instance: database
+          operation: read
+          operation_kind: read
+          operation_normalized: read
+          platform: database
+          reads:
+            - author_id
+            - body
+            - created
+            - id
+            - title
+            - username
+          sql: |-
+            SELECT p.id, title, body, created, author_id, username"
+                    " FROM post p JOIN user u ON p.author_id = u.id"
+                    " ORDER BY created DESC
+          table: post
+        instance: database
+        legacy_id: 8fbf8389625a75f09e21a9975eaf41b7
+        legacy_type: db_operation
+        platform: database
+        plugin_source: diffmind.deterministic
+        summary: AST-derived read on post (raw SQL)
+        tags:
+          - deterministic
+          - sql
+      engine: database
+      operation: read
+      access: read
+      target:
+        resource_ref: db.post
+        tables:
+          - post
+      query:
+        language: unknown
+        template: |-
+          SELECT p.id, title, body, created, author_id, username"
+                  " FROM post p JOIN user u ON p.author_id = u.id"
+                  " ORDER BY created DESC
+        fingerprint: sha256:21208351fd7287c66d318dbe263338bf45693e7df2f8363df5ca983bc6e524e8
+        redacted: true
+      orm:
+        method: read
+      columns:
+        reads:
+          - author_id
+          - body
+          - created
+          - id
+          - title
+          - username
+    - id: dbq.read_user
+      kind: db_query
+      name: read user
+      status: confirmed
+      confidence: high
+      origin: deterministic
+      observations:
+        - obs.dbq.read_user.1
+      evidence_refs:
+        - ev.dbq.read_user.1
+      metadata:
+        details:
+          discovered_by: ast_sql_literal
+          instance: database
+          operation: read
+          operation_kind: read
+          operation_normalized: read
+          platform: database
+          sql: SELECT * FROM user WHERE id = ?
+          table: user
+        instance: database
+        legacy_id: ac5979f1f7dc1930550c5c449973b61a
+        legacy_type: db_operation
+        platform: database
+        plugin_source: diffmind.deterministic
+        summary: AST-derived read on user (raw SQL)
+        tags:
+          - deterministic
+          - sql
+      engine: database
+      operation: read
+      access: read
+      target:
+        resource_ref: db.user
+        tables:
+          - user
+      query:
+        language: unknown
+        template: SELECT * FROM user WHERE id = ?
+        fingerprint: sha256:b9ec2211672bc544b95281318be44056c7e74dc07c5914d9fbbfd46b3e1cffb9
+        redacted: true
+      orm:
+        method: read
+      columns: {}
+  queue_consumers: []
+  queue_publishers: []
+  rpc_endpoints: []
+  rpc_calls: []
+  cli_commands: []
+  activations: []
+  cache_operations: []
+  config_reads: []
+  feature_flags: []
+flows:
+  - id: flow.http_get_create_dbq_create_post
+    kind: api_to_database
+    entrypoint: http.get_create
+    reachability: must
+    condition:
+      summary: unconditional
+      confidence: medium
+    nodes:
+      - id: n1
+        ref: http.get_create
+        role: entrypoint
+      - id: n2
+        ref: dbq.create_post
+        role: action
+    edges:
+      - from: n1
+        to: n2
+        reachability: must
+    status: confirmed
+    confidence: high
+    origin: deterministic
+  - id: flow.http_get_dbq_read_post
+    kind: api_to_database
+    entrypoint: http.get
+    reachability: must
+    condition:
+      summary: unconditional
+      confidence: medium
+    nodes:
+      - id: n1
+        ref: http.get
+        role: entrypoint
+      - id: n2
+        ref: dbq.read_post
+        role: action
+    edges:
+      - from: n1
+        to: n2
+        reachability: must
+    status: confirmed
+    confidence: high
+    origin: deterministic
+  - id: flow.http_get_hello_entrypoint
+    kind: entrypoint_trace
+    entrypoint: http.get_hello
+    nodes:
+      - id: n1
+        ref: http.get_hello
+        role: entrypoint
+    status: confirmed
+    confidence: high
+    origin: deterministic
+    evidence_refs:
+      - ev.http.get_hello.1
+  - id: flow.http_get_int_id_update_entrypoint
+    kind: entrypoint_trace
+    entrypoint: http.get_int_id_update
+    nodes:
+      - id: n1
+        ref: http.get_int_id_update
+        role: entrypoint
+    status: confirmed
+    confidence: high
+    origin: deterministic
+    evidence_refs:
+      - ev.http.get_int_id_update.1
+  - id: flow.http_get_login_entrypoint
+    kind: entrypoint_trace
+    entrypoint: http.get_login
+    nodes:
+      - id: n1
+        ref: http.get_login
+        role: entrypoint
+    status: confirmed
+    confidence: high
+    origin: deterministic
+    evidence_refs:
+      - ev.http.get_login.1
+  - id: flow.http_get_logout_entrypoint
+    kind: entrypoint_trace
+    entrypoint: http.get_logout
+    nodes:
+      - id: n1
+        ref: http.get_logout
+        role: entrypoint
+    status: confirmed
+    confidence: high
+    origin: deterministic
+    evidence_refs:
+      - ev.http.get_logout.1
+  - id: flow.http_get_register_dbq_create_user
+    kind: api_to_database
+    entrypoint: http.get_register
+    reachability: must
+    condition:
+      summary: unconditional
+      confidence: medium
+    nodes:
+      - id: n1
+        ref: http.get_register
+        role: entrypoint
+      - id: n2
+        ref: dbq.create_user
+        role: action
+    edges:
+      - from: n1
+        to: n2
+        reachability: must
+    status: confirmed
+    confidence: high
+    origin: deterministic
+  - id: flow.http_post_int_id_delete_dbq_delete_post
+    kind: api_to_database
+    entrypoint: http.post_int_id_delete
+    reachability: must
+    condition:
+      summary: unconditional
+      confidence: medium
+    nodes:
+      - id: n1
+        ref: http.post_int_id_delete
+        role: entrypoint
+      - id: n2
+        ref: dbq.delete_post
+        role: action
+    edges:
+      - from: n1
+        to: n2
+        reachability: must
+    status: confirmed
+    confidence: high
+    origin: deterministic
+observations:
+  - id: obs.db.post.1
+    object_ref: db.post
+    perspective: repository_method
+    location:
+      file: flaskr/blog.py
+      start_line: 123
+      end_line: 123
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.db.user.1
+    object_ref: db.user
+    perspective: repository_method
+    location:
+      file: flaskr/auth.py
+      start_line: 42
+      end_line: 42
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.dbq.create_post.1
+    object_ref: dbq.create_post
+    perspective: repository_method
+    location:
+      file: flaskr/blog.py
+      start_line: 76
+      end_line: 76
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.dbq.create_user.1
+    object_ref: dbq.create_user
+    perspective: repository_method
+    location:
+      file: flaskr/auth.py
+      start_line: 66
+      end_line: 66
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.dbq.delete_post.1
+    object_ref: dbq.delete_post
+    perspective: repository_method
+    location:
+      file: flaskr/blog.py
+      start_line: 123
+      end_line: 123
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.dbq.read_post.1
+    object_ref: dbq.read_post
+    perspective: repository_method
+    location:
+      file: flaskr/blog.py
+      start_line: 20
+      end_line: 20
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.dbq.read_user.1
+    object_ref: dbq.read_user
+    perspective: repository_method
+    location:
+      file: flaskr/auth.py
+      start_line: 42
+      end_line: 42
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.http.get.1
+    object_ref: http.get
+    perspective: route_registration
+    location:
+      file: flaskr/blog.py
+      start_line: 17
+      end_line: 25
+      symbol: index
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.http.get_create.1
+    object_ref: http.get_create
+    perspective: route_registration
+    location:
+      file: flaskr/blog.py
+      start_line: 62
+      end_line: 83
+      symbol: create
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.http.get_hello.1
+    object_ref: http.get_hello
+    perspective: route_registration
+    location:
+      file: flaskr/__init__.py
+      start_line: 30
+      end_line: 31
+      symbol: hello
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.http.get_int_id_update.1
+    object_ref: http.get_int_id_update
+    perspective: route_registration
+    location:
+      file: flaskr/blog.py
+      start_line: 88
+      end_line: 110
+      symbol: update
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.http.get_login.1
+    object_ref: http.get_login
+    perspective: route_registration
+    location:
+      file: flaskr/auth.py
+      start_line: 85
+      end_line: 109
+      symbol: login
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.http.get_logout.1
+    object_ref: http.get_logout
+    perspective: route_registration
+    location:
+      file: flaskr/auth.py
+      start_line: 113
+      end_line: 116
+      symbol: logout
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.http.get_register.1
+    object_ref: http.get_register
+    perspective: route_registration
+    location:
+      file: flaskr/auth.py
+      start_line: 47
+      end_line: 81
+      symbol: register
+    detector: diffmind.deterministic
+    confidence: high
+  - id: obs.http.post_int_id_delete.1
+    object_ref: http.post_int_id_delete
+    perspective: route_registration
+    location:
+      file: flaskr/blog.py
+      start_line: 115
+      end_line: 125
+      symbol: delete
+    detector: diffmind.deterministic
+    confidence: high
+evidence:
+  - id: ev.dbq.create_post.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/blog.py
+    start_line: 76
+    end_line: 76
+    snippet_hash: sha256:524e41bcb5979a3a8ba9e012db865af94907fe34417ab3a642cad6482a8bedb2
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.dbq.create_user.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/auth.py
+    start_line: 66
+    end_line: 66
+    snippet_hash: sha256:524e41bcb5979a3a8ba9e012db865af94907fe34417ab3a642cad6482a8bedb2
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.dbq.delete_post.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/blog.py
+    start_line: 123
+    end_line: 123
+    snippet_hash: sha256:524e41bcb5979a3a8ba9e012db865af94907fe34417ab3a642cad6482a8bedb2
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.dbq.read_post.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/blog.py
+    start_line: 20
+    end_line: 20
+    snippet_hash: sha256:524e41bcb5979a3a8ba9e012db865af94907fe34417ab3a642cad6482a8bedb2
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.dbq.read_user.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/auth.py
+    start_line: 42
+    end_line: 42
+    snippet_hash: sha256:e154bebd2a5f693826fe3a7ae9629b6aa57e1ac85615c11a5d543b57b262d090
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.http.get.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/blog.py
+    start_line: 17
+    end_line: 25
+    symbol: index
+    snippet_hash: sha256:2ef173a778aa3bce9a284e8f3aae1d15073030c2d7501286f040c59d7a24924b
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.http.get_create.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/blog.py
+    start_line: 62
+    end_line: 83
+    symbol: create
+    snippet_hash: sha256:9e0050c763f4b611b30583a1f91247f880fa5e33e3417ae93aad2287448ccd7e
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.http.get_hello.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/__init__.py
+    start_line: 30
+    end_line: 31
+    symbol: hello
+    snippet_hash: sha256:8a22b6f87633b99740784d05d5927de084575743b28747d2715b7731c5fd67f2
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.http.get_int_id_update.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/blog.py
+    start_line: 88
+    end_line: 110
+    symbol: update
+    snippet_hash: sha256:f0b4723e1c0bbc4878d9d4bf4a4a7651f75f4a426226ccd496b6c30ad8fac5d6
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.http.get_login.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/auth.py
+    start_line: 85
+    end_line: 109
+    symbol: login
+    snippet_hash: sha256:72c5dfe73f4d0a26101d235d43406bbd427fdb2a831ddde05c4f9a0db0486882
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.http.get_logout.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/auth.py
+    start_line: 113
+    end_line: 116
+    symbol: logout
+    snippet_hash: sha256:370ca0ac123bc4ef3a639484905d4dee168dd374016d07b4b81618e1406ebbfb
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.http.get_register.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/auth.py
+    start_line: 47
+    end_line: 81
+    symbol: register
+    snippet_hash: sha256:fb2e29748827d983678ff1ffb28519d74883c663ddfffb6b7da0f21e608e1c9e
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+  - id: ev.http.post_int_id_delete.1
+    type: source_location
+    source: code
+    detector: diffmind.deterministic
+    file: flaskr/blog.py
+    start_line: 115
+    end_line: 125
+    symbol: delete
+    snippet_hash: sha256:ea4a75cdbdc2fd7d43c0fe2e5c4299591a9fcc196ec66b16df686dd2bcb4c105
+    observed_at: 2026-10-04T15:10:41.948394491Z
+    confidence: high
+metadata:
+  generated_by: diffmind
+  generated_at: 2026-10-04T15:10:41.948394491Z
+  labels:
+    analysis_filter: diffmind.sourcefilter.v1
+    analysis_path_scope: '{"include":null,"exclude":null}'
+    diffmind_run_id: 20261004T151041.932727855Z
+    pipeline: deterministic
+    schema_version: diffmind.service.v1

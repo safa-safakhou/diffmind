@@ -1,0 +1,713 @@
+[
+  {
+    "finding": "F01",
+    "original": "Agent setup has obsolete release advice",
+    "tasks": [
+      {
+        "id": "MNI-200",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Documentation boundary: installation/help documentation is aligned by the prior implementation; current Linux native installer gate passes. Other native platforms remain open."
+  },
+  {
+    "finding": "F02",
+    "original": "Background maintenance is conditional in local mode",
+    "tasks": [
+      {
+        "id": "MNI-181",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified mechanism and boundary: approved cadence refreshes while the owning service is running; pause/reconnect tested. No always-on claim after local owner exit."
+  },
+  {
+    "finding": "F03",
+    "original": "One product exposes distinct agent contracts",
+    "tasks": [
+      {
+        "id": "MNI-180",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Verified mechanisms, open adoption: query-only, managed local and shared HTTP contracts remain distinct. Local HTTP management defect repaired; actual model behavior is blocked."
+  },
+  {
+    "finding": "F04",
+    "original": "Tool discovery does not establish adoption",
+    "tasks": [
+      {
+        "id": "MNI-180",
+        "state": "In Progress"
+      },
+      {
+        "id": "MNI-201",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Open measurement: zero completed model-driven trial turns; discovery/schema/installed acceptance do not prove adoption."
+  },
+  {
+    "finding": "F05",
+    "original": "Bootstrap success remains a host boundary",
+    "tasks": [
+      {
+        "id": "MNI-179",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-201",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Verified Linux bootstrap mechanism; installed-host authentication failed before model use. Cross-host success remains open."
+  },
+  {
+    "finding": "F06",
+    "original": "Platform availability is narrower than generic agent availability",
+    "tasks": [
+      {
+        "id": "MNI-179",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Explicit platform boundary: Linux AMD64 native archive passed; Linux ARM64/macOS targets not exercised here."
+  },
+  {
+    "finding": "F07",
+    "original": "Multiple agents share a lifecycle constraint",
+    "tasks": [
+      {
+        "id": "MNI-182",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified single-owner mechanisms: full races/native managed-agent acceptance cover contention, disconnect and reconnect; distributed writers are unsupported."
+  },
+  {
+    "finding": "F08",
+    "original": "Project selection requires a domain translation",
+    "tasks": [
+      {
+        "id": "MNI-177",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-180",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Open model outcome: selector/permissions mechanisms pass, but unprompted ambiguous-project selection remains unobserved."
+  },
+  {
+    "finding": "F09",
+    "original": "Import scope has different defaults by surface",
+    "tasks": [
+      {
+        "id": "MNI-177",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-187",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-186",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified mechanism: public browser/MCP scope preview parity, changed-digest rejection before registration and approved cadence."
+  },
+  {
+    "finding": "F10",
+    "original": "Local and managed sources have different freshness meanings",
+    "tasks": [
+      {
+        "id": "MNI-177",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-181",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-188",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified bounded freshness: unchanged sources reuse; edited local source is analyzed without overwriting its edit. Managed-source/full revision rules remain regression-based here."
+  },
+  {
+    "finding": "F11",
+    "original": "Accepted work is not usable context",
+    "tasks": [
+      {
+        "id": "MNI-175",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-178",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified separation: operator polls completed ingestion and then reads actual saved graph; UI and agents retain accepted/running/completed distinctions."
+  },
+  {
+    "finding": "F12",
+    "original": "Latest completed graph is a snapshot fallback",
+    "tasks": [
+      {
+        "id": "MNI-175",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-181",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-182",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified snapshot boundary: saved graph/history survive reconnect, correction rollback and restore; live edit freshness does not invalidate old saved bytes."
+  },
+  {
+    "finding": "F13",
+    "original": "Process completion does not establish semantic completeness",
+    "tasks": [
+      {
+        "id": "MNI-175",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-186",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-188",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Explicit semantic boundary: UI states coverage unverified; completed extraction does not imply complete architecture."
+  },
+  {
+    "finding": "F14",
+    "original": "Public compatibility scans expose limited detection coverage",
+    "tasks": [
+      {
+        "id": "MNI-189",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-197",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Improved measured subset: Flask 12/12 runtime operations after fixes; Boutique requires reviewed declarations. Broad independent extraction accuracy remains open."
+  },
+  {
+    "finding": "F15",
+    "original": "Synthetic scale is separate from real extraction scale",
+    "tasks": [
+      {
+        "id": "MNI-184",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-197",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Explicit scale boundary: 150 synthetic services exercise rendering and selection; eight public scopes and the Flask tutorial exercise extraction. No equivalence or production throughput claim."
+  },
+  {
+    "finding": "F16",
+    "original": "Declared and extracted relationships have different meanings",
+    "tasks": [
+      {
+        "id": "MNI-188",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified provenance: 12 correction edges stay pack-declared and HTTP/MCP evidence agrees; other source-extracted edges remain distinct."
+  },
+  {
+    "finding": "F17",
+    "original": "Teaching is an ongoing governance activity",
+    "tasks": [
+      {
+        "id": "MNI-189",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified governance mechanism: actual gap transitions, editor report/admin activation boundaries and correction rollback. No automatic promotion of a suggested pack."
+  },
+  {
+    "finding": "F18",
+    "original": "Static source is not runtime truth",
+    "tasks": [
+      {
+        "id": "MNI-188",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Explicit evidence boundary: source/declaration findings cannot prove runtime traffic or dynamic configuration."
+  },
+  {
+    "finding": "F19",
+    "original": "Whole-view graph labels can become visually small",
+    "tasks": [
+      {
+        "id": "MNI-184",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified bounded readability: keyboard search/focus and tablet/phone graph geometry pass; large graphs still require pan, team scope or search."
+  },
+  {
+    "finding": "F20",
+    "original": "Workspace operations vocabulary is crowded",
+    "tasks": [
+      {
+        "id": "MNI-176",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Implemented interaction boundary: primary Update context, role-aware actions and responsive wrapping are exercised. Independent evidence that the vocabulary is simple enough remains open."
+  },
+  {
+    "finding": "F21",
+    "original": "First project creation limits exploratory control",
+    "tasks": [
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified regression mechanisms: approved import review/continuation and first-use component tests pass. Newcomer completion without coaching remains unmeasured."
+  },
+  {
+    "finding": "F22",
+    "original": "Project-list failure also produces an empty list",
+    "tasks": [
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified regression boundary: loading/empty/error/denied state tests pass; current normal-state browser scans do not retest every network fault."
+  },
+  {
+    "finding": "F23",
+    "original": "Shared dialogs lack several expected interaction behaviors",
+    "tasks": [
+      {
+        "id": "MNI-183",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified live: both modal systems have names, focus containment, Escape and restoration; extraction form labels repaired."
+  },
+  {
+    "finding": "F24",
+    "original": "Graph keyboard interaction is uneven",
+    "tasks": [
+      {
+        "id": "MNI-184",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified keyboard subset: dashboard graph selection and scroll access plus extractor dialog/activity/graph scroll focus. Real screen-reader navigation remains untested."
+  },
+  {
+    "finding": "F25",
+    "original": "Detail views bound how much evidence is visible",
+    "tasks": [
+      {
+        "id": "MNI-180",
+        "state": "In Progress"
+      },
+      {
+        "id": "MNI-184",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified inspector subset: selected service details are reachable on desktop/short phone; exhaustive evidence-expansion behavior remains covered by existing tests and prior live records."
+  },
+  {
+    "finding": "F26",
+    "original": "PR impact is not an automatic code-host review lifecycle",
+    "tasks": [
+      {
+        "id": "MNI-199",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Explicit product boundary: PR evidence is on demand. No automatic upstream warning/comment delivery was configured or claimed."
+  },
+  {
+    "finding": "F27",
+    "original": "Exact PR evidence requires matching clean revision",
+    "tasks": [
+      {
+        "id": "MNI-198",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Verified mechanisms: clean controlled head/caller qualifies; stale/missing patch/dirty caller does not; actual upstream PR is stale. Independent corpus acceptance remains open."
+  },
+  {
+    "finding": "F28",
+    "original": "PR scores are heuristics with no demonstrated calibration",
+    "tasks": [
+      {
+        "id": "MNI-199",
+        "state": "In Progress"
+      },
+      {
+        "id": "MNI-197",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Explicit uncertainty: heuristic labels remain visible; no score calibration or merge-safety claim. Human interpretation remains open."
+  },
+  {
+    "finding": "F29",
+    "original": "Removed and indirectly changed behavior remain a PR evidence limit",
+    "tasks": [
+      {
+        "id": "MNI-198",
+        "state": "In Progress"
+      },
+      {
+        "id": "MNI-197",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Verified conservative subset: deleted old line cannot match unchanged head; internal helper effects require supported evidence. Independent deletion/transitive corpus remains open."
+  },
+  {
+    "finding": "F30",
+    "original": "Import and PR provider scope may diverge",
+    "tasks": [
+      {
+        "id": "MNI-192",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Verified public/controlled boundary: actual GitHub PR and local-only repository states visible; provider host tests pass. Actual Enterprise deployment remains open."
+  },
+  {
+    "finding": "F31",
+    "original": "Browser identity does not automatically connect the agent",
+    "tasks": [
+      {
+        "id": "MNI-194",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified contract boundary: browser and agent credentials remain separate; scoped handoff/installed-client tests pass. Actual company client/model trial remains external."
+  },
+  {
+    "finding": "F32",
+    "original": "Project access does not mirror code-host repository permissions",
+    "tasks": [
+      {
+        "id": "MNI-193",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified disclosure and authorization: project-wide visibility is shown; code-host repository ACL mirroring is not promised."
+  },
+  {
+    "finding": "F33",
+    "original": "Scoped company access must be deliberately enabled",
+    "tasks": [
+      {
+        "id": "MNI-193",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified live activation: legacy mode stays unchanged until explicit restart with scoped mode; grants survive and ungranted access is denied."
+  },
+  {
+    "finding": "F34",
+    "original": "Correction authority is centralized in scoped mode",
+    "tasks": [
+      {
+        "id": "MNI-189",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-194",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified authority: editor can report gaps but cannot activate a pack; admin performs reviewed activation."
+  },
+  {
+    "finding": "F35",
+    "original": "Offboarding spans independent grants",
+    "tasks": [
+      {
+        "id": "MNI-195",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified independent grants: membership and assigned-token revocation both required; unrelated service/admin grant survives. Human support-owner understanding unmeasured."
+  },
+  {
+    "finding": "F36",
+    "original": "Recovery restores authority as well as architecture",
+    "tasks": [
+      {
+        "id": "MNI-196",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified live on both backends: restore reproduces old authority and operator reconciles it before ordinary ingress; graph and rollback preserved."
+  },
+  {
+    "finding": "F37",
+    "original": "Persistence is a single-server operating contract",
+    "tasks": [
+      {
+        "id": "MNI-182",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-196",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified operating boundary: single-server writer ownership, queue/history and backup lock guards pass; no HA/distributed-writer claim."
+  },
+  {
+    "finding": "F38",
+    "original": "Operational measures are not user-outcome measures",
+    "tasks": [
+      {
+        "id": "MNI-201",
+        "state": "In Progress"
+      },
+      {
+        "id": "MNI-202",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Open measurement: retained timing/test outcomes are operator evidence; no retention, support-load or independent usability outcome was measured."
+  },
+  {
+    "finding": "F39",
+    "original": "Graph differences can have multiple causes",
+    "tasks": [
+      {
+        "id": "MNI-190",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-191",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified bounded provenance: correction changes/reuse/rollback preserve snapshots and evidence; existing snapshot-diff tests pass."
+  },
+  {
+    "finding": "F40",
+    "original": "Old evaluation instructions remain discoverable",
+    "tasks": [
+      {
+        "id": "MNI-200",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Documentation updated: testing index now points at this exact candidate report; historical reports stay dated and are not treated as current proof."
+  },
+  {
+    "finding": "F41",
+    "original": "Existing tests prove important mechanisms within bounded fixtures",
+    "tasks": [
+      {
+        "id": "MNI-197",
+        "state": "In Progress"
+      },
+      {
+        "id": "MNI-202",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Explicit testing boundary: new live trials found bugs despite a green baseline suite. Regression and negative-control evidence is retained; untested cases stay visible."
+  },
+  {
+    "finding": "F42",
+    "original": "Actual behavior of target personas remains unmeasured",
+    "tasks": [
+      {
+        "id": "MNI-201",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Open measurement: zero independent participants; three observations per original persona are still required."
+  },
+  {
+    "finding": "L01",
+    "original": "Dry-run discovery returned six candidates but the dashboard closed without displaying them.",
+    "tasks": [
+      {
+        "id": "MNI-187",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified live preview: reviewed browser/MCP candidates and digest agree; preview does not register sources."
+  },
+  {
+    "finding": "L02",
+    "original": "Reopening import after preview reset the directory and dry-run state.",
+    "tasks": [
+      {
+        "id": "MNI-187",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified continuation mechanisms: filter changes invalidate review; stale candidate digest rejected; draft-retention component coverage remains green."
+  },
+  {
+    "finding": "L03",
+    "original": "Invalid-root validation returned an exact error outside the still-open modal, visually behind its overlay.",
+    "tasks": [
+      {
+        "id": "MNI-178",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-183",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-187",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified validation mechanism: invalid-root response and existing inline form-error tests pass; no new human error-recovery observation."
+  },
+  {
+    "finding": "L04",
+    "original": "First-use modal had no dialog role, initial field focus or focus containment; Name lacked the tested accessible name.",
+    "tasks": [
+      {
+        "id": "MNI-183",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified live in both interfaces: named dialogs and inputs, keyboard boundary and focus restoration."
+  },
+  {
+    "finding": "L05",
+    "original": "Absolute-path dashboard launch succeeded while its analysis subprocess failed without `diffmind` on PATH; process-environment recovery succeeded.",
+    "tasks": [
+      {
+        "id": "MNI-179",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified native gate: installed binary runs without source-checkout PATH assumptions; embedded UI and managed analysis pass."
+  },
+  {
+    "finding": "L06",
+    "original": "Default local session preserved the old graph after five seconds and reconnect; disconnect stopped its dashboard, while saved state survived.",
+    "tasks": [
+      {
+        "id": "MNI-181",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-182",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified lifecycle boundary: approved refresh/reuse/pause and saved-state reconnect pass while a service owner exists."
+  },
+  {
+    "finding": "L07",
+    "original": "Initial gateway label measured six pixels high; search/focus raised it to 16 pixels.",
+    "tasks": [
+      {
+        "id": "MNI-184",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified graph subset: public labels and synthetic search/keyboard selection; repaired phone viewport clipping. Human orientation remains unmeasured."
+  },
+  {
+    "finding": "L08",
+    "original": "The tested UI graph comparison displayed five modified facts; the agent contract tool displayed four field changes with compatibility labels.",
+    "tasks": [
+      {
+        "id": "MNI-190",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-191",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified regression boundary: contract compatibility and snapshot comparison tests pass; prior live contract report remains historical, not a new independent interpretation result."
+  },
+  {
+    "finding": "L09",
+    "original": "Local synthetic repositories produced a zero-PR filtered view with a generic scope empty state.",
+    "tasks": [
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-192",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Verified actual public/local UI states: Flask provider queried while synthetic caller is explicitly local-only; no fictitious zero-impact result."
+  },
+  {
+    "finding": "L10",
+    "original": "Initial no-access guidance explained the need for a grant; live grant removal left a generic not-found page. Access itself was removed.",
+    "tasks": [
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-195",
+        "state": "Done"
+      }
+    ],
+    "disposition": "Verified bounded access lifecycle: recovery/offboarding API outcomes plus access-loss component tests; independent returning-user comprehension remains open."
+  },
+  {
+    "finding": "L11",
+    "original": "Default public-repository analysis attributed Demo Shop examples/scenarios to `diffmind`, including queue facts in PR technical context.",
+    "tasks": [
+      {
+        "id": "MNI-186",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-188",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-197",
+        "state": "In Progress"
+      }
+    ],
+    "disposition": "Verified scope/provenance mechanisms: approved source scope and declaration provenance tested; root-versus-subdirectory independent corpus is still not fully executed."
+  }
+]

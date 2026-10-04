@@ -1,0 +1,91 @@
+{
+  "rows": [
+    {
+      "name": "reviewed_legacy_to_scoped_migration",
+      "saved_grants": true,
+      "legacy_unchanged_before_explicit_restart": true,
+      "ungranted_denied_after_activation": true
+    },
+    {
+      "name": "source_first_baseline",
+      "revision": "b9a978db9e01f4ad3dca9494a22cb9edc17548fe",
+      "labels_sha256": "6c688a2408ce8b29789534eb2453c99fec266f6c137f5f94fcd92da29d6f6712",
+      "services": 8,
+      "edges": 2,
+      "expected_declarations": 12,
+      "known_declared_found": 0
+    },
+    {
+      "name": "unchanged_public_artifact_reuse",
+      "repositories": 8,
+      "reused": 8,
+      "analyzed": 0
+    },
+    {
+      "name": "corrected_declared_graph",
+      "run": "20261004T155807Z",
+      "known_edges": 12,
+      "pack_edges": 12,
+      "declared_subset_precision": 1,
+      "declared_subset_recall": 1,
+      "http_mcp_evidence_parity": true,
+      "source_extracted_extras": "unlabeled; no complete graph precision",
+      "runtime_reachability": "unverified"
+    },
+    {
+      "name": "browser_scoped_setup",
+      "mode": "scoped",
+      "project_visibility_boundary_visible": true
+    },
+    {
+      "name": "browser_public_graph",
+      "labels": 8,
+      "minimum_label_pixels": 12
+    },
+    {
+      "name": "ordinary_viewer_editor_admin_and_ungranted",
+      "viewer_readonly": true,
+      "editor_reporting_without_pack_authority": true,
+      "admin_recovery": true,
+      "ungranted_denied": true
+    },
+    {
+      "name": "shared_maintenance_edit_and_pause",
+      "test_cadence": "2s",
+      "policy_approved_after_registration": true,
+      "changed_local_sources": 1,
+      "analyzed": 1,
+      "reused": 7,
+      "local_edit_preserved": true,
+      "registered_count": 8,
+      "manual_pause_preserved": true,
+      "production_default_cadence_not_measured": true
+    },
+    {
+      "name": "reviewed_browser_mcp_scope",
+      "preview_candidates": 2,
+      "preview_parity": true,
+      "no_preview_mutation": true,
+      "filter_invalidates_review": true,
+      "changed_candidates_status": 409,
+      "no_registration_on_conflict": true,
+      "filtered_count": 1,
+      "invalid_root_status": 400
+    },
+    {
+      "name": "rollback_and_immutable_history",
+      "baseline": "20261004T155806Z",
+      "corrected": "20261004T155807Z",
+      "rollback": "20261004T155814Z",
+      "baseline_bytes_unchanged": true,
+      "corrected_snapshot_preserved": true,
+      "baseline_topology_restored": true,
+      "gap_final_state": "rolled_back"
+    },
+    {
+      "name": "finished",
+      "passed": true,
+      "browser_exceptions": 0
+    }
+  ]
+}

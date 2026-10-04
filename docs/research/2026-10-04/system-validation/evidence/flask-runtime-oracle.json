@@ -1,0 +1,59 @@
+{
+  "source_commit": "2c1b30d0503cfb064f1cb252e6614a06915a362a",
+  "flask_version": "3.1.2",
+  "scope": "explicit non-static routes excluding implicit HEAD/OPTIONS",
+  "routes": [
+    [
+      "GET",
+      "/"
+    ],
+    [
+      "GET",
+      "/"
+    ],
+    [
+      "GET",
+      "/<int:id>/update"
+    ],
+    [
+      "GET",
+      "/auth/login"
+    ],
+    [
+      "GET",
+      "/auth/logout"
+    ],
+    [
+      "GET",
+      "/auth/register"
+    ],
+    [
+      "GET",
+      "/create"
+    ],
+    [
+      "GET",
+      "/hello"
+    ],
+    [
+      "POST",
+      "/<int:id>/delete"
+    ],
+    [
+      "POST",
+      "/<int:id>/update"
+    ],
+    [
+      "POST",
+      "/auth/login"
+    ],
+    [
+      "POST",
+      "/auth/register"
+    ],
+    [
+      "POST",
+      "/create"
+    ]
+  ]
+}

@@ -7,3 +7,7 @@ The audit records distinguish observed behavior, documented behavior, interpreta
 ## Implementation
 
 [Integrated implementation batch 1](2026-10-02/implementation-batch-1/README.md) records the changes, task dispositions, exact candidate and browser/MCP/source-scope regression evidence.
+
+## Current system validation
+
+[4 October 2026 system validation](2026-10-04/system-validation/README.md) records the exact final candidate, live checks of both interfaces, public extraction and PR controls, agent mechanisms, access and recovery, repaired defects, scenario results, and all 53 original findings. Independent human/model-host/Enterprise and other-platform acceptance remains open.

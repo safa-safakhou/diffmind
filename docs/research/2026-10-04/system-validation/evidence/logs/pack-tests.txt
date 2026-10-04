@@ -1,0 +1,10 @@
+ok	helm-values	extracts a complete Helm identity
+ok	service-manifest	extracts gateway declarations with evidence
+ok	service-manifest	extracts consumer and alias
+ok	service-manifest	ignores unresolved and sensitive targets
+ok	service-manifest	exact HTTP RPC and queue graph
+ok	service-manifest	no phantom relationships
+ok	spring-openfeign-config	YAML literal and placeholder
+ok	spring-openfeign-config	properties comments and invalid values
+ok	spring-openfeign-config	YML literal
+ok	spring-openfeign-config	only configured literal clients form edges

@@ -1,0 +1,16 @@
+{
+  "exit_code": 1,
+  "elapsed_seconds": 2.47,
+  "host": "codex-cli 0.144.4",
+  "model": "gpt-5.6-sol",
+  "model_setting": "inherited value from existing user configuration",
+  "prompt": "In the Northstar Commerce workspace, which other services might be affected by a change to checkout-api? Explain the dependency evidence and its limits, including the revision or freshness you can establish. Do not modify repositories or workspace settings.",
+  "scripted_tool_names_in_prompt": false,
+  "status": "BLOCKED",
+  "reason": "Installed WSL Codex CLI login refresh rejected with HTTP 401 before model or tool use",
+  "completed_model_turns": 0,
+  "diffmind_tool_calls": 0,
+  "candidate_verification": false,
+  "transcript_saved": false,
+  "credentials_saved": false
+}

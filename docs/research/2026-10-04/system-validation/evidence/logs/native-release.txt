@@ -1,0 +1,1 @@
+Native release verified: 0.0.0-validation linux/amd64; installer, embedded UI, SQLite, graph/MCP and managed recovery passed
