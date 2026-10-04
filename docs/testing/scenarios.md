@@ -1,6 +1,6 @@
 # Scenarios and expected results
 
-Use frozen artifacts, private test homes and public/synthetic code. Preserve branches/dirty edits. Each case records actual actions, expected/actual behavior, candidate identity and evidence in result-template.json. Keep facilitator expectations out of participant cards.
+Use frozen artifacts, private test homes and public/synthetic code. Preserve branches/dirty edits. Each case records actual actions, expected/actual behavior, candidate identity and evidence in result-template.json. Keep frozen oracle expectations out of model task prompts. Under the owner's 4 October direction, all cases are executed and evaluated by Codex; no human sign-off is required.
 
 ## Individual developer and installed agent
 
@@ -51,20 +51,20 @@ Evidence: actual proxy subject/capabilities, redacted responses/browser actions/
 Setup: membership plus independently issued token; unrelated service grant.
 Action: revoke membership/test browser-token; revoke token/test existing/new connections.
 Expected: independent lifecycle clear; both removals deny access, unrelated service/admin survives.
-Evidence: operations/timestamps/statuses and participant support-owner explanation.
+Evidence: operations/timestamps/statuses and recorded model explanation of access ownership.
 
 ### B03 - Scope approval
 Action: preview, edit filters, add discovery candidate before submission; approve valid scope/cadence.
 Expected: preview registers nothing; edits invalidate review; stale digest rejected before registration; whole-project exposure/maintenance scope understood.
-Evidence: digests/registrations/rejection/cadence and participant words.
+Evidence: digests/registrations/rejection/cadence and recorded model explanation checked against scope/configuration.
 
 ## Independent graph
 
 ### C01 - Supported extracted positive and negative
-Setup: pinned supported public exposures/callers, blind labels; declarations/unknowns separate.
+Setup: pinned supported public exposures/callers, source/runtime oracle labels; declarations/unknowns separate.
 Action: analyze; compare browser/MCP graph evidence.
 Expected: correct direction/protocol/operation/location/revision/class, near-match negatives not exact.
-Evidence: frozen reviewer receipts/pins/graph/facts/denominators/mismatches.
+Evidence: frozen oracle receipts/pins/graph/facts/denominators/mismatches.
 
 ### C02 - Enclosing repo/subdirectory
 Setup: same public monorepo at root and explicit subdirectory in separate projects; duplicate basenames.
@@ -80,7 +80,7 @@ Evidence: graph hashes/assertions/review states/HTTP-MCP provenance/reuse. Twelv
 
 ## PR cases
 
-Use independent labels and browser/API/HTTP MCP parity. Pin base/head/merge-base/file-list completeness. Controlled public mutations cover mechanisms; actual upstream PR cases are additionally required, and cannot be replaced by local mutations.
+Use frozen source/runtime labels and browser/API/HTTP MCP parity. Pin base/head/merge-base/file-list completeness. Controlled public mutations cover mechanisms; actual upstream PR cases are additionally required, and cannot be replaced by local mutations.
 
 ### R01 - Direct addition/change
 Action: analyze supported endpoint and clean caller at changed head; inspect PR.
@@ -95,12 +95,12 @@ Evidence: separate freshness/eligibility/next-step per subcase.
 ### R03 - Removal
 Action: remove baseline endpoint/file, analyze head/inspect deletion.
 Expected: missing entity not no-impact proof; removed callers/missing baseline limits visible; deleted old coordinates cannot match unchanged head.
-Evidence: baseline/head/diff/facts/limits and participant interpretation.
+Evidence: baseline/head/diff/facts/limits and observed model interpretation.
 
 ### R04 - Internal/transitive
 Action: helper change below unchanged route with known dependency.
 Expected: supported paths distinct from file/service candidates; unsupported transitive conclusion not exact.
-Evidence: independent source path/diff/connections/tiers.
+Evidence: source-oracle path/diff/connections/tiers.
 
 ### R05 - Config and contract
 Action: address/config edit; separate contract field removal/type change.
@@ -117,8 +117,8 @@ Action: missing patch/lines and controlled truncated file list.
 Expected: completeness visible; file-scope not changed-line proof; score not calibrated probability/runtime safety/merge permission.
 Evidence: flags/coordinates/output ordering.
 
-### R08 - Human interpretation/delivery
-Action: participants explain one exact and one uncertain PR result and report destination.
+### R08 - Model interpretation and delivery
+Action: the installed model host explains one exact and one uncertain PR result and report destination.
 Expected: evidence/freshness/limits discoverable before score reliance; heuristic distinct from proof; on-demand read distinct from automatic PR posting.
 Evidence: first viewed information/words/errors/prompts. No posting claim without actual configured integration.
 
@@ -170,7 +170,7 @@ Evidence: source/binary/archive hashes/platform/logs. WSL Linux is not Windows r
 
 ### O04 - Final reconciliation
 Action: map scenarios/platforms and 42 audit/11 live findings to verified resolution/tested boundary.
-Expected: no critical activation/access/evidence defects, required gates complete/external gaps explicit; fix triggers affected reruns.
+Expected: no critical activation/access/evidence defects, required automated checks complete/technical gaps explicit; fix triggers affected reruns.
 Evidence: candidate/issue/finding matrix/blocked checks. Publishing separate.
 
-U01-U03 are defined in usability-study.md; three observations per original persona minimum, including fresh/returning, supplement operator tests.
+U01-U03 are defined in usability-study.md; three automated cases per original journey, including fresh/returning, supplement operator tests.

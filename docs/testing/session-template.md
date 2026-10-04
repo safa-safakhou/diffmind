@@ -1,30 +1,30 @@
-# Consented session
+# Automated journey session
 
-Status: NOT_RUN.
+Status: NOT_RUN. Verification owner: Codex. No human participant or sign-off required.
 
-- Pseudonym/persona U01/U02/U03; fresh/returning/experience:
-- Consent/date/recording/retention/access/withdrawal:
-- Facilitator/independence/assistance:
-- Product/binary hash/OS/browser:
-- Host/model/version/settings/connection:
-- Role/scope/task card/frozen label IDs:
+- Scenario and journey U01/U02/U03; fresh/returning:
+- Frozen product/binary hash/OS/browser:
+- Installed host/version/model/settings/connection:
+- Role, approved scope and allowed mutations:
+- Prompt/task card; source/runtime oracle receipt and hash:
+- Exploratory discovery or frozen verification:
 
-| Task | Start/end | First useful answer | Outcome | Assistance | Evidence |
+| Case | Start/end | First useful result | Outcome | Intervention | Evidence |
 | --- | --- | --- | --- | --- | --- |
-|  |  |  | NOT_RUN |  |  |
+| | | | NOT_RUN | | |
 
-## Actual actions/model turns/tools
+## Actual actions and model output
 
-Project choices/missed-unnecessary calls/redacted results. Operator probes separate.
+Record model-selected tools and arguments, project/snapshot choices, missed or unnecessary calls, and final answer. Record scripted transport/browser actions separately. Redact credentials before saving.
 
-## Words/understanding
+## Oracle comparison
 
-Spontaneous first; prompted/instructed separate. Project/revision/completion/automation/evidence/score-delivery/access.
+Check service direction/protocol/location/revision, readiness versus accepted work, actual authority, preserved source edits, evidence class, PR uncertainty and on-demand delivery. Report each mismatch. Automated keyword assertions are supplemented by direct inspection of the answer and source evidence.
 
-## Findings/recovery
+## Defects and retest
 
-Frozen expected vs observed answer/source; severity/accessibility/wrong-context/merge misunderstanding/recovery.
+Record root cause, correction, new candidate and affected verification. Do not convert an environment failure or unavailable evidence into a pass.
 
-## Limits/follow-up
+## Limits
 
-Missing prerequisites/consent/order-effects/owner/retest. No observations means no results.
+Record model variability, missing platforms/browser engines/production integration and trial duration. No claims about human satisfaction, adoption or long-term retention.

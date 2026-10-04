@@ -39,7 +39,7 @@ go run ./scripts/release-check --package-binary "$diffmind_trial/diffmind" --arc
 DIFFMIND_BINARY="$diffmind_trial/diffmind" sh scripts/test-showcase.sh
 ~~~
 
-Hash binary/archive via sha256sum Linux/shasum -a 256 macOS. Local version unpublished. Verifier actual installer/company-agent acceptance; showcase mechanisms, neither human outcomes. Repeat native Linux/macOS AMD64/ARM64 same revision. [CI matrix](../../.github/workflows/ci.yml) receipts must match candidate. Cross-compile alone NOT_RUN; WSL Linux not Windows release.
+Hash binary/archive via sha256sum Linux/shasum -a 256 macOS. Local version unpublished. Verifier actual installer/company-agent acceptance; showcase mechanisms, neither human outcomes nor an unprompted model trial. Repeat native Linux/macOS AMD64/ARM64 same revision. [CI matrix](../../.github/workflows/ci.yml) receipts must match candidate. Cross-compile alone NOT_RUN; WSL Linux not Windows release.
 
 ## Browser/public trial
 
@@ -54,7 +54,7 @@ python3 scripts/validation/prepare-boutique.py "$diffmind_trial/public"
 node scripts/validation/public-correction.mjs "$diffmind_trial/diffmind" "$diffmind_trial/public" "$PWD/testdata/workspace/boutique-correction/pack.json"
 ~~~
 
-Preparation output absent; retain pins/derived commits/results/screenshots/hashes. Observer Chromium/HTTP-MCP/scope/access/correction/cadence/rollback with synthetic identities, not proxy/human/blind reviewer.
+Preparation output absent; retain pins/derived commits/results/screenshots/hashes. Observer Chromium/HTTP-MCP/scope/access/correction/cadence/rollback with synthetic identities, not a production identity-provider trial.
 
 ## Recovery
 
@@ -72,4 +72,4 @@ Follow [recovery](../backup-recovery.md); isolate ingress until independent offb
 
 Actual model turns required A/U, actual proxy B01, authorized Enterprise matching-host read credential P02/P03. Missing prerequisite BLOCKED. No PR comments/contributions/releases/exposed homes authorized. No secrets committed.
 
-Copy result/session templates, save redacted dated evidence under docs/research/<date>/<trial>/ with manifest/limits. Private recordings/source/backups outside repo. Reconcile candidate/native/scenarios/Linear and 42 audit/11 live findings. Later docs may explicitly reference frozen product identity. See [validation](../validation.md).
+Copy result/session templates, save redacted dated evidence under docs/research/<date>/<trial>/ with manifest/limits. Private transcripts/source/backups outside repo. No human recruitment or sign-off is required; Codex executes and evaluates the automated journey protocol. Reconcile candidate/native/scenarios/Linear and 42 audit/11 live findings. Later docs may explicitly reference frozen product identity. See [validation](../validation.md).

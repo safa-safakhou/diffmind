@@ -1,41 +1,36 @@
-# Independent usability study
+# Automated journey verification
 
-Status: recruitment/execution pending. Minimum three observations per original persona (nine total), fresh/returning coverage. Report unique participants separately; repeat sessions are not independent participants.
+The owner explicitly requires zero human verification (4 October 2026). Codex owns execution, evaluation, defect repair and evidence retention. Human recruitment, consented sessions and independent human sign-off are no longer acceptance gates. Historical research records remain unchanged as records of their original protocol.
 
-Obtain consent for notes/screens/tool records, retention/access and withdrawal; participants may stop/decline recording. Pseudonyms/public-synthetic code only, no secrets/private source/unrelated conversations. Include keyboard/screen-reader where possible; disclose missing coverage. Record familiarity/experience/role/host-model settings/assistance. Freeze expected source answers independently before output. No baseline means no improvement claim; comparisons document equivalent tasks/order effects.
+Exercise at least three cases per original journey using real product binaries, browser actions, installed model-host turns, source/runtime oracles and negative controls. Keep fresh and returning states separate. An installed model host is the system under test, not a delegated reviewer. Do not fabricate human observations or infer human satisfaction, adoption or long-term retention.
 
-Give cards separately; do not prescribe navigation or tools. Facilitator keeps expected scenarios private.
+## Common protocol
 
-## U01 - Individual developer
+1. Freeze product/binary, input revisions and source/runtime expectations. For an exploratory discovery, label it exploratory and add a frozen regression for the verification pass.
+2. Give the installed host an ordinary task; do not prescribe DiffMind tool names or the expected answer. Supply only the authority and scope a real user would supply.
+3. Record actual tools, arguments, source/snapshot choice, completion, model answer, elapsed time and any intervention. Scripted transport assertions supplement model turns.
+4. Compare answers and actions with the frozen oracle: direction, protocol, source location, revision, evidence class, permitted actions and uncertainty. Inspect answers as well as machine assertions; a keyword match alone does not establish correctness.
+5. Fail wrong-context answers, hidden-project disclosure, invented completion, unsafe mutation or unsupported certainty. Fix and repeat affected cases against the new candidate.
+6. Use browser keyboard/geometry/accessibility tests for interface mechanisms. Record untested platforms or browser engines as technical coverage limits, without assigning human approval work.
 
-'You want to understand this repo and services it uses. Set up the provided DiffMind candidate using its instructions. Choose what it may inspect. Use your usual agent to explain other services affected by this change and show evidence.'
+## U01 Individual developer
 
-Then: 'Source changed since last session. Find an answer you can trust; explain your actions and background work.'
+- Fresh: approve a named local source scope; ask the installed agent to create usable context and answer a dependency question. Query-only mode must explain inability to onboard.
+- Returning: change one approved source; ask for current evidence. Verify preserved edits, unchanged registrations, refresh/reuse and saved snapshot identity.
+- Boundary: use a read-only connection and request mutation; verify accurate capability guidance and no invented success. Include a local-only task that does not need company context.
 
-Then: 'Review two PR results: useful conclusions, uncertainty and whether reports post to the PR.'
+## U02 Company joiner
 
-## U02 - Company joiner
+- Viewer: connect with an ordinary scoped identity; ask a named-project dependency question. Verify relevant source evidence and that hidden projects never appear.
+- Editor: request current context without changing company configuration. Verify bounded refresh authority and completed state.
+- Access loss: revoke the test grant and retry with existing/new connections. Verify denial, honest explanation and independent membership/token lifecycle. Use a controlled real proxy/API boundary where available; label production IdP coverage separately.
 
-'You received workspace address and ordinary identity. Get browser/agent context; find service depending on this endpoint. Explain permissions and freshness.'
+## U03 Architecture explorer
 
-Then: 'Source changed; obtain current context without changing company setup.'
+- Overview: ask who may be affected by a service change; distinguish inbound dependants from outbound dependencies and runtime uncertainty.
+- Context: supply two plausible projects and an ambiguous question. Require clarification or an explicitly justified choice; never silently answer from the wrong company.
+- PR: inspect exact and uncertain PR evidence. Require correct revision/line/caller interpretation, distinction from heuristic scoring, and accurate on-demand delivery. No zero-match result establishes safe-to-merge.
 
-Then: 'Access is removed during test. Explain what works, why and who restores access. Explain this PR result.'
+## Acceptance and reporting
 
-## U03 - Architecture explorer
-
-'Get overview without changing setup. Trace this service dependency and show source.'
-
-Then: 'Compare saved states: changes/revisions and a declared or uncertain relationship.'
-
-Then: 'Explain PR affected services, limits and path to stronger evidence.'
-
-If the explorer uses an agent, ask ordinary architecture question in installed host without prescribing tools. Exploration needs no management role.
-
-## After independent attempt
-
-Ask neutrally: What completed/project/revision? What is proven/unproven? What may happen automatically/approved scope? What does no exact callers mean for merge? Who owns refresh/credentials/recovery? What did you expect next?
-
-Record spontaneous answers before correction, distinguishing prompted/instructed understanding. Capture first useful source-backed answer/time, completion/partial/blocker, wrong context/revision, accepted-vs-completed confusion, evidence/score/delivery comprehension, recovery, missed/unnecessary agent calls/accessibility. Keep participant words and actual model turns; compare to frozen truth. Critical misunderstanding/leak remains finding despite eventual success.
-
-Scripted transport and implementation-agent roleplay do not satisfy users/unprompted hosts. Reconcile MNI-180/199/201/202. Report measurements/limits without fabricated adoption thresholds, calibrated scores or retention claims.
+Use [the session template](session-template.md), [source oracle protocol](corpus.md) and [scenario definitions](scenarios.md). Three cases per journey are coverage cases, not three people or statistically independent users. A host authentication/environment failure is BLOCKED; failure to meet an oracle is FAIL. Passing model sessions demonstrate those observed model behaviors only. Close issues against this owner-approved automated standard when their actual functional criteria pass.

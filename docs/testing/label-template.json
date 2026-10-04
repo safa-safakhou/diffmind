@@ -1,8 +1,6 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "case_id": "",
-  "reviewer_pseudonym": "",
-  "independent_of_implementation": null,
   "candidate_output_seen": false,
   "frozen_at": "",
   "source": {
@@ -45,9 +43,18 @@
   },
   "disagreements": [],
   "reconciliation": {
-    "reviewer_receipts": [],
     "resolved": null,
     "rationale": "",
-    "unknown_cases": []
+    "unknown_cases": [],
+    "oracle_receipts": []
+  },
+  "verification_owner": "Codex",
+  "oracle": {
+    "id": "",
+    "kind": "runtime/source-contract/metamorphic",
+    "independent_computation": "",
+    "input_sha256": {},
+    "expected_sha256": "",
+    "exploratory": false
   }
 }
