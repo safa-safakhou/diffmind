@@ -346,7 +346,7 @@ export function ProjectWorkspace({ pid }) {
         />
       </aside>
 
-      <footer class="workspace-status">
+      <footer class="workspace-status" tabIndex={0} aria-label="Workspace status">
         <span>{repos.length} repos</span>
         <span>{(workspace?.teams || []).length} teams</span>
         <span>{graph ? `${(graph.services || []).length} services` : 'no graph yet'}</span>

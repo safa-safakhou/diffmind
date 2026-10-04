@@ -1254,6 +1254,7 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
         <span class="graph-toolbar-divider" />
         <input
           class="graph-search"
+          aria-label="Search service"
           value={searchQuery}
           placeholder="Search service"
           onInput={(e) => setSearchQuery(e.currentTarget.value)}
@@ -1263,11 +1264,11 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
 		<button type="button" aria-label="Zoom out" onClick={() => changeZoom(0.8)}>−</button>
 		<button type="button" aria-label="Reset graph view" onClick={resetZoom}>Reset</button>
 		<button type="button" aria-label="Zoom in" onClick={() => changeZoom(1.25)}>+</button>
-        <select class="graph-team-select" value={teamFilter} onInput={(e) => setTeamFilter(e.currentTarget.value)}>
+        <select aria-label="Graph team" class="graph-team-select" value={teamFilter} onInput={(e) => setTeamFilter(e.currentTarget.value)}>
           <option value="">All {teamOptions.length} teams · {totalServiceCount} services</option>
           {teamOptions.map((team) => <option key={team} value={team}>{team} · {teamServiceCounts.get(team) || 0} services</option>)}
         </select>
-        <select class="graph-scope-select" value={teamScope} disabled={!teamFilter} onInput={(e) => setTeamScope(e.currentTarget.value)}>
+        <select aria-label="Graph team scope" class="graph-scope-select" value={teamScope} disabled={!teamFilter} onInput={(e) => setTeamScope(e.currentTarget.value)}>
           <option value="team">Team only</option>
           <option value="connected">Team + connected</option>
         </select>
