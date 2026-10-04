@@ -74,7 +74,12 @@ func main() {
 			cmd = args[0]
 			args = args[1:]
 		default:
-			// Unknown leading token: treat as flags to the default ui command.
+			// Preserve the documented shorthand for UI flags, but never start a
+			// server because an agent or user mistyped a command.
+			if !strings.HasPrefix(args[0], "-") {
+				fmt.Fprintf(os.Stderr, "unknown command %q; use 'diffmind help' for commands\n", args[0])
+				os.Exit(2)
+			}
 		}
 	}
 

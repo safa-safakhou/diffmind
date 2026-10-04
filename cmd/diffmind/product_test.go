@@ -2,7 +2,12 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -85,5 +90,27 @@ func TestSharedServerEnvironmentParsing(t *testing.T) {
 	}
 	if _, err := parseOptionalDuration("tomorrow"); err == nil {
 		t.Fatal("expected invalid duration to fail")
+	}
+}
+
+// A mistyped command must fail before taking a workspace lease or starting UI.
+func TestUnknownCommandDoesNotOpenWorkspace(t *testing.T) {
+	if os.Getenv("DIFFMIND_TEST_UNKNOWN_COMMAND") == "1" {
+		os.Args = []string{"diffmind", "analyze", "--help"}
+		main()
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	home := filepath.Join(t.TempDir(), "unused-home")
+	cmd := exec.CommandContext(ctx, os.Args[0], "-test.run=^TestUnknownCommandDoesNotOpenWorkspace$")
+	cmd.Env = append(os.Environ(), "DIFFMIND_TEST_UNKNOWN_COMMAND=1", "DIFFMIND_HOME="+home)
+	output, err := cmd.CombinedOutput()
+	var exit *exec.ExitError
+	if !errors.As(err, &exit) || exit.ExitCode() != 2 || !strings.Contains(string(output), "unknown command") {
+		t.Fatalf("unknown command did not fail promptly: %v %s", err, output)
+	}
+	if _, err := os.Stat(home); !os.IsNotExist(err) {
+		t.Fatalf("unknown command touched workspace: %v", err)
 	}
 }
