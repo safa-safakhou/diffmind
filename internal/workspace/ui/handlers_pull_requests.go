@@ -790,6 +790,7 @@ func changedEntrypoints(service *archgraph.ServiceNode, files []githubPullFile, 
 			// GitHub's PR diff starts at the merge base, which need not be Base.SHA.
 			revision := entityGraphRevision(entity)
 			atHead := pullRequestGraphFreshness(revision, headSHA) == "fresh" && archgraph.DescribeRelationship("", entity).Class == "source_extracted"
+			var best *changedEntrypoint
 			for _, location := range entitySourceLocations(entity) {
 				lines, changed := byPath[filepath.ToSlash(location.File)]
 				if !changed {
@@ -802,8 +803,16 @@ func changedEntrypoints(service *archgraph.ServiceNode, files []githubPullFile, 
 					}
 					match = "changed_line"
 				}
-				result = append(result, changedEntrypoint{ID: entity.ID, Kind: entity.Kind, Name: entity.Name, File: location.File, Match: match})
-				break
+				entry := changedEntrypoint{ID: entity.ID, Kind: entity.Kind, Name: entity.Name, File: location.File, Match: match}
+				if best == nil || match == "changed_line" {
+					best = &entry
+				}
+				if match == "changed_line" {
+					break
+				}
+			}
+			if best != nil {
+				result = append(result, *best)
 			}
 		}
 	}

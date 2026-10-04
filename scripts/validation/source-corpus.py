@@ -103,15 +103,11 @@ try:
   (out/name/"impact.json").write_text(json.dumps(impact,indent=2))
   row={"case":name,"oracle_sha256":digest,"runtime_operations":len(actual),"runtime_agreement":True,"expected_exact":oracle["expected_exact_callers"],"actual_exact":company["direct_services"],"eligible":company["score_eligible"],"freshness":company["freshness"],"changed_entrypoints":company.get("changed_entrypoints",[]),"passed":company["direct_services"]==oracle["expected_exact_callers"]}
   rows.append(row)
+  assert company["direct_services"]==oracle["expected_exact_callers"],row
+  assert bool(company["score_eligible"])==bool(oracle["expected_exact_callers"]),row
   if name=="contract":
-   # Preserve the unmet exactness expectation. This measures a known limit,
-   # rather than silently redefining the source oracle to match the output.
-   row["classification"]="candidate_only_contract_limit"
-   row["potential_callers"]=[x["name"] for x in company.get("potential_services",[])]
-   assert row["potential_callers"]==["caller"] and not company["score_eligible"],row
-  else:
-   assert company["direct_services"]==oracle["expected_exact_callers"],row
-   assert bool(company["score_eligible"])==bool(oracle["expected_exact_callers"]),row
+   row["classification"]="handler_body_changed_surface"
+   row["runtime_contract_break"]=oracle["form_runtime_statuses"]
   assert "not proof" in " ".join(company["limitations"])
   assert git(repo,"status","--porcelain")=="" and git(client,"status","--porcelain")==""
   print(json.dumps(row),flush=True)
