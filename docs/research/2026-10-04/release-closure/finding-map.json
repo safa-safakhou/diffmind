@@ -1,0 +1,819 @@
+[
+  {
+    "finding": "F01",
+    "original": "Agent setup has obsolete release advice",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Current native installer gates pass Linux AMD64/ARM64 and macOS Intel/ARM64; actual model-host evaluation remains Linux AMD64 only.",
+    "current_evidence": "evidence/ci.json",
+    "tasks": [
+      {
+        "id": "MNI-200",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F02",
+    "original": "Background maintenance is conditional in local mode",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Verified bounded JSON/SQLite maintenance under concurrent readers and graceful restart, six approved repositories, one changed/five reused, immutable previous graph. Ownership/lifetime limits remain.",
+    "current_evidence": "evidence/release/background/results.json",
+    "tasks": [
+      {
+        "id": "MNI-181",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F03",
+    "original": "One product exposes distinct agent contracts",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "OPEN: repeated vague model questions still intermittently ignore available MCP context. Guidance improved, but MNI-180 reopened. No silent wrong-company answer observed.",
+    "current_evidence": "README.md#installed-agent-results",
+    "tasks": [
+      {
+        "id": "MNI-180",
+        "state": "In Progress"
+      }
+    ]
+  },
+  {
+    "finding": "F04",
+    "original": "Tool discovery does not establish adoption",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "OPEN: repeated vague model questions still intermittently ignore available MCP context. Guidance improved, but MNI-180 reopened. No silent wrong-company answer observed.",
+    "current_evidence": "README.md#installed-agent-results",
+    "tasks": [
+      {
+        "id": "MNI-180",
+        "state": "In Progress"
+      },
+      {
+        "id": "MNI-201",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F05",
+    "original": "Bootstrap success remains a host boundary",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Current native installer gates pass Linux AMD64/ARM64 and macOS Intel/ARM64; actual model-host evaluation remains Linux AMD64 only.",
+    "current_evidence": "evidence/ci.json",
+    "tasks": [
+      {
+        "id": "MNI-179",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-201",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F06",
+    "original": "Platform availability is narrower than generic agent availability",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Current native installer gates pass Linux AMD64/ARM64 and macOS Intel/ARM64; actual model-host evaluation remains Linux AMD64 only.",
+    "current_evidence": "evidence/ci.json",
+    "tasks": [
+      {
+        "id": "MNI-179",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F07",
+    "original": "Multiple agents share a lifecycle constraint",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Verified bounded JSON/SQLite maintenance under concurrent readers and graceful restart, six approved repositories, one changed/five reused, immutable previous graph. Ownership/lifetime limits remain.",
+    "current_evidence": "evidence/release/background/results.json",
+    "tasks": [
+      {
+        "id": "MNI-182",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F08",
+    "original": "Project selection requires a domain translation",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "OPEN: repeated vague model questions still intermittently ignore available MCP context. Guidance improved, but MNI-180 reopened. No silent wrong-company answer observed.",
+    "current_evidence": "README.md#installed-agent-results",
+    "tasks": [
+      {
+        "id": "MNI-177",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-180",
+        "state": "In Progress"
+      }
+    ]
+  },
+  {
+    "finding": "F09",
+    "original": "Import scope has different defaults by surface",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-177",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-187",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-186",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F10",
+    "original": "Local and managed sources have different freshness meanings",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Verified bounded JSON/SQLite maintenance under concurrent readers and graceful restart, six approved repositories, one changed/five reused, immutable previous graph. Ownership/lifetime limits remain.",
+    "current_evidence": "evidence/release/background/results.json",
+    "tasks": [
+      {
+        "id": "MNI-177",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-181",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-188",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F11",
+    "original": "Accepted work is not usable context",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Verified bounded JSON/SQLite maintenance under concurrent readers and graceful restart, six approved repositories, one changed/five reused, immutable previous graph. Ownership/lifetime limits remain.",
+    "current_evidence": "evidence/release/background/results.json",
+    "tasks": [
+      {
+        "id": "MNI-175",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-178",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F12",
+    "original": "Latest completed graph is a snapshot fallback",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Verified bounded JSON/SQLite maintenance under concurrent readers and graceful restart, six approved repositories, one changed/five reused, immutable previous graph. Ownership/lifetime limits remain.",
+    "current_evidence": "evidence/release/background/results.json",
+    "tasks": [
+      {
+        "id": "MNI-175",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-181",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-182",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F13",
+    "original": "Process completion does not establish semantic completeness",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-175",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-186",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-188",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F14",
+    "original": "Public compatibility scans expose limited detection coverage",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Six runtime/caller expectations pass, including handler-body field change; real upstream PR4139 matches one synthetic caller. Deleted baselines, indirect effects and complete contract correctness remain boundaries.",
+    "current_evidence": "evidence/release/corpus/results.json",
+    "tasks": [
+      {
+        "id": "MNI-189",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-197",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F15",
+    "original": "Synthetic scale is separate from real extraction scale",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-184",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-197",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F16",
+    "original": "Declared and extracted relationships have different meanings",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-188",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F17",
+    "original": "Teaching is an ongoing governance activity",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-189",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F18",
+    "original": "Static source is not runtime truth",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-188",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F19",
+    "original": "Whole-view graph labels can become visually small",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Three-engine browser/keyboard/phone checks pass after native WebKit control readability fix. Screen-reader and physical-device checks not executed.",
+    "current_evidence": "evidence/browser-summary.json",
+    "tasks": [
+      {
+        "id": "MNI-184",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F20",
+    "original": "Workspace operations vocabulary is crowded",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-176",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F21",
+    "original": "First project creation limits exploratory control",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F22",
+    "original": "Project-list failure also produces an empty list",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F23",
+    "original": "Shared dialogs lack several expected interaction behaviors",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Three-engine browser/keyboard/phone checks pass after native WebKit control readability fix. Screen-reader and physical-device checks not executed.",
+    "current_evidence": "evidence/browser-summary.json",
+    "tasks": [
+      {
+        "id": "MNI-183",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F24",
+    "original": "Graph keyboard interaction is uneven",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Three-engine browser/keyboard/phone checks pass after native WebKit control readability fix. Screen-reader and physical-device checks not executed.",
+    "current_evidence": "evidence/browser-summary.json",
+    "tasks": [
+      {
+        "id": "MNI-184",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F25",
+    "original": "Detail views bound how much evidence is visible",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Three-engine browser/keyboard/phone checks pass after native WebKit control readability fix. Screen-reader and physical-device checks not executed.",
+    "current_evidence": "evidence/browser-summary.json",
+    "tasks": [
+      {
+        "id": "MNI-180",
+        "state": "In Progress"
+      },
+      {
+        "id": "MNI-184",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F26",
+    "original": "PR impact is not an automatic code-host review lifecycle",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-199",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F27",
+    "original": "Exact PR evidence requires matching clean revision",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Six runtime/caller expectations pass, including handler-body field change; real upstream PR4139 matches one synthetic caller. Deleted baselines, indirect effects and complete contract correctness remain boundaries.",
+    "current_evidence": "evidence/release/corpus/results.json",
+    "tasks": [
+      {
+        "id": "MNI-198",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F28",
+    "original": "PR scores are heuristics with no demonstrated calibration",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-199",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-197",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F29",
+    "original": "Removed and indirectly changed behavior remain a PR evidence limit",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Six runtime/caller expectations pass, including handler-body field change; real upstream PR4139 matches one synthetic caller. Deleted baselines, indirect effects and complete contract correctness remain boundaries.",
+    "current_evidence": "evidence/release/corpus/results.json",
+    "tasks": [
+      {
+        "id": "MNI-198",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-197",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F30",
+    "original": "Import and PR provider scope may diverge",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "OPEN: controlled 10-case provider matrix and actual public PR pass; actual Enterprise endpoint/SSO unavailable.",
+    "current_evidence": "evidence/release/provider/results.json",
+    "tasks": [
+      {
+        "id": "MNI-192",
+        "state": "In Progress"
+      }
+    ]
+  },
+  {
+    "finding": "F31",
+    "original": "Browser identity does not automatically connect the agent",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Live role/token/membership and controlled trusted-proxy checks pass; no production identity-provider qualification.",
+    "current_evidence": "evidence/release/background/results.json",
+    "tasks": [
+      {
+        "id": "MNI-194",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F32",
+    "original": "Project access does not mirror code-host repository permissions",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-193",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F33",
+    "original": "Scoped company access must be deliberately enabled",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Live role/token/membership and controlled trusted-proxy checks pass; no production identity-provider qualification.",
+    "current_evidence": "evidence/release/background/results.json",
+    "tasks": [
+      {
+        "id": "MNI-193",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F34",
+    "original": "Correction authority is centralized in scoped mode",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical correction-authority verification remains applicable. Full current regression suite passes; no new live correction-activation trial is claimed.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-189",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-194",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F35",
+    "original": "Offboarding spans independent grants",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Live role/token/membership and controlled trusted-proxy checks pass; no production identity-provider qualification.",
+    "current_evidence": "evidence/release/background/results.json",
+    "tasks": [
+      {
+        "id": "MNI-195",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F36",
+    "original": "Recovery restores authority as well as architecture",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Prior-to-final JSON/SQLite recovery and isolated native systemd active/inactive backups pass; bounded fixture, no production RTO.",
+    "current_evidence": "evidence/release/recovery/results.json",
+    "tasks": [
+      {
+        "id": "MNI-196",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F37",
+    "original": "Persistence is a single-server operating contract",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Prior-to-final JSON/SQLite recovery and isolated native systemd active/inactive backups pass; bounded fixture, no production RTO.",
+    "current_evidence": "evidence/release/recovery/results.json",
+    "tasks": [
+      {
+        "id": "MNI-182",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-196",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F38",
+    "original": "Operational measures are not user-outcome measures",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Broader exact-candidate native/browser/corpus/maintenance evidence retained; repeated host discovery and review errors prevent unconditional completion.",
+    "current_evidence": "README.md",
+    "tasks": [
+      {
+        "id": "MNI-201",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-202",
+        "state": "In Progress"
+      }
+    ]
+  },
+  {
+    "finding": "F39",
+    "original": "Graph differences can have multiple causes",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-190",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-191",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F40",
+    "original": "Old evaluation instructions remain discoverable",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-200",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "F41",
+    "original": "Existing tests prove important mechanisms within bounded fixtures",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Broader exact-candidate native/browser/corpus/maintenance evidence retained; repeated host discovery and review errors prevent unconditional completion.",
+    "current_evidence": "README.md",
+    "tasks": [
+      {
+        "id": "MNI-197",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-202",
+        "state": "In Progress"
+      }
+    ]
+  },
+  {
+    "finding": "F42",
+    "original": "Actual behavior of target personas remains unmeasured",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Automated workflow observations cover all three original journeys. Repeated host discovery and false code-review findings remain open; these are not blind or human persona studies.",
+    "current_evidence": "README.md#installed-agent-results",
+    "tasks": [
+      {
+        "id": "MNI-201",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "L01",
+    "original": "Dry-run discovery returned six candidates but the dashboard closed without displaying them.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-187",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "L02",
+    "original": "Reopening import after preview reset the directory and dry-run state.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-187",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "L03",
+    "original": "Invalid-root validation returned an exact error outside the still-open modal, visually behind its overlay.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-178",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-183",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-187",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "L04",
+    "original": "First-use modal had no dialog role, initial field focus or focus containment; Name lacked the tested accessible name.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-183",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "L05",
+    "original": "Absolute-path dashboard launch succeeded while its analysis subprocess failed without `diffmind` on PATH; process-environment recovery succeeded.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-179",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "L06",
+    "original": "Default local session preserved the old graph after five seconds and reconnect; disconnect stopped its dashboard, while saved state survived.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-181",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-182",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "L07",
+    "original": "Initial gateway label measured six pixels high; search/focus raised it to 16 pixels.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-184",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "L08",
+    "original": "The tested UI graph comparison displayed five modified facts; the agent contract tool displayed four field changes with compatibility labels.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-190",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-191",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "L09",
+    "original": "Local synthetic repositories produced a zero-PR filtered view with a generic scope empty state.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-192",
+        "state": "In Progress"
+      }
+    ]
+  },
+  {
+    "finding": "L10",
+    "original": "Initial no-access guidance explained the need for a grant; live grant removal left a generic not-found page. Access itself was removed.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-185",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-195",
+        "state": "Done"
+      }
+    ]
+  },
+  {
+    "finding": "L11",
+    "original": "Default public-repository analysis attributed Demo Shop examples/scenarios to `diffmind`, including queue facts in PR technical context.",
+    "prior_record": "../autonomous-verification/finding-map.json",
+    "current_disposition": "Historical bounded verification remains applicable; no new live check is claimed for this specific finding. Read the referenced original disposition and explicit limits.",
+    "current_evidence": "../autonomous-verification/finding-map.json",
+    "tasks": [
+      {
+        "id": "MNI-186",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-188",
+        "state": "Done"
+      },
+      {
+        "id": "MNI-197",
+        "state": "Done"
+      }
+    ]
+  }
+]

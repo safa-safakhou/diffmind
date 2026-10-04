@@ -1,0 +1,169 @@
+{
+  "pull_request": {
+    "number": 1,
+    "title": "Controlled contract",
+    "url": "https://controlled.example.test/flask/pull/1",
+    "draft": false,
+    "author": "",
+    "head_sha": "a37767f53cdd9e4269d0a11e95b1c20a0a336ac8",
+    "head": "head",
+    "base": "base",
+    "created_at": "0001-01-01T00:00:00Z",
+    "updated_at": "0001-01-01T00:00:00Z",
+    "repo_id": "flask",
+    "repo_name": "flask",
+    "team": "default"
+  },
+  "codebase": {
+    "changed_files": 1,
+    "additions": 1,
+    "deletions": 1,
+    "commits": 0,
+    "risk_score": 24,
+    "risk_level": "low",
+    "risk_reasons": [
+      "Security or authorization boundary changed"
+    ],
+    "categories": [
+      {
+        "id": "security",
+        "label": "Security & identity",
+        "files": 1,
+        "additions": 1,
+        "deletions": 1,
+        "risk": 25
+      }
+    ],
+    "signals": [
+      {
+        "kind": "security_boundary",
+        "label": "Security or authorization boundary changed",
+        "severity": "high",
+        "files": [
+          "flaskr/auth.py"
+        ]
+      }
+    ],
+    "areas": [
+      "flaskr/auth.py"
+    ],
+    "files": [
+      {
+        "path": "flaskr/auth.py",
+        "status": "modified",
+        "category": "security",
+        "additions": 1,
+        "deletions": 1
+      }
+    ]
+  },
+  "company": {
+    "available": true,
+    "root_service": "flask",
+    "run_id": "20261004T180149Z",
+    "direct_services": 1,
+    "indirect_services": 0,
+    "teams": [
+      "default"
+    ],
+    "services": [
+      {
+        "name": "caller",
+        "team": "default",
+        "depth": 1,
+        "tier": "exact_endpoint_caller",
+        "reason": "caller matches a changed entrypoint",
+        "evidence": [
+          "POST /auth/login"
+        ]
+      }
+    ],
+    "changed_entrypoints": [
+      {
+        "id": "http.get_auth_login",
+        "kind": "http_endpoint",
+        "name": "GET /auth/login",
+        "file": "flaskr/auth.py",
+        "match": "changed_line"
+      },
+      {
+        "id": "http.post_auth_login",
+        "kind": "http_endpoint",
+        "name": "POST /auth/login",
+        "file": "flaskr/auth.py",
+        "match": "changed_line"
+      }
+    ],
+    "flow": {
+      "run_id": "20261004T180149Z",
+      "entry": {
+        "service": "flask"
+      },
+      "status": "complete",
+      "services": [
+        {
+          "name": "flask",
+          "team": "default",
+          "depth": 0,
+          "entry_status": "impact_root"
+        },
+        {
+          "name": "caller",
+          "team": "default",
+          "depth": 1,
+          "entry_status": "impacted"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "service:caller",
+          "service": "caller",
+          "kind": "service",
+          "label": "caller"
+        },
+        {
+          "id": "service:flask",
+          "service": "flask",
+          "kind": "service",
+          "label": "flask"
+        }
+      ],
+      "edges": [
+        {
+          "from": "service:flask",
+          "to": "service:caller",
+          "kind": "http",
+          "cross_service": true,
+          "match_status": "impacted"
+        }
+      ],
+      "stats": {
+        "service_count": 2,
+        "node_count": 2,
+        "edge_count": 1,
+        "cycle_count": 0
+      }
+    },
+    "confidence": "changed_surface_evidence",
+    "freshness": "fresh",
+    "graph_revision": {
+      "commit": "a37767f53cdd9e4269d0a11e95b1c20a0a336ac8",
+      "branch": "master"
+    },
+    "score_eligible": true,
+    "notes": [
+      "the technical graph is repository-wide context; only exact changed-surface matches count toward PR risk"
+    ],
+    "next_action": "Inspect available PR files; select saved evidence from a matching clean PR-head revision for exact caller checks.",
+    "limitations": [
+      "Removed entrypoints may be absent from the head graph. No matching merge-base evidence is used here, so deleted-surface callers remain unproven.",
+      "Internal, transitive and configuration changes may affect unchanged routes without intersecting their source locations; file-scope matches are candidates only.",
+      "No exact matches is incomplete evidence, not proof that a PR is safe to merge. Extracted request-field compatibility is a separate saved-snapshot comparison."
+    ]
+  },
+  "risk_score": 26,
+  "risk_level": "low",
+  "generated_at": "2026-10-04T18:01:50.028719337Z",
+  "score_meaning": "Uncalibrated attention heuristic from file categories and eligible changed-surface evidence; not a probability, merge recommendation or proof of safety. Ineligible company context is excluded.",
+  "delivery": "On-demand inspection only. No automatic code-host comments, checks or merge decisions are delivered."
+}

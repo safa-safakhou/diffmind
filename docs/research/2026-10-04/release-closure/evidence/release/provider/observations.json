@@ -1,0 +1,78 @@
+{
+  "rows": [
+    {
+      "case": "empty",
+      "list_status": "ok",
+      "count": 0,
+      "http_mcp_parity": true
+    },
+    {
+      "case": "paged",
+      "list_status": "ok",
+      "count": 101,
+      "http_mcp_parity": true
+    },
+    {
+      "case": "same-origin",
+      "list_status": "ok",
+      "count": 0,
+      "http_mcp_parity": true
+    },
+    {
+      "case": "401",
+      "list_status": "error",
+      "count": 0,
+      "http_mcp_parity": true,
+      "impact_http_status": 502,
+      "feedback": "GitHub authentication failed. Check server credentials for the approved API host."
+    },
+    {
+      "case": "403",
+      "list_status": "error",
+      "count": 0,
+      "http_mcp_parity": true,
+      "impact_http_status": 502,
+      "feedback": "GitHub denied this request. Check repository access and API rate limits."
+    },
+    {
+      "case": "404",
+      "list_status": "error",
+      "count": 0,
+      "http_mcp_parity": true,
+      "impact_http_status": 502,
+      "feedback": "GitHub repository or pull request is unavailable. Check its URL and your access."
+    },
+    {
+      "case": "429",
+      "list_status": "error",
+      "count": 0,
+      "http_mcp_parity": true,
+      "impact_http_status": 502,
+      "feedback": "GitHub rate limit reached. Wait before refreshing again."
+    },
+    {
+      "case": "500",
+      "list_status": "error",
+      "count": 0,
+      "http_mcp_parity": true,
+      "impact_http_status": 502,
+      "feedback": "GitHub request failed (HTTP 500). Check the approved API endpoint or retry later."
+    },
+    {
+      "case": "malformed",
+      "list_status": "error",
+      "count": 0,
+      "http_mcp_parity": true,
+      "impact_http_status": 502,
+      "feedback": "invalid character 'b' looking for beginning of object key string"
+    },
+    {
+      "case": "cross-origin",
+      "list_status": "error",
+      "count": 0,
+      "http_mcp_parity": true,
+      "impact_http_status": 502,
+      "feedback": "GitHub request could not complete. Check the approved API endpoint, connection and redirect policy."
+    }
+  ]
+}

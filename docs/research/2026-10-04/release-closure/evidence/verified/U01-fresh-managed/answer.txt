@@ -1,0 +1,18 @@
+## Demo Commerce is usable
+
+The project is **Demo Commerce** (`demo-commerce`). Its saved graph is queryable as of **2026-10-04**, run `20261004T175404Z`. The ingestion completed with all six approved repositories imported and analyzed; readiness reports all six fresh and no dirty checkouts.
+
+The registered repositories are exactly `catalog`, `checkout`, `gateway`, `notification`, `payment`, and `storefront`, all from the approved local directory. The import used `clone:false` and reported `synced:0`; the source files were preserved.
+
+## Extracted connections
+
+- **Gateway calls catalog** with `GET http://catalog/products`, evidenced at `gateway/main.go:15`.
+- **Gateway calls checkout** with `POST http://checkout/v1/checkout`, evidenced at `gateway/main.go:17`.
+- **Checkout publishes** to the Kafka topic `orders.created`, evidenced at `checkout/src/main/resources/application.yml:6`.
+- **Notification consumes** `orders.created`, evidenced in `notification/src/main/java/example/OrderNotificationConsumer.java:6–9`.
+
+## Maintenance and limits
+
+I disabled the shared automatic refresh schedule: runtime settings now have `refresh_interval:"0"` and `refresh_on_start:false`; the refresh status confirms `enabled:false`. Manual refresh remains available.
+
+This is saved **static source evidence**, not proof of live traffic. Dependency coverage is marked unverified, so unrecorded edges are not proof that no other callers exist. Notification’s consumer edge is recorded, though its scope state is marked unknown. Freshness reflects the latest repository analysis, not a PR head. The local repositories also have no supported Git remote for PR queries.

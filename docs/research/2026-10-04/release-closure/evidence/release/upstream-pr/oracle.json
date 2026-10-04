@@ -1,0 +1,17 @@
+{
+  "upstream_pr": "https://github.com/pallets/flask/pull/4139",
+  "title": "Avoid race condition in example app",
+  "head": "51196575479e34c3ea43612e1eb770db3aa5d114",
+  "caller_head": "ba6550524068a6bc07dbb57af6092742d9d4edad",
+  "caller_synthetic": true,
+  "expected_exact_callers": [
+    "caller"
+  ],
+  "operation": "POST /auth/register",
+  "reason": "Actual PR changes registration handler implementation; the literal caller uses this method and path.",
+  "changed_files": [
+    "docs/tutorial/views.rst",
+    "examples/tutorial/flaskr/auth.py"
+  ],
+  "runtime_break_claim": false
+}

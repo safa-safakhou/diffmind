@@ -1,0 +1,3 @@
+I couldn’t set up saved context in this session: DiffMind reports that no projects exist, and this host only exposes read/query tools. It has no project creation or repository import controls, and the filesystem is read-only, so I couldn’t create a local setup either.
+
+The approved folders are `catalog`, `checkout`, `gateway`, `notification`, `payment`, and `storefront`. I made no changes to them or their source files. Setup with manual maintenance will need a management-enabled DiffMind session.

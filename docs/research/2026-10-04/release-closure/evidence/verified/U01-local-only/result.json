@@ -1,0 +1,18 @@
+{
+  "id": "U01-local-only",
+  "mode": "mcp",
+  "host_version": "codex-cli 0.160.0",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 3.698,
+  "prompt": "Calculate 17 times 23. This arithmetic task needs no repository information.",
+  "tools": [],
+  "shell_commands": [],
+  "answer_exists": true,
+  "unrelated_mcp_config_loaded": false,
+  "approved_tools": [],
+  "apps_feature_disabled": true,
+  "binary_sha256": "75534f7f1dc5370d23c1e2d47d57aa84b3ddb630484e4a00979ecad3603eb007"
+}

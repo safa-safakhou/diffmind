@@ -1,0 +1,75 @@
+{
+  "case": "direct",
+  "public_pin": "2c1b30d0503cfb064f1cb252e6614a06915a362a",
+  "derived_base": "914bf7a1b064314908bb296a698edc3789c9c571",
+  "derived_head": "b6e4d3168beb1ec68447b226f24bfd19a52884f7",
+  "caller_head": "572488361642b33b41f588605bb8d3ac87c4a01c",
+  "runtime_operations": [
+    [
+      "GET",
+      "/"
+    ],
+    [
+      "GET",
+      "/<int:id>/update"
+    ],
+    [
+      "GET",
+      "/auth/logout"
+    ],
+    [
+      "GET",
+      "/auth/register"
+    ],
+    [
+      "GET",
+      "/auth/sign-in"
+    ],
+    [
+      "GET",
+      "/create"
+    ],
+    [
+      "GET",
+      "/hello"
+    ],
+    [
+      "POST",
+      "/<int:id>/delete"
+    ],
+    [
+      "POST",
+      "/<int:id>/update"
+    ],
+    [
+      "POST",
+      "/auth/register"
+    ],
+    [
+      "POST",
+      "/auth/sign-in"
+    ],
+    [
+      "POST",
+      "/create"
+    ]
+  ],
+  "expected_exact_callers": 1,
+  "expected_caller": "caller",
+  "caller_method": "GET",
+  "caller_path": "/auth/sign-in",
+  "controlled": true,
+  "runtime_traffic_claim": false,
+  "source_files": [
+    "flaskr/auth.py"
+  ],
+  "patches": [
+    {
+      "filename": "flaskr/auth.py",
+      "status": "modified",
+      "patch": "diff --git a/flaskr/auth.py b/flaskr/auth.py\nindex 34c03a2..4e59f8a 100644\n--- a/flaskr/auth.py\n+++ b/flaskr/auth.py\n@@ -81,7 +81,7 @@ def register():\n     return render_template(\"auth/register.html\")\n \n \n-@bp.route(\"/login\", methods=(\"GET\", \"POST\"))\n+@bp.route(\"/sign-in\", methods=(\"GET\", \"POST\"))\n def login():\n     \"\"\"Log in a registered user by adding the user id to the session.\"\"\"\n     if request.method == \"POST\":",
+      "additions": 1,
+      "deletions": 1
+    }
+  ]
+}

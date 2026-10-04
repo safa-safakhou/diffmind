@@ -1,0 +1,133 @@
+npm --prefix internal/workspace/ui/web ci
+
+added 145 packages, and audited 146 packages in 982ms
+
+30 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm --prefix internal/workspace/ui/web run build
+
+> diffmind-dashboard@0.1.0 build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 901 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.46 kB │ gzip:   0.29 kB
+dist/assets/index-DXvF2CNG.css   56.87 kB │ gzip:  11.90 kB
+dist/assets/index-BbUW_oCC.js   344.53 kB │ gzip: 112.54 kB
+✓ built in 1.15s
+npm --prefix internal/extractor/ui/web ci
+
+added 156 packages, and audited 157 packages in 947ms
+
+30 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm --prefix internal/extractor/ui/web run build
+
+> diffmind-dashboard@0.1.0 build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 36 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.66 kB │ gzip:   0.40 kB
+dist/assets/index-Cj-xO0kd.css   52.54 kB │ gzip:   9.64 kB
+dist/assets/index-KF4BiAB_.js   525.25 kB │ gzip: 169.70 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 836ms
+npm --prefix internal/workspace/ui/web test
+
+> diffmind-dashboard@0.1.0 test
+> node --test src/lib/*.test.js && node scripts/test-components.mjs
+
+✔ project creation respects scoped administration (0.678346ms)
+✔ member drafts preserve exact subjects and reject unsafe grants (0.797262ms)
+✔ access route preserves project identity (0.258606ms)
+✔ lost write responses retain safe recovery without replaying the request (0.876492ms)
+✔ conflict feedback preserves recovery and validation without automatic write retries (0.520206ms)
+✔ comparison defaults select available snapshots and respect pinned IDs (1.209035ms)
+✔ comparison routes preserve explicit direction and escaped identifiers (0.298092ms)
+✔ semantic keys display safely without requiring a known schema (0.10564ms)
+✔ only recoverable jobs with saved requests offer resume (0.399868ms)
+✔ progress includes terminal checkpoints, not just successful analyses (0.107211ms)
+✔ pack provenance includes source lines and declaration limits (0.480567ms)
+✔ legacy objects and malformed evidence do not invent provenance (0.337211ms)
+✔ quota requests preserve revision and explicit inherit, with bounded integer caps (0.964023ms)
+✔ operation actions respect roles and persisted lifecycle (1.124913ms)
+✔ operation labels distinguish retry and draining cancellation (0.118934ms)
+✔ operations routes decode project identity (0.51857ms)
+✔ disconnection preserves provenance and pauses every action; denial loses graph claims (0.403105ms)
+✔ partial and failed maintenance preserve the saved graph explanation (0.19823ms)
+✔ token issuance is bounded and never grants admin (0.948537ms)
+✔ expiry boundary and revocation take effect in the token list (0.102669ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43.765933
+✔ visual relationship grouping preserves mixed provenance and original facts (1.162828ms)
+✔ confirmation failure stays inside the dialog and never retries the mutation (12.870411ms)
+✔ viewer joining handoff separates browser identity, project token and renewal ownership (1.433941ms)
+✔ relationship origins show answering run, unknown scope and correction guidance (1.09662ms)
+✔ PR evidence and eligibility precede a collapsed uncalibrated heuristic (1.36951ms)
+✔ first use stays dismissible; project load failure is not an empty workspace (3.83207ms)
+✔ import retains reviewed candidates and draft, invalidates changed scope and shows local errors (5.654416ms)
+✔ all extracted evidence remains reachable past the initial display limit (1.962776ms)
+✔ contract comparison pins direction, exposes evidence, and never claims complete compatibility (1.796498ms)
+✔ access checks retain prior data on transient failure and clear it on denial (1.833563ms)
+✔ PR providers distinguish local-only, query failure and successfully empty results (3.2633ms)
+✔ late provider responses cannot replace a different workspace (1.587275ms)
+✔ readiness notice separates saved graph from partial, failed and completed work (0.56226ms)
+✔ a late workspace read cannot replace the newly selected project (2.50389ms)
+✔ admin saves bounded limits with revision and reloads effective usage (8.485816ms)
+✔ reader sees limits without editing controls (0.957081ms)
+✔ invalid drafts never reach the server (1.010991ms)
+✔ conflicting saves retain drafts, require reload and do not silently overwrite (1.695007ms)
+✔ unavailable policy fails closed in the screen (0.77563ms)
+✔ token screen issues once, hides secrets, confirms/cancels revocation and retains history (19.173082ms)
+✔ revoking the newly issued token removes its displayed secret (3.129211ms)
+▶ legacy mode and unavailable registries cannot issue via the screen
+  ✔ legacy (1.078806ms)
+  ✔ unavailable (0.758945ms)
+✔ legacy mode and unavailable registries cannot issue via the screen (2.263536ms)
+✔ issuance errors do not leak a secret or claim success (2.440523ms)
+✔ failed revocation preserves the active record and permits a retry (1.83078ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 217.162992
+npm --prefix internal/extractor/ui/web test
+
+> diffmind-dashboard@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 <REPOSITORY>/internal/extractor/ui/web
+
+ ✓ src/lib/router.test.js (4 tests) 2ms
+ ✓ src/lib/store.test.js (7 tests) 3ms
+ ✓ src/components/RunForm.test.js (3 tests) 2ms
+
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+   Start at  19:58:13
+   Duration  125ms (transform 109ms, setup 0ms, import 145ms, tests 7ms, environment 0ms)

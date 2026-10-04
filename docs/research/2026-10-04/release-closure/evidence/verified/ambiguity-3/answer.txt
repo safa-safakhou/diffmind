@@ -1,0 +1,3 @@
+I can’t identify affected services from this workspace: it’s empty, and there’s no Git repository or checkout code available to inspect. So I don’t have evidence to trace changes to services.
+
+Please make the checkout available here, or share the relevant diff, and I can map the changes to affected services.

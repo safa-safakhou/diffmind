@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "rows": [
+    {
+      "case": "viewer",
+      "hidden_project_http_status": 404,
+      "project": "demo-commerce",
+      "baseline_run": "20261004T180004Z"
+    },
+    {
+      "case": "editor",
+      "completed_run": "20261004T180234Z",
+      "analyzed": 1,
+      "reused": 5,
+      "local_edit_preserved": true,
+      "registrations": 6,
+      "configuration_denied": 403
+    },
+    {
+      "case": "revocation",
+      "membership_removal_does_not_revoke_service_token": true,
+      "existing_session_status": 401,
+      "editor_independent": true
+    }
+  ]
+}

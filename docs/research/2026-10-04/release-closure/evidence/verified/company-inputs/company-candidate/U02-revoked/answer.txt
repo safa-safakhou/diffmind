@@ -1,0 +1,1 @@
+I couldn’t retrieve the saved Demo Commerce architecture. I verified that no company connection tool or MCP resources/templates are available in this session, and the current workspace contains no files with the architecture. I can’t show its contents without access to the saved record.

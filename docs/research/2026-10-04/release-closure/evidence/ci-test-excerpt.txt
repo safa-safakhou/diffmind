@@ -1,0 +1,157 @@
+2026-10-04T18:01:01.8293610Z ##[group]Runner Image Provisioner
+2026-10-04T18:01:01.8304503Z ##[group]Runner Image
+2026-10-04T18:01:03.0856570Z ##[group]Run actions/checkout@v7
+2026-10-04T18:01:04.7075159Z ##[group]Run actions/setup-go@v7
+2026-10-04T18:01:20.3203369Z ##[group]Run actions/setup-node@v7
+2026-10-04T18:01:23.1530790Z ##[group]Run npm ci
+2026-10-04T18:01:25.5635467Z found 0 vulnerabilities
+2026-10-04T18:01:25.6193157Z ##[group]Run npm audit --audit-level=low
+2026-10-04T18:01:26.1033595Z found 0 vulnerabilities
+2026-10-04T18:01:26.3721599Z ##[group]Run npm run build
+2026-10-04T18:01:29.1465239Z ##[group]Run npm test
+2026-10-04T18:01:29.5372959Z ℹ tests 20
+2026-10-04T18:01:29.5373849Z ℹ pass 20
+2026-10-04T18:01:29.5374325Z ℹ fail 0
+2026-10-04T18:01:30.2459919Z ℹ tests 26
+2026-10-04T18:01:30.2460363Z ℹ pass 26
+2026-10-04T18:01:30.2460613Z ℹ fail 0
+2026-10-04T18:01:30.2680355Z ##[group]Run npm ci
+2026-10-04T18:01:32.1629426Z found 0 vulnerabilities
+2026-10-04T18:01:32.1896808Z ##[group]Run npm audit --audit-level=low
+2026-10-04T18:01:32.5872449Z found 0 vulnerabilities
+2026-10-04T18:01:32.5993284Z ##[group]Run npm run build
+2026-10-04T18:01:34.8822958Z ##[group]Run npm test
+2026-10-04T18:01:35.7984030Z  Test Files  3 passed (3)
+2026-10-04T18:01:35.7985459Z       Tests  14 passed (14)
+2026-10-04T18:01:35.8485499Z ##[group]Run go test ./...
+2026-10-04T18:01:47.1571663Z ok  	github.com/mohammad-safakhou/diffmind/cmd/diffmind	4.904s
+2026-10-04T18:01:47.1573013Z ok  	github.com/mohammad-safakhou/diffmind/indexerbuild	0.004s
+2026-10-04T18:01:47.1578785Z ok  	github.com/mohammad-safakhou/diffmind/indexerbuild/wrapper	0.013s
+2026-10-04T18:01:47.1581891Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/app	0.044s
+2026-10-04T18:01:47.1583647Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/architecture	0.008s
+2026-10-04T18:01:47.1585168Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/artifacts	0.058s
+2026-10-04T18:01:47.1586844Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/ast	1.118s
+2026-10-04T18:01:47.1588529Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/catalog	0.033s
+2026-10-04T18:01:47.1589899Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/config	0.023s
+2026-10-04T18:01:47.1591322Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors	0.007s
+2026-10-04T18:01:47.1593010Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/dotnet/http/aspnet	[no test files]
+2026-10-04T18:01:47.1594860Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/ai/openai	0.004s
+2026-10-04T18:01:47.1596677Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/cache/redis	[no test files]
+2026-10-04T18:01:47.1598476Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/cli/cobra	[no test files]
+2026-10-04T18:01:47.1600228Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/di/wire	0.007s
+2026-10-04T18:01:47.1602882Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/echo	[no test files]
+2026-10-04T18:01:47.1605260Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/fiber	[no test files]
+2026-10-04T18:01:47.1608099Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/gin	[no test files]
+2026-10-04T18:01:47.1610503Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/nethttp	0.005s
+2026-10-04T18:01:47.1613256Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/httpclient/nethttp	0.004s
+2026-10-04T18:01:47.1616986Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/httpclient/resty	[no test files]
+2026-10-04T18:01:47.1632245Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/rpc/grpc	[no test files]
+2026-10-04T18:01:47.1634210Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/internal/frameworkutil	[no test files]
+2026-10-04T18:01:47.1636092Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/db/jdbc	[no test files]
+2026-10-04T18:01:47.1637900Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/db/jpa	[no test files]
+2026-10-04T18:01:47.1639642Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/http/spring	0.004s
+2026-10-04T18:01:47.1641867Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/httpclient/feign	[no test files]
+2026-10-04T18:01:47.1647619Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/httpclient/retrofit	[no test files]
+2026-10-04T18:01:47.1649751Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/internal/producer	[no test files]
+2026-10-04T18:01:47.1651763Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/jms	0.004s
+2026-10-04T18:01:47.1653474Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/kafka	0.011s
+2026-10-04T18:01:47.1655288Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/rabbitmq	0.004s
+2026-10-04T18:01:47.1656995Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/sqs	0.004s
+2026-10-04T18:01:47.1658855Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/javascript/http/express	[no test files]
+2026-10-04T18:01:47.1660804Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/php/http/laravel	[no test files]
+2026-10-04T18:01:47.1692414Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/aws/sam	[no test files]
+2026-10-04T18:01:47.1694313Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/cache/redis	[no test files]
+2026-10-04T18:01:47.1696314Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/cli/argparse	[no test files]
+2026-10-04T18:01:47.1698106Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/django	0.008s
+2026-10-04T18:01:47.1699966Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/fastapi	[no test files]
+2026-10-04T18:01:47.1702196Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/flask	[no test files]
+2026-10-04T18:01:47.1704563Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/ruby/http/rails	[no test files]
+2026-10-04T18:01:47.1708244Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/typescript/http/nestjs	[no test files]
+2026-10-04T18:01:47.1713135Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/register	[no test files]
+2026-10-04T18:01:47.1717737Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/entitykey	0.011s
+2026-10-04T18:01:47.1719223Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/events	0.512s
+2026-10-04T18:01:47.1721381Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/extraction	0.002s
+2026-10-04T18:01:47.1722970Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/indexer	0.010s
+2026-10-04T18:01:47.1724911Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/indexerbuild/recipe	0.006s
+2026-10-04T18:01:47.1726561Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/langdetect	0.006s
+2026-10-04T18:01:47.1728494Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/model	[no test files]
+2026-10-04T18:01:47.1730129Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/objectives	0.003s
+2026-10-04T18:01:47.1732072Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/pipeline	0.017s
+2026-10-04T18:01:47.1733594Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/preflight	0.037s
+2026-10-04T18:01:47.1735447Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/provenance	[no test files]
+2026-10-04T18:01:47.1737336Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/repositorycall	[no test files]
+2026-10-04T18:01:47.1739292Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/repostore	0.007s
+2026-10-04T18:01:47.1740830Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/runner	0.013s
+2026-10-04T18:01:47.1742595Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/runstate	[no test files]
+2026-10-04T18:01:51.1752365Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/scip	0.022s
+2026-10-04T18:01:51.1762756Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig	0.008s
+2026-10-04T18:01:51.1775233Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter	0.003s
+2026-10-04T18:01:51.1962179Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/astindex	0.016s
+2026-10-04T18:01:51.5881321Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/connections	0.401s
+2026-10-04T18:01:51.7113254Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery	0.484s
+2026-10-04T18:01:51.7126934Z ?   	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery/clientspec	[no test files]
+2026-10-04T18:01:51.7174826Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/reconcile	0.012s
+2026-10-04T18:01:51.7232174Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/ui	0.031s
+2026-10-04T18:01:51.7233341Z ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/util	0.008s
+2026-10-04T18:01:51.7250869Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi	0.024s
+2026-10-04T18:01:51.7252815Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agenthost	0.010s
+2026-10-04T18:01:51.7254724Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/archgraph	0.011s
+2026-10-04T18:01:51.7256427Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/artifacts	0.011s
+2026-10-04T18:01:53.0216739Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/backup	0.922s
+2026-10-04T18:01:53.0224145Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/config	0.007s
+2026-10-04T18:01:53.0225510Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/graph	0.013s
+2026-10-04T18:01:53.0226708Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/homelock	0.112s
+2026-10-04T18:01:53.0227955Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge	0.157s
+2026-10-04T18:01:53.0229456Z ?   	github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge/extractors	[no test files]
+2026-10-04T18:01:53.3131476Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/mcpserver	0.031s
+2026-10-04T18:01:53.3133148Z ?   	github.com/mohammad-safakhou/diffmind/internal/workspace/model	[no test files]
+2026-10-04T18:01:53.3418147Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/orchestrator	0.025s
+2026-10-04T18:01:53.3831755Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/packtest	0.034s
+2026-10-04T18:01:54.9355455Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/query	1.086s
+2026-10-04T18:01:54.9393002Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/registry	0.015s
+2026-10-04T18:01:54.9423144Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/resolver	0.014s
+2026-10-04T18:01:54.9481465Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/runmgr	0.089s
+2026-10-04T18:01:55.8922738Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/store	1.227s
+2026-10-04T18:02:25.0502828Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	27.146s
+2026-10-04T18:02:25.0543747Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/util	0.002s
+2026-10-04T18:02:25.0589252Z ok  	github.com/mohammad-safakhou/diffmind/protocol	0.005s
+2026-10-04T18:02:39.2140200Z ok  	github.com/mohammad-safakhou/diffmind/scripts/agent-setup	42.498s
+2026-10-04T18:02:39.2141803Z ok  	github.com/mohammad-safakhou/diffmind/scripts/backup-maintenance	0.308s
+2026-10-04T18:02:39.2143098Z ok  	github.com/mohammad-safakhou/diffmind/scripts/enterprise-showcase	0.536s
+2026-10-04T18:02:39.2144466Z ?   	github.com/mohammad-safakhou/diffmind/scripts/readiness-report	[no test files]
+2026-10-04T18:02:39.2145729Z ok  	github.com/mohammad-safakhou/diffmind/scripts/release-check	0.034s
+2026-10-04T18:02:39.2146925Z ok  	github.com/mohammad-safakhou/diffmind/scripts/release-formula	1.085s
+2026-10-04T18:02:39.3236714Z ##[group]Run go test -race ./cmd/diffmind ./internal/workspace/agentapi ./internal/workspace/agenthost ./internal/workspace/query ./internal/workspace/mcpserver ./internal/workspace/ui ./internal/workspace/store ./internal/workspace/backup ./internal/workspace/homelock
+2026-10-04T18:03:37.8364263Z ok  	github.com/mohammad-safakhou/diffmind/cmd/diffmind	4.344s
+2026-10-04T18:03:37.8370285Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi	1.237s
+2026-10-04T18:03:37.8372685Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agenthost	1.024s
+2026-10-04T18:03:42.1527834Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/query	7.618s
+2026-10-04T18:03:42.1529230Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/mcpserver	1.191s
+2026-10-04T18:03:57.5295875Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	21.001s
+2026-10-04T18:03:57.5297035Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/store	6.135s
+2026-10-04T18:03:57.5297937Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/backup	2.137s
+2026-10-04T18:03:57.5298961Z ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/homelock	6.102s
+2026-10-04T18:03:57.7414541Z ##[group]Run go vet ./...
+2026-10-04T18:04:05.5778233Z ##[group]Run go run golang.org/x/vuln/cmd/govulncheck@v1.7.0 ./...
+2026-10-04T18:04:15.1079929Z No vulnerabilities found.
+2026-10-04T18:04:15.1391650Z ##[group]Run go run ./cmd/diffmind pack lint ./packs
+2026-10-04T18:04:16.1810507Z ok	helm-values@1.0.0
+2026-10-04T18:04:16.1810939Z ok	service-manifest@1.0.0
+2026-10-04T18:04:16.1811745Z ok	spring-openfeign-config@1.0.0
+2026-10-04T18:04:16.1898719Z ##[group]Run go run ./cmd/diffmind pack test ./packs
+2026-10-04T18:04:16.3408195Z ok	helm-values	extracts a complete Helm identity
+2026-10-04T18:04:16.3457908Z ok	service-manifest	extracts gateway declarations with evidence
+2026-10-04T18:04:16.3458675Z ok	service-manifest	extracts consumer and alias
+2026-10-04T18:04:16.3459387Z ok	service-manifest	ignores unresolved and sensitive targets
+2026-10-04T18:04:16.3460083Z ok	service-manifest	exact HTTP RPC and queue graph
+2026-10-04T18:04:16.3460694Z ok	service-manifest	no phantom relationships
+2026-10-04T18:04:16.3489842Z ok	spring-openfeign-config	YAML literal and placeholder
+2026-10-04T18:04:16.3490470Z ok	spring-openfeign-config	properties comments and invalid values
+2026-10-04T18:04:16.3491030Z ok	spring-openfeign-config	YML literal
+2026-10-04T18:04:16.3491874Z ok	spring-openfeign-config	only configured literal clients form edges
+2026-10-04T18:04:16.3539529Z ##[group]Run sh scripts/test-install.sh
+2026-10-04T18:04:16.4145006Z ##[group]Run sh scripts/test-demo.sh
+2026-10-04T18:04:16.4981025Z ##[group]Run sudo install -d -m 0755 /usr/local/libexec/diffmind
+2026-10-04T18:04:16.7072514Z ##[group]Run ruby -c Formula/diffmind.rb
+2026-10-04T18:04:16.7399415Z Syntax OK
+2026-10-04T18:04:16.7475916Z ##[group]Run go build ./cmd/diffmind

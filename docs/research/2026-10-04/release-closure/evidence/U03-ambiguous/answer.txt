@@ -1,0 +1,3 @@
+I can’t identify affected services from this workspace: it contains no project files and isn’t a Git repository, so there’s no checkout code or dependency evidence to trace.
+
+Share the relevant repository or checkout changes, and I can map their service impact and cite the evidence.

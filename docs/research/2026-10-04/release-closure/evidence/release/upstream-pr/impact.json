@@ -1,0 +1,204 @@
+{
+  "pull_request": {
+    "number": 4139,
+    "title": "Avoid race condition in example app",
+    "url": "https://github.com/pallets/flask/pull/4139",
+    "draft": false,
+    "author": "awijaya22",
+    "head_sha": "51196575479e34c3ea43612e1eb770db3aa5d114",
+    "head": "issue4099",
+    "base": "2.0.x",
+    "created_at": "2021-06-07T14:35:24Z",
+    "updated_at": "2021-08-21T00:02:56Z",
+    "labels": [
+      "docs"
+    ],
+    "repo_id": "flask",
+    "repo_name": "flask",
+    "team": "default"
+  },
+  "codebase": {
+    "changed_files": 2,
+    "additions": 45,
+    "deletions": 41,
+    "commits": 1,
+    "risk_score": 24,
+    "risk_level": "low",
+    "risk_reasons": [
+      "Security or authorization boundary changed"
+    ],
+    "categories": [
+      {
+        "id": "security",
+        "label": "Security & identity",
+        "files": 1,
+        "additions": 13,
+        "deletions": 13,
+        "risk": 25
+      },
+      {
+        "id": "documentation",
+        "label": "Documentation",
+        "files": 1,
+        "additions": 32,
+        "deletions": 28,
+        "risk": 0
+      }
+    ],
+    "signals": [
+      {
+        "kind": "security_boundary",
+        "label": "Security or authorization boundary changed",
+        "severity": "high",
+        "files": [
+          "examples/tutorial/flaskr/auth.py"
+        ]
+      }
+    ],
+    "areas": [
+      "docs/tutorial",
+      "examples/tutorial"
+    ],
+    "files": [
+      {
+        "path": "docs/tutorial/views.rst",
+        "status": "modified",
+        "category": "documentation",
+        "additions": 32,
+        "deletions": 28,
+        "url": "https://github.com/pallets/flask/blob/51196575479e34c3ea43612e1eb770db3aa5d114/docs%2Ftutorial%2Fviews.rst"
+      },
+      {
+        "path": "examples/tutorial/flaskr/auth.py",
+        "status": "modified",
+        "category": "security",
+        "additions": 13,
+        "deletions": 13,
+        "url": "https://github.com/pallets/flask/blob/51196575479e34c3ea43612e1eb770db3aa5d114/examples%2Ftutorial%2Fflaskr%2Fauth.py"
+      }
+    ]
+  },
+  "company": {
+    "available": true,
+    "root_service": "flask",
+    "run_id": "20261004T180542Z",
+    "direct_services": 1,
+    "indirect_services": 0,
+    "teams": [
+      "default"
+    ],
+    "services": [
+      {
+        "name": "caller",
+        "team": "default",
+        "depth": 1,
+        "tier": "exact_endpoint_caller",
+        "reason": "caller matches a changed entrypoint",
+        "evidence": [
+          "POST /auth/register"
+        ]
+      }
+    ],
+    "changed_entrypoints": [
+      {
+        "id": "http.get_auth_register",
+        "kind": "http_endpoint",
+        "name": "GET /auth/register",
+        "file": "examples/tutorial/flaskr/auth.py",
+        "match": "changed_line"
+      },
+      {
+        "id": "http.post_auth_register",
+        "kind": "http_endpoint",
+        "name": "POST /auth/register",
+        "file": "examples/tutorial/flaskr/auth.py",
+        "match": "changed_line"
+      }
+    ],
+    "entrypoint_dependencies": [
+      {
+        "entrypoint": "GET /auth/register",
+        "target": "write user",
+        "kind": "api_to_database",
+        "reachability": "must"
+      },
+      {
+        "entrypoint": "POST /auth/register",
+        "target": "write user",
+        "kind": "api_to_database",
+        "reachability": "must"
+      }
+    ],
+    "flow": {
+      "run_id": "20261004T180542Z",
+      "entry": {
+        "service": "flask"
+      },
+      "status": "complete",
+      "services": [
+        {
+          "name": "flask",
+          "team": "default",
+          "depth": 0,
+          "entry_status": "impact_root"
+        },
+        {
+          "name": "caller",
+          "team": "default",
+          "depth": 1,
+          "entry_status": "impacted"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "service:caller",
+          "service": "caller",
+          "kind": "service",
+          "label": "caller"
+        },
+        {
+          "id": "service:flask",
+          "service": "flask",
+          "kind": "service",
+          "label": "flask"
+        }
+      ],
+      "edges": [
+        {
+          "from": "service:flask",
+          "to": "service:caller",
+          "kind": "http",
+          "cross_service": true,
+          "match_status": "impacted"
+        }
+      ],
+      "stats": {
+        "service_count": 2,
+        "node_count": 2,
+        "edge_count": 1,
+        "cycle_count": 0
+      }
+    },
+    "confidence": "changed_surface_evidence",
+    "freshness": "fresh",
+    "graph_revision": {
+      "commit": "51196575479e34c3ea43612e1eb770db3aa5d114",
+      "branch": "HEAD"
+    },
+    "score_eligible": true,
+    "notes": [
+      "the technical graph is repository-wide context; only exact changed-surface matches count toward PR risk"
+    ],
+    "next_action": "Inspect available PR files; select saved evidence from a matching clean PR-head revision for exact caller checks.",
+    "limitations": [
+      "Removed entrypoints may be absent from the head graph. No matching merge-base evidence is used here, so deleted-surface callers remain unproven.",
+      "Internal, transitive and configuration changes may affect unchanged routes without intersecting their source locations; file-scope matches are candidates only.",
+      "No exact matches is incomplete evidence, not proof that a PR is safe to merge. Extracted request-field compatibility is a separate saved-snapshot comparison."
+    ]
+  },
+  "risk_score": 26,
+  "risk_level": "low",
+  "generated_at": "2026-10-04T18:05:42.913763614Z",
+  "score_meaning": "Uncalibrated attention heuristic from file categories and eligible changed-surface evidence; not a probability, merge recommendation or proof of safety. Ineligible company context is excluded.",
+  "delivery": "On-demand inspection only. No automatic code-host comments, checks or merge decisions are delivered."
+}

@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "binary_sha256": "d53ddebf5ce8cc4ea898e4d367f9bde0217c9c039cb001f7a499b0288b888818",
+  "rows": [
+    {
+      "backend": "json",
+      "seconds": 120.44,
+      "successful_jobs": 31,
+      "read_requests": 3504,
+      "read_ms_p95": 28.966,
+      "rss_kib_min": 23640,
+      "rss_kib_max": 34044,
+      "peak_running": 1,
+      "peak_queued": 1,
+      "restart_recovered": true,
+      "automatic_one_changed_five_reused": true,
+      "automatic_six_reused": true,
+      "scope_and_edit_preserved": true,
+      "old_graph_hash": "9b8d492167740d2a10d11ed86ceba29c117ec1bf3875ec227ad1b43e789346b2",
+      "proxy_viewer_read": 200,
+      "proxy_spoofed_admin_write": 403,
+      "direct_untrusted_identity": 401,
+      "membership_removed_browser": 404,
+      "existing_mcp_membership_rechecked": true
+    },
+    {
+      "backend": "sqlite",
+      "seconds": 120.34,
+      "successful_jobs": 31,
+      "read_requests": 3504,
+      "read_ms_p95": 28.715,
+      "rss_kib_min": 28592,
+      "rss_kib_max": 37284,
+      "peak_running": 1,
+      "peak_queued": 1,
+      "restart_recovered": true,
+      "automatic_one_changed_five_reused": true,
+      "automatic_six_reused": true,
+      "scope_and_edit_preserved": true,
+      "old_graph_hash": "1c2be86243c8cad64c24d9e37fa8861ca9935092a2fff569bb3f37469808ff81",
+      "proxy_viewer_read": 200,
+      "proxy_spoofed_admin_write": 403,
+      "direct_untrusted_identity": 401,
+      "membership_removed_browser": 404,
+      "existing_mcp_membership_rechecked": true
+    }
+  ],
+  "limits": "Bounded local endurance with eight readers, six small repositories, controlled proxy identity and graceful restart; not production SSO, capacity or long-duration soak."
+}

@@ -1,0 +1,5 @@
+Updated the existing `Demo Commerce` context. The refresh completed successfully and saved graph **`20261004T175710Z`**. It analyzed `catalog` and reused the other five registered repositories; the six repository scope stayed the same. The catalog edit remains in place (`app.py`, two added lines). Maintenance remains manual: this was a manual refresh, and I didn’t change project settings.
+
+**Who calls catalog:** The saved graph records `gateway` making `GET http://catalog/products`, resolved to catalog’s `GET /products` endpoint. The evidence points to `gateway/main.go:15`.
+
+**Evidence limits:** This is static source evidence, not proof of runtime traffic. Coverage is unverified, so the graph can’t rule out additional callers. Catalog is still marked dirty because its edit is uncommitted; the new analysis records that state rather than making the checkout clean.

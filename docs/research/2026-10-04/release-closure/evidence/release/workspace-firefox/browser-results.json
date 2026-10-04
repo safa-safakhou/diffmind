@@ -1,0 +1,909 @@
+{
+  "engine": "firefox",
+  "browser_version": "151.0",
+  "rows": [
+    {
+      "name": "projects",
+      "width": 1440,
+      "load_ms": 1061,
+      "size": {
+        "viewport": 1440,
+        "document": 1440
+      },
+      "violations": []
+    },
+    {
+      "name": "workspace",
+      "width": 1440,
+      "load_ms": 656,
+      "size": {
+        "viewport": 1440,
+        "document": 1440
+      },
+      "layout": {
+        "board": {
+          "top": 218,
+          "bottom": 966,
+          "left": 292,
+          "right": 1098,
+          "width": 806,
+          "height": 748
+        },
+        "toolbar": {
+          "top": 232,
+          "bottom": 307,
+          "left": 306,
+          "right": 1084,
+          "width": 778,
+          "height": 75
+        },
+        "header": {
+          "top": 0,
+          "bottom": 58,
+          "left": 0,
+          "right": 1440,
+          "width": 1440,
+          "height": 58
+        },
+        "readiness": {
+          "top": 58,
+          "bottom": 218,
+          "left": 292,
+          "right": 1098,
+          "width": 806,
+          "height": 160
+        },
+        "controls": [
+          {
+            "left": 22,
+            "right": 63.899993896484375,
+            "top": 17.5,
+            "bottom": 39.5
+          },
+          {
+            "left": 71.89999389648438,
+            "right": 379.3500061035156,
+            "top": 6.5,
+            "bottom": 50.5
+          },
+          {
+            "left": 493.2166748046875,
+            "right": 579.1000213623047,
+            "top": 3.5,
+            "bottom": 53.5
+          },
+          {
+            "left": 587.0999755859375,
+            "right": 658.4333038330078,
+            "top": 12,
+            "bottom": 45
+          },
+          {
+            "left": 666.433349609375,
+            "right": 750.4833526611328,
+            "top": 3.5,
+            "bottom": 53.5
+          },
+          {
+            "left": 758.4833374023438,
+            "right": 851.9333343505859,
+            "top": 3.5,
+            "bottom": 53.5
+          },
+          {
+            "left": 859.933349609375,
+            "right": 956.6166839599609,
+            "top": 3.5,
+            "bottom": 53.5
+          },
+          {
+            "left": 964.61669921875,
+            "right": 1032.4833679199219,
+            "top": 3.5,
+            "bottom": 53.5
+          },
+          {
+            "left": 1040.4833984375,
+            "right": 1115.9833984375,
+            "top": 3.5,
+            "bottom": 53.5
+          },
+          {
+            "left": 1123.9833984375,
+            "right": 1212.7500610351562,
+            "top": 3.5,
+            "bottom": 53.5
+          },
+          {
+            "left": 1220.75,
+            "right": 1323.7833404541016,
+            "top": 3.5,
+            "bottom": 53.5
+          },
+          {
+            "left": 1331.7833251953125,
+            "right": 1418.3499908447266,
+            "top": 53.5,
+            "bottom": 86.5
+          },
+          {
+            "left": 1331.7833251953125,
+            "right": 1423.999984741211,
+            "top": 86.5,
+            "bottom": 153.5
+          },
+          {
+            "left": 1331.7833251953125,
+            "right": 1423.999984741211,
+            "top": 153.5,
+            "bottom": 203.5
+          },
+          {
+            "left": 773.7666625976562,
+            "right": 851.7333374023438,
+            "top": 238,
+            "bottom": 266
+          },
+          {
+            "left": 857.7333374023438,
+            "right": 939.4333343505859,
+            "top": 238,
+            "bottom": 266
+          },
+          {
+            "left": 312,
+            "right": 462,
+            "top": 272,
+            "bottom": 301
+          },
+          {
+            "left": 468,
+            "right": 523.5166625976562,
+            "top": 272.5,
+            "bottom": 300.5
+          },
+          {
+            "left": 529.5166625976562,
+            "right": 558.7333374023438,
+            "top": 272.5,
+            "bottom": 300.5
+          },
+          {
+            "left": 564.7333374023438,
+            "right": 619.9333343505859,
+            "top": 272.5,
+            "bottom": 300.5
+          },
+          {
+            "left": 625.933349609375,
+            "right": 655.1500091552734,
+            "top": 272.5,
+            "bottom": 300.5
+          },
+          {
+            "left": 661.1500244140625,
+            "right": 851.1500244140625,
+            "top": 272,
+            "bottom": 301
+          },
+          {
+            "left": 857.1500244140625,
+            "right": 1006.7500305175781,
+            "top": 272,
+            "bottom": 301
+          }
+        ],
+        "viewport": 1440,
+        "height": 1000
+      },
+      "violations": []
+    },
+    {
+      "name": "operations",
+      "width": 1440,
+      "load_ms": 353,
+      "size": {
+        "viewport": 1440,
+        "document": 1440
+      },
+      "violations": []
+    },
+    {
+      "name": "access",
+      "width": 1440,
+      "load_ms": 352,
+      "size": {
+        "viewport": 1440,
+        "document": 1440
+      },
+      "violations": []
+    },
+    {
+      "name": "pull-requests",
+      "width": 1440,
+      "load_ms": 352,
+      "size": {
+        "viewport": 1440,
+        "document": 1440
+      },
+      "violations": []
+    },
+    {
+      "name": "compare",
+      "width": 1440,
+      "load_ms": 354,
+      "size": {
+        "viewport": 1440,
+        "document": 1440
+      },
+      "violations": []
+    },
+    {
+      "name": "projects",
+      "width": 768,
+      "load_ms": 382,
+      "size": {
+        "viewport": 768,
+        "document": 768
+      },
+      "violations": []
+    },
+    {
+      "name": "workspace",
+      "width": 768,
+      "load_ms": 649,
+      "size": {
+        "viewport": 768,
+        "document": 768
+      },
+      "layout": {
+        "board": {
+          "top": 261,
+          "bottom": 728.5,
+          "left": 240,
+          "right": 768,
+          "width": 528,
+          "height": 467.5
+        },
+        "toolbar": {
+          "top": 275,
+          "bottom": 385,
+          "left": 254,
+          "right": 754,
+          "width": 500,
+          "height": 110
+        },
+        "header": {
+          "top": 0,
+          "bottom": 129,
+          "left": 0,
+          "right": 768,
+          "width": 768,
+          "height": 129
+        },
+        "readiness": {
+          "top": 129,
+          "bottom": 261,
+          "left": 240,
+          "right": 768,
+          "width": 528,
+          "height": 132
+        },
+        "controls": [
+          {
+            "left": 22,
+            "right": 83.36666870117188,
+            "top": 8,
+            "bottom": 30
+          },
+          {
+            "left": 91.36666870117188,
+            "right": 649.0833435058594,
+            "top": 8,
+            "bottom": 30
+          },
+          {
+            "left": 16,
+            "right": 139.43333435058594,
+            "top": 46,
+            "bottom": 79
+          },
+          {
+            "left": 147.43333435058594,
+            "right": 246.89999389648438,
+            "top": 46,
+            "bottom": 79
+          },
+          {
+            "left": 254.89999389648438,
+            "right": 375.3333282470703,
+            "top": 46,
+            "bottom": 79
+          },
+          {
+            "left": 383.33331298828125,
+            "right": 519.2666473388672,
+            "top": 46,
+            "bottom": 79
+          },
+          {
+            "left": 527.2666625976562,
+            "right": 668.5166625976562,
+            "top": 46,
+            "bottom": 79
+          },
+          {
+            "left": 16,
+            "right": 109.75,
+            "top": 87,
+            "bottom": 120
+          },
+          {
+            "left": 117.75,
+            "right": 224.06666564941406,
+            "top": 87,
+            "bottom": 120
+          },
+          {
+            "left": 232.06666564941406,
+            "right": 360.28334045410156,
+            "top": 87,
+            "bottom": 120
+          },
+          {
+            "left": 368.2833251953125,
+            "right": 519.9999847412109,
+            "top": 87,
+            "bottom": 120
+          },
+          {
+            "left": 528,
+            "right": 614.5666656494141,
+            "top": 120,
+            "bottom": 153
+          },
+          {
+            "left": 528,
+            "right": 658.2833404541016,
+            "top": 153,
+            "bottom": 186
+          },
+          {
+            "left": 528,
+            "right": 630.8166656494141,
+            "top": 186,
+            "bottom": 219
+          },
+          {
+            "left": 260,
+            "right": 337.96665954589844,
+            "top": 315.5,
+            "bottom": 343.5
+          },
+          {
+            "left": 343.9666748046875,
+            "right": 425.66668701171875,
+            "top": 315.5,
+            "bottom": 343.5
+          },
+          {
+            "left": 444.66668701171875,
+            "right": 594.6666870117188,
+            "top": 315,
+            "bottom": 344
+          },
+          {
+            "left": 600.6666870117188,
+            "right": 656.183349609375,
+            "top": 315.5,
+            "bottom": 343.5
+          },
+          {
+            "left": 662.183349609375,
+            "right": 691.4000091552734,
+            "top": 315.5,
+            "bottom": 343.5
+          },
+          {
+            "left": 260,
+            "right": 315.1999969482422,
+            "top": 350.5,
+            "bottom": 378.5
+          },
+          {
+            "left": 321.20001220703125,
+            "right": 350.41668701171875,
+            "top": 350.5,
+            "bottom": 378.5
+          },
+          {
+            "left": 356.41668701171875,
+            "right": 546.4166870117188,
+            "top": 350,
+            "bottom": 379
+          },
+          {
+            "left": 552.4166870117188,
+            "right": 702.0166778564453,
+            "top": 350,
+            "bottom": 379
+          }
+        ],
+        "viewport": 768,
+        "height": 1000
+      },
+      "violations": []
+    },
+    {
+      "name": "operations",
+      "width": 768,
+      "load_ms": 352,
+      "size": {
+        "viewport": 768,
+        "document": 768
+      },
+      "violations": []
+    },
+    {
+      "name": "access",
+      "width": 768,
+      "load_ms": 352,
+      "size": {
+        "viewport": 768,
+        "document": 768
+      },
+      "violations": []
+    },
+    {
+      "name": "pull-requests",
+      "width": 768,
+      "load_ms": 353,
+      "size": {
+        "viewport": 768,
+        "document": 768
+      },
+      "violations": []
+    },
+    {
+      "name": "compare",
+      "width": 768,
+      "load_ms": 353,
+      "size": {
+        "viewport": 768,
+        "document": 768
+      },
+      "violations": []
+    },
+    {
+      "name": "projects",
+      "width": 390,
+      "load_ms": 353,
+      "size": {
+        "viewport": 390,
+        "document": 390
+      },
+      "violations": []
+    },
+    {
+      "name": "workspace",
+      "width": 390,
+      "load_ms": 640,
+      "size": {
+        "viewport": 390,
+        "document": 390
+      },
+      "layout": {
+        "board": {
+          "top": 478,
+          "bottom": 898,
+          "left": 0,
+          "right": 390,
+          "width": 390,
+          "height": 420
+        },
+        "toolbar": {
+          "top": 492,
+          "bottom": 654,
+          "left": 14,
+          "right": 376,
+          "width": 362,
+          "height": 162
+        },
+        "header": {
+          "top": 0,
+          "bottom": 228,
+          "left": 0,
+          "right": 390,
+          "width": 390,
+          "height": 228
+        },
+        "readiness": {
+          "top": 228,
+          "bottom": 360,
+          "left": 0,
+          "right": 390,
+          "width": 390,
+          "height": 132
+        },
+        "controls": [
+          {
+            "left": 16,
+            "right": 77.36666870117188,
+            "top": 8,
+            "bottom": 36
+          },
+          {
+            "left": 85.36666870117188,
+            "right": 355.3666687011719,
+            "top": 12.5,
+            "bottom": 31.5
+          },
+          {
+            "left": 10,
+            "right": 136.98333740234375,
+            "top": 71,
+            "bottom": 102
+          },
+          {
+            "left": 144.98333740234375,
+            "right": 248.01666259765625,
+            "top": 71,
+            "bottom": 102
+          },
+          {
+            "left": 256.01666259765625,
+            "right": 380,
+            "top": 71,
+            "bottom": 102
+          },
+          {
+            "left": 10,
+            "right": 140.28334045410156,
+            "top": 110,
+            "bottom": 141
+          },
+          {
+            "left": 148.28334045410156,
+            "right": 283.8999938964844,
+            "top": 110,
+            "bottom": 141
+          },
+          {
+            "left": 291.8999938964844,
+            "right": 380,
+            "top": 110,
+            "bottom": 141
+          },
+          {
+            "left": 10,
+            "right": 180.0500030517578,
+            "top": 149,
+            "bottom": 180
+          },
+          {
+            "left": 188.0500030517578,
+            "right": 380,
+            "top": 149,
+            "bottom": 180
+          },
+          {
+            "left": 10,
+            "right": 238.86666870117188,
+            "top": 188,
+            "bottom": 219
+          },
+          {
+            "left": 246.86666870117188,
+            "right": 323.43333435058594,
+            "top": 219,
+            "bottom": 250
+          },
+          {
+            "left": 246.86666870117188,
+            "right": 367.1499938964844,
+            "top": 250,
+            "bottom": 281
+          },
+          {
+            "left": 246.86666870117188,
+            "right": 339.68333435058594,
+            "top": 281,
+            "bottom": 312
+          },
+          {
+            "left": 20,
+            "right": 97.96665954589844,
+            "top": 550.5,
+            "bottom": 578.5
+          },
+          {
+            "left": 103.96665954589844,
+            "right": 185.6666717529297,
+            "top": 550.5,
+            "bottom": 578.5
+          },
+          {
+            "left": 204.6666717529297,
+            "right": 354.6666717529297,
+            "top": 550,
+            "bottom": 579
+          },
+          {
+            "left": 20,
+            "right": 75.51666259765625,
+            "top": 585,
+            "bottom": 613
+          },
+          {
+            "left": 81.51666259765625,
+            "right": 110.73333740234375,
+            "top": 585,
+            "bottom": 613
+          },
+          {
+            "left": 116.73333740234375,
+            "right": 171.93333435058594,
+            "top": 585,
+            "bottom": 613
+          },
+          {
+            "left": 177.93333435058594,
+            "right": 207.14999389648438,
+            "top": 585,
+            "bottom": 613
+          },
+          {
+            "left": 20,
+            "right": 210,
+            "top": 619,
+            "bottom": 648
+          },
+          {
+            "left": 216,
+            "right": 365.6000061035156,
+            "top": 619,
+            "bottom": 648
+          }
+        ],
+        "viewport": 390,
+        "height": 1000
+      },
+      "violations": []
+    },
+    {
+      "name": "operations",
+      "width": 390,
+      "load_ms": 353,
+      "size": {
+        "viewport": 390,
+        "document": 390
+      },
+      "violations": []
+    },
+    {
+      "name": "access",
+      "width": 390,
+      "load_ms": 352,
+      "size": {
+        "viewport": 390,
+        "document": 390
+      },
+      "violations": []
+    },
+    {
+      "name": "pull-requests",
+      "width": 390,
+      "load_ms": 351,
+      "size": {
+        "viewport": 390,
+        "document": 390
+      },
+      "violations": []
+    },
+    {
+      "name": "compare",
+      "width": 390,
+      "load_ms": 352,
+      "size": {
+        "viewport": 390,
+        "document": 390
+      },
+      "violations": []
+    },
+    {
+      "name": "short-phone-graph",
+      "layout": {
+        "board": {
+          "top": 478,
+          "bottom": 898,
+          "left": 0,
+          "right": 390,
+          "width": 390,
+          "height": 420
+        },
+        "toolbar": {
+          "top": 492,
+          "bottom": 654,
+          "left": 14,
+          "right": 376,
+          "width": 362,
+          "height": 162
+        },
+        "header": {
+          "top": 0,
+          "bottom": 228,
+          "left": 0,
+          "right": 390,
+          "width": 390,
+          "height": 228
+        },
+        "readiness": {
+          "top": 228,
+          "bottom": 360,
+          "left": 0,
+          "right": 390,
+          "width": 390,
+          "height": 132
+        },
+        "controls": [
+          {
+            "left": 16,
+            "right": 77.36666870117188,
+            "top": 8,
+            "bottom": 36
+          },
+          {
+            "left": 85.36666870117188,
+            "right": 355.3666687011719,
+            "top": 12.5,
+            "bottom": 31.5
+          },
+          {
+            "left": 10,
+            "right": 136.98333740234375,
+            "top": 71,
+            "bottom": 102
+          },
+          {
+            "left": 144.98333740234375,
+            "right": 248.01666259765625,
+            "top": 71,
+            "bottom": 102
+          },
+          {
+            "left": 256.01666259765625,
+            "right": 380,
+            "top": 71,
+            "bottom": 102
+          },
+          {
+            "left": 10,
+            "right": 140.28334045410156,
+            "top": 110,
+            "bottom": 141
+          },
+          {
+            "left": 148.28334045410156,
+            "right": 283.8999938964844,
+            "top": 110,
+            "bottom": 141
+          },
+          {
+            "left": 291.8999938964844,
+            "right": 380,
+            "top": 110,
+            "bottom": 141
+          },
+          {
+            "left": 10,
+            "right": 180.0500030517578,
+            "top": 149,
+            "bottom": 180
+          },
+          {
+            "left": 188.0500030517578,
+            "right": 380,
+            "top": 149,
+            "bottom": 180
+          },
+          {
+            "left": 10,
+            "right": 238.86666870117188,
+            "top": 188,
+            "bottom": 219
+          },
+          {
+            "left": 246.86666870117188,
+            "right": 323.43333435058594,
+            "top": 219,
+            "bottom": 250
+          },
+          {
+            "left": 246.86666870117188,
+            "right": 367.1499938964844,
+            "top": 250,
+            "bottom": 281
+          },
+          {
+            "left": 246.86666870117188,
+            "right": 339.68333435058594,
+            "top": 281,
+            "bottom": 312
+          },
+          {
+            "left": 20,
+            "right": 97.96665954589844,
+            "top": 550.5,
+            "bottom": 578.5
+          },
+          {
+            "left": 103.96665954589844,
+            "right": 185.6666717529297,
+            "top": 550.5,
+            "bottom": 578.5
+          },
+          {
+            "left": 204.6666717529297,
+            "right": 354.6666717529297,
+            "top": 550,
+            "bottom": 579
+          },
+          {
+            "left": 20,
+            "right": 75.51666259765625,
+            "top": 585,
+            "bottom": 613
+          },
+          {
+            "left": 81.51666259765625,
+            "right": 110.73333740234375,
+            "top": 585,
+            "bottom": 613
+          },
+          {
+            "left": 116.73333740234375,
+            "right": 171.93333435058594,
+            "top": 585,
+            "bottom": 613
+          },
+          {
+            "left": 177.93333435058594,
+            "right": 207.14999389648438,
+            "top": 585,
+            "bottom": 613
+          },
+          {
+            "left": 20,
+            "right": 210,
+            "top": 619,
+            "bottom": 648
+          },
+          {
+            "left": 216,
+            "right": 365.6000061035156,
+            "top": 619,
+            "bottom": 648
+          }
+        ],
+        "viewport": 390,
+        "height": 640
+      },
+      "selected": true
+    },
+    {
+      "name": "keyboard-dialog",
+      "trapped": true,
+      "restored": true
+    },
+    {
+      "name": "keyboard-graph-selection",
+      "selected": 1,
+      "details": "checkout-api\ncheckout\nfresh\nService\ncheckout-api\nTeam\ncheckout\nRepo\n<PREVIOUS_AUDIT_FIXTURE>/scale-home/synthetic-repositories/checkout/checkout-api\nFreshness\nfresh"
+    },
+    {
+      "name": "full-detail",
+      "violations": []
+    }
+  ],
+  "errors": []
+}

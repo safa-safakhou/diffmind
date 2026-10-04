@@ -1,0 +1,8 @@
+I found two accessible project graphs, and they disagree about checkout’s callers. Both use saved static evidence from run `20261004T163202Z`, so the answer depends on which project you mean:
+
+- **East Commerce (`demo-commerce`):** `gateway`, `storefront`, and `notification` could be affected. The graph shows `gateway` calling checkout, `gateway` connecting to `storefront`, and checkout publishing the Kafka topic `orders.created`, which `notification` consumes.
+- **West Commerce (`west-commerce`):** the impact result identifies `notification`, through that same `orders.created` queue. It doesn’t include the gateway-to-checkout-to-storefront path.
+
+In both graphs, checkout also calls `POST /v1/payments`, extracted from `PaymentClient.java`. That makes **payment** a relevant integration to regression-check, though the impact results don’t list it as a service affected by a checkout change.
+
+The checkout evidence comes from `CheckoutController.java`, `PaymentClient.java`, and `application.yml`. Checkout was marked fresh in the saved analysis, but dependency coverage is unverified; these graph results indicate possible impact, not proof of runtime traffic or a complete dependency list.

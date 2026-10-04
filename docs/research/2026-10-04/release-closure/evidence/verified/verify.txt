@@ -1,0 +1,375 @@
+GOCACHE=<REPOSITORY>/.gocache go test ./...
+ok  	github.com/mohammad-safakhou/diffmind/cmd/diffmind	1.552s
+ok  	github.com/mohammad-safakhou/diffmind/indexerbuild	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/indexerbuild/wrapper	0.009s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/app	0.018s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/architecture	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/artifacts	0.031s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/ast	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/catalog	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/config	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/dotnet/http/aspnet	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/ai/openai	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/cache/redis	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/cli/cobra	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/di/wire	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/echo	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/fiber	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/gin	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/nethttp	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/httpclient/nethttp	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/httpclient/resty	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/rpc/grpc	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/internal/frameworkutil	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/db/jdbc	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/db/jpa	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/http/spring	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/httpclient/feign	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/httpclient/retrofit	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/internal/producer	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/jms	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/kafka	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/rabbitmq	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/sqs	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/javascript/http/express	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/php/http/laravel	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/aws/sam	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/cache/redis	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/cli/argparse	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/django	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/fastapi	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/flask	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/ruby/http/rails	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/typescript/http/nestjs	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/register	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/entitykey	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/events	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/extraction	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/indexer	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/indexerbuild/recipe	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/langdetect	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/model	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/objectives	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/pipeline	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/preflight	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/provenance	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/repositorycall	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/repostore	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/runner	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/runstate	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/scip	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/astindex	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/connections	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery/clientspec	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/reconcile	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/ui	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/util	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agenthost	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/archgraph	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/artifacts	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/backup	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/config	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/graph	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/homelock	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge	0.066s
+?   	github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge/extractors	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/mcpserver	0.031s
+?   	github.com/mohammad-safakhou/diffmind/internal/workspace/model	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/orchestrator	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/packtest	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/query	0.381s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/registry	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/resolver	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/runmgr	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/store	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	12.354s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/util	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/protocol	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/agent-setup	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/backup-maintenance	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/enterprise-showcase	(cached)
+?   	github.com/mohammad-safakhou/diffmind/scripts/readiness-report	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/scripts/release-check	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/release-formula	(cached)
+GOCACHE=<REPOSITORY>/.gocache go test -race ./...
+ok  	github.com/mohammad-safakhou/diffmind/cmd/diffmind	2.848s
+ok  	github.com/mohammad-safakhou/diffmind/indexerbuild	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/indexerbuild/wrapper	1.019s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/app	1.034s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/architecture	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/artifacts	1.059s
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/ast	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/catalog	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/config	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/dotnet/http/aspnet	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/ai/openai	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/cache/redis	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/cli/cobra	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/di/wire	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/echo	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/fiber	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/gin	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/http/nethttp	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/httpclient/nethttp	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/httpclient/resty	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/golang/rpc/grpc	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/internal/frameworkutil	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/db/jdbc	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/db/jpa	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/http/spring	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/httpclient/feign	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/httpclient/retrofit	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/internal/producer	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/jms	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/kafka	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/rabbitmq	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/java/queue/sqs	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/javascript/http/express	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/php/http/laravel	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/aws/sam	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/cache/redis	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/cli/argparse	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/django	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/fastapi	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/python/http/flask	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/ruby/http/rails	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/typescript/http/nestjs	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/register	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/entitykey	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/events	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/extraction	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/indexer	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/indexerbuild/recipe	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/langdetect	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/model	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/objectives	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/pipeline	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/preflight	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/provenance	[no test files]
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/repositorycall	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/repostore	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/runner	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/runstate	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/scip	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/astindex	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/connections	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery	(cached)
+?   	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery/clientspec	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/reconcile	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/ui	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/util	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agenthost	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/archgraph	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/artifacts	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/backup	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/config	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/graph	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/homelock	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge	1.136s
+?   	github.com/mohammad-safakhou/diffmind/internal/workspace/knowledge/extractors	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/mcpserver	1.078s
+?   	github.com/mohammad-safakhou/diffmind/internal/workspace/model	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/orchestrator	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/packtest	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/query	3.377s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/registry	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/resolver	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/runmgr	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/store	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	15.571s
+ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/util	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/protocol	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/agent-setup	2.548s
+ok  	github.com/mohammad-safakhou/diffmind/scripts/backup-maintenance	1.134s
+ok  	github.com/mohammad-safakhou/diffmind/scripts/enterprise-showcase	(cached)
+?   	github.com/mohammad-safakhou/diffmind/scripts/readiness-report	[no test files]
+ok  	github.com/mohammad-safakhou/diffmind/scripts/release-check	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/release-formula	1.155s
+GOCACHE=<REPOSITORY>/.gocache go run ./cmd/diffmind pack lint ./packs
+ok	helm-values@1.0.0
+ok	service-manifest@1.0.0
+ok	spring-openfeign-config@1.0.0
+GOCACHE=<REPOSITORY>/.gocache go run ./cmd/diffmind pack test ./packs
+ok	helm-values	extracts a complete Helm identity
+ok	service-manifest	extracts gateway declarations with evidence
+ok	service-manifest	extracts consumer and alias
+ok	service-manifest	ignores unresolved and sensitive targets
+ok	service-manifest	exact HTTP RPC and queue graph
+ok	service-manifest	no phantom relationships
+ok	spring-openfeign-config	YAML literal and placeholder
+ok	spring-openfeign-config	properties comments and invalid values
+ok	spring-openfeign-config	YML literal
+ok	spring-openfeign-config	only configured literal clients form edges
+sh scripts/test-install.sh
+diffmind 9.8.7
+Run 'diffmind doctor', then 'diffmind' to open the workspace.
+installer smoke test: ok
+sh scripts/test-demo.sh
+
+Demo prepared (synthetic source, no credentials):
+  <OTHER_DISPOSABLE_TRIAL>.mROIkU/demo with spaces
+Set DIFFMIND_HOME to:
+  <OTHER_DISPOSABLE_TRIAL>.mROIkU/demo with spaces/workspace
+Start ./bin/diffmind, create a project, and Import & build this local directory:
+  <OTHER_DISPOSABLE_TRIAL>.mROIkU/demo with spaces/repositories
+Expected: gateway calls catalog and billing; status.example.test remains external.
+mkdir: cannot create directory ‘<OTHER_DISPOSABLE_TRIAL>.mROIkU/demo with spaces’: File exists
+demo preparation checks: ok
+GOCACHE=<REPOSITORY>/.gocache go test ./scripts/release-formula
+ok  	github.com/mohammad-safakhou/diffmind/scripts/release-formula	(cached)
+GOCACHE=<REPOSITORY>/.gocache go test ./scripts/release-check ./scripts/backup-maintenance
+ok  	github.com/mohammad-safakhou/diffmind/scripts/release-check	(cached)
+ok  	github.com/mohammad-safakhou/diffmind/scripts/backup-maintenance	(cached)
+GOCACHE=<REPOSITORY>/.gocache go test ./scripts/agent-setup
+ok  	github.com/mohammad-safakhou/diffmind/scripts/agent-setup	(cached)
+ruby -c Formula/diffmind.rb
+Syntax OK
+npm --prefix internal/workspace/ui/web ci
+
+added 145 packages, and audited 146 packages in 974ms
+
+30 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm --prefix internal/workspace/ui/web run build
+
+> diffmind-dashboard@0.1.0 build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 901 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.46 kB │ gzip:   0.29 kB
+dist/assets/index-Dm6UhBes.css   56.86 kB │ gzip:  11.89 kB
+dist/assets/index-DhIo6d9_.js   344.53 kB │ gzip: 112.54 kB
+✓ built in 1.09s
+npm --prefix internal/extractor/ui/web ci
+
+added 156 packages, and audited 157 packages in 894ms
+
+30 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm --prefix internal/extractor/ui/web run build
+
+> diffmind-dashboard@0.1.0 build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 36 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.66 kB │ gzip:   0.39 kB
+dist/assets/index-CSa89Rrb.css   52.52 kB │ gzip:   9.63 kB
+dist/assets/index-Bs_-dad2.js   525.25 kB │ gzip: 169.70 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 849ms
+npm --prefix internal/workspace/ui/web test
+
+> diffmind-dashboard@0.1.0 test
+> node --test src/lib/*.test.js && node scripts/test-components.mjs
+
+✔ project creation respects scoped administration (0.409334ms)
+✔ member drafts preserve exact subjects and reject unsafe grants (0.533805ms)
+✔ access route preserves project identity (0.186635ms)
+✔ lost write responses retain safe recovery without replaying the request (0.992595ms)
+✔ conflict feedback preserves recovery and validation without automatic write retries (0.291709ms)
+✔ comparison defaults select available snapshots and respect pinned IDs (1.368796ms)
+✔ comparison routes preserve explicit direction and escaped identifiers (0.40123ms)
+✔ semantic keys display safely without requiring a known schema (0.14524ms)
+✔ only recoverable jobs with saved requests offer resume (0.453475ms)
+✔ progress includes terminal checkpoints, not just successful analyses (0.108039ms)
+✔ pack provenance includes source lines and declaration limits (0.939084ms)
+✔ legacy objects and malformed evidence do not invent provenance (0.620144ms)
+✔ quota requests preserve revision and explicit inherit, with bounded integer caps (1.003119ms)
+✔ operation actions respect roles and persisted lifecycle (1.049421ms)
+✔ operation labels distinguish retry and draining cancellation (0.117095ms)
+✔ operations routes decode project identity (0.656306ms)
+✔ disconnection preserves provenance and pauses every action; denial loses graph claims (0.447838ms)
+✔ partial and failed maintenance preserve the saved graph explanation (0.20308ms)
+✔ token issuance is bounded and never grants admin (1.136884ms)
+✔ expiry boundary and revocation take effect in the token list (0.107807ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.783514
+✔ visual relationship grouping preserves mixed provenance and original facts (1.072172ms)
+✔ confirmation failure stays inside the dialog and never retries the mutation (9.105631ms)
+✔ viewer joining handoff separates browser identity, project token and renewal ownership (1.009133ms)
+✔ relationship origins show answering run, unknown scope and correction guidance (0.909242ms)
+✔ PR evidence and eligibility precede a collapsed uncalibrated heuristic (1.267992ms)
+✔ first use stays dismissible; project load failure is not an empty workspace (2.158813ms)
+✔ import retains reviewed candidates and draft, invalidates changed scope and shows local errors (4.106522ms)
+✔ all extracted evidence remains reachable past the initial display limit (1.543031ms)
+✔ contract comparison pins direction, exposes evidence, and never claims complete compatibility (1.498825ms)
+✔ access checks retain prior data on transient failure and clear it on denial (0.832331ms)
+✔ PR providers distinguish local-only, query failure and successfully empty results (2.881971ms)
+✔ late provider responses cannot replace a different workspace (1.390241ms)
+✔ readiness notice separates saved graph from partial, failed and completed work (0.528125ms)
+✔ a late workspace read cannot replace the newly selected project (2.367902ms)
+✔ admin saves bounded limits with revision and reloads effective usage (8.202058ms)
+✔ reader sees limits without editing controls (0.927762ms)
+✔ invalid drafts never reach the server (1.063937ms)
+✔ conflicting saves retain drafts, require reload and do not silently overwrite (2.122106ms)
+✔ unavailable policy fails closed in the screen (0.780795ms)
+✔ token screen issues once, hides secrets, confirms/cancels revocation and retains history (19.24228ms)
+✔ revoking the newly issued token removes its displayed secret (3.241886ms)
+▶ legacy mode and unavailable registries cannot issue via the screen
+  ✔ legacy (0.967131ms)
+  ✔ unavailable (0.91037ms)
+✔ legacy mode and unavailable registries cannot issue via the screen (2.235392ms)
+✔ issuance errors do not leak a secret or claim success (2.126171ms)
+✔ failed revocation preserves the active record and permits a retry (1.835681ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 207.412717
+npm --prefix internal/extractor/ui/web test
+
+> diffmind-dashboard@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 <REPOSITORY>/internal/extractor/ui/web
+
+ ✓ src/lib/router.test.js (4 tests) 2ms
+ ✓ src/lib/store.test.js (7 tests) 3ms
+ ✓ src/components/RunForm.test.js (3 tests) 2ms
+
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+   Start at  19:56:12
+   Duration  122ms (transform 102ms, setup 0ms, import 140ms, tests 7ms, environment 0ms)
+
+npm --prefix internal/workspace/ui/web audit --audit-level=low
+found 0 vulnerabilities
+npm --prefix internal/extractor/ui/web audit --audit-level=low
+found 0 vulnerabilities
+GOCACHE=<REPOSITORY>/.gocache go run golang.org/x/vuln/cmd/govulncheck@v1.7.0 ./...
+No vulnerabilities found.
