@@ -114,6 +114,14 @@ This is not a substitute for the user's authorization.
 
 ## End-to-end workflow
 
+Read project capabilities first. A scoped **editor** refreshes registered
+repositories with `manage_workspace(operation="enqueue_refresh")`; poll
+`inspect_workspace(operation="list_jobs", query={"project":"PROJECT_ID"})`
+and `get_ingestion` until terminal, then check readiness. Direct
+`start_ingestion` and repository analysis require an administrator in scoped
+mode, even when no import is requested. A viewer can query saved evidence only.
+The onboarding steps below require configuration authority.
+
 1. `list_projects`; `create_project` only if needed.
 2. `import_repositories` with `dry_run:true` to preview authorized repositories. Keep its returned `preview_digest` and pass it unchanged inside the approved import request. HTTP 409 requires another preview; never silently expand scope.
 3. `start_ingestion` to import/sync/analyze/build, or `body:{}` for incremental

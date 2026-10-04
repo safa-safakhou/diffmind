@@ -146,10 +146,10 @@ func AddTools(server *mcp.Server, invoke Invoke) {
 				}
 				return nil, op, nil
 			}
-			return nil, map[string]any{"operations": Operations, "workflow": []string{"list projects before creating; do not retry creation blindly after a lost response", "create_project", "import_repositories with dry_run=true to preview", "start_ingestion with import including returned preview_digest, or {} for incremental refresh", "get_ingestion until completed; inspect failures before retry", "query graph and verify source evidence"}}, nil
+			return nil, map[string]any{"operations": Operations, "workflow": []string{"Use inspect_workspace for GET operations and manage_workspace for mutations", "Read get_capabilities before choosing a workflow. Scoped editors refresh with enqueue_refresh, then inspect list_jobs filtered by project and get_ingestion; they cannot use start_ingestion or repository analysis. Viewers cannot refresh. The onboarding steps below require configuration authority", "list projects before creating; do not retry creation blindly after a lost response", "create_project", "import_repositories with dry_run=true to preview", "start_ingestion with import including returned preview_digest, or {} for incremental refresh", "get_ingestion until completed; inspect failures before retry", "query graph and verify source evidence"}}, nil
 		})
 	for _, readOnly := range []bool{true, false} {
-		name, desc := "manage_workspace", "Create/configure projects, import repositories, build/update/cancel/retry graphs, teach packs, and administer access/tokens/limits. Use describe_management first. Accepted async work is NOT completed: inspect its persisted status. Mutations are audited and permission checked. No automatic mutation retries."
+		name, desc := "manage_workspace", "Create/configure projects, import repositories, build/update/cancel/retry graphs, teach packs, and administer access/tokens/limits. Use describe_management and inspect get_capabilities first. Scoped editors refresh existing scope with enqueue_refresh; start_ingestion and repository analysis require administrator. Accepted async work is NOT completed: inspect its persisted status. Mutations are audited and permission checked. No automatic mutation retries."
 		if readOnly {
 			name = "inspect_workspace"
 			desc = "Inspect configuration, repositories, work status/history, capabilities, access, packs, and limits using an operation from describe_management. Does not mutate workspace state."

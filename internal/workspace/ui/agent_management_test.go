@@ -132,6 +132,14 @@ func TestAgentManagementHTTPPermissionsAndAudit(t *testing.T) {
 				call("manage_workspace", agentapi.Input{Operation: "set_access", Selectors: map[string]string{"pid": pid}, Body: map[string]any{"revision": 0, "members": map[string]string{"editor": "editor"}}}, 200)
 				rt.identity.Store(Identity{User: "editor", Role: RoleEditor})
 				call("manage_workspace", agentapi.Input{Operation: "update_project", Selectors: map[string]string{"pid": pid}, Body: map[string]any{"instruction": "no host config"}}, 403)
+				// The denied direct-analysis path must identify a working
+				// editor recovery route without widening configuration authority.
+				denied := call("manage_workspace", agentapi.Input{Operation: "start_ingestion", Selectors: map[string]string{"pid": pid}}, 403)
+				if message, _ := denied["error"].(string); !strings.Contains(message, "enqueue_refresh") {
+					t.Fatalf("editor refresh recovery missing: %v", denied)
+				}
+				call("manage_workspace", agentapi.Input{Operation: "enqueue_refresh", Selectors: map[string]string{"pid": pid}}, 202)
+				call("inspect_workspace", agentapi.Input{Operation: "list_jobs", Query: map[string]string{"project": pid}}, 200)
 				rt.identity.Store(Identity{User: "admin", Role: RoleAdmin})
 			}
 			call("manage_workspace", agentapi.Input{Operation: "delete_project", Selectors: map[string]string{"pid": pid}, Confirm: "delete_project"}, 200)
