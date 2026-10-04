@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'preact/hooks'
-import { timeline, selection } from '../lib/store.js'
+import { timeline, selection, runMeta } from '../lib/store.js'
 
 const STAGE_FILTERS = [
   'all',
@@ -78,7 +78,7 @@ export function Timeline() {
       <div style="padding: 8px 14px;" class="timeline-search">
         <input placeholder="Filter events…" value={search} onInput={(e) => setSearch(e.target.value)} />
       </div>
-      <ul class="timeline-list" ref={listRef} onScroll={onScroll}>
+      <ul class="timeline-list" tabIndex={0} aria-label="Extraction activity" ref={listRef} onScroll={onScroll}>
         {filtered.map((e) => (
           <li
             key={`${e.run_id}:${e.seq}`}
@@ -97,7 +97,7 @@ export function Timeline() {
           </li>
         ))}
         {filtered.length === 0 && (
-          <li style="color: var(--text-muted); cursor: default;"><span /> <span /> waiting for events…</li>
+          <li style="color: var(--text-muted); cursor: default;"><span /> <span /> {events.length > 0 ? 'No matching events.' : ['completed', 'failed', 'cancelled'].includes(runMeta.value?.status) ? 'No event history was recorded for this saved run.' : 'Waiting for events...'}</li>
         )}
       </ul>
       <button

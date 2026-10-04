@@ -66,7 +66,7 @@ function AuthBanner({ onSubmit, initial }) {
           if (v) onSubmit(v)
         }}
       >
-        <input name="token" type="password" placeholder="ui token" defaultValue={initial} style="padding: 4px 8px; border-radius: 6px; background: var(--bg-2); border: 1px solid var(--border); color: var(--text);" />
+        <input aria-label="Extraction viewer token" name="token" type="password" placeholder="ui token" defaultValue={initial} style="padding: 4px 8px; border-radius: 6px; background: var(--bg-2); border: 1px solid var(--border); color: var(--text);" />
         <button class="btn" type="submit">Save</button>
       </form>
     </div>

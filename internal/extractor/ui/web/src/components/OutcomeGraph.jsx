@@ -374,7 +374,7 @@ export function OutcomeGraph({ onClose, graphData = null, onEditNode = null, emb
         </div>
       </div>
 
-      <div class="og-canvas-wrap" onClick={handleSvgClick}>
+      <div class="og-canvas-wrap" tabIndex={0} role="region" aria-label="Outcome graph" onClick={handleSvgClick}>
         <svg
           ref={svgRef}
           class="og-svg"

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
-import { applyEvent, resetStore, runMeta, selection } from '../lib/store.js'
+import { applyEvent, resetStore, runMeta, selection, timeline } from '../lib/store.js'
 import { openEventStream } from '../lib/sse.js'
 import { getRunState, ssePath } from '../lib/api.js'
 import { navigate } from '../lib/router.js'
@@ -109,6 +109,9 @@ export function Detail({ runID }) {
       <SystemStatus />
       <StatusBanner />
       <PipelineStrip />
+      {['completed', 'failed', 'cancelled'].includes(runMeta.value?.status) && timeline.value.length === 0 && (
+        <p class="banner" role="status">This saved run has no recorded stage history. Open Graph to inspect its extracted results.</p>
+      )}
       <div class="workspace detail-workspace">
         <section class="center-pane">
           <div class="graph-host">

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'preact/hooks'
+import { useState, useMemo, useEffect, useId } from 'preact/hooks'
 import { startRun } from '../lib/api.js'
 import { runMeta, preflight } from '../lib/store.js'
 
@@ -51,7 +51,7 @@ function sanitizePrefill(p) {
   return out
 }
 
-function load(prefill) {
+export function loadRunForm(prefill) {
   try {
     for (const legacy of LEGACY_STORAGE_KEYS) localStorage.removeItem(legacy)
   } catch {}
@@ -62,11 +62,12 @@ function load(prefill) {
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return base
-    return deepMerge(base, JSON.parse(raw))
-  } catch {
-    return base
-  }
+    if (raw) base = deepMerge(base, JSON.parse(raw))
+  } catch {}
+  // A selected repository owns the run target; remembered settings must not
+  // redirect a click on one repository to a previously used repository.
+  if (typeof prefill?.repo_path === 'string') base.repo_path = prefill.repo_path
+  return base
 }
 
 function save(form) {
@@ -74,7 +75,8 @@ function save(form) {
 }
 
 export function RunForm({ onLaunched, prefill, gateOnActiveRun = true }) {
-  const [form, setForm] = useState(() => load(prefill))
+  const fieldID = useId()
+  const [form, setForm] = useState(() => loadRunForm(prefill))
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -133,18 +135,18 @@ export function RunForm({ onLaunched, prefill, gateOnActiveRun = true }) {
       <h2>New Run</h2>
 
       <div class="field">
-        <label>Repository absolute path</label>
-        <input value={form.repo_path} onInput={(e) => update('repo_path', e.target.value)} placeholder="/abs/path/to/repo" disabled={running} />
+        <label htmlFor={fieldID + '-path'}>Repository absolute path</label>
+        <input id={fieldID + '-path'} value={form.repo_path} onInput={(e) => update('repo_path', e.target.value)} placeholder="/abs/path/to/repo" disabled={running} />
       </div>
 
       <div class="row-2">
         <div class="field">
-          <label>Workers</label>
-          <input type="number" min="1" value={form.runtime.workers} onInput={(e) => update('runtime.workers', Number(e.target.value))} disabled={running} />
+          <label htmlFor={fieldID + '-workers'}>Workers</label>
+          <input id={fieldID + '-workers'} type="number" min="1" value={form.runtime.workers} onInput={(e) => update('runtime.workers', Number(e.target.value))} disabled={running} />
         </div>
         <div class="field">
-          <label>Min confidence</label>
-          <input type="number" step="0.05" min="0" max="1" value={form.quality.min_confidence} onInput={(e) => update('quality.min_confidence', Number(e.target.value))} disabled={running} />
+          <label htmlFor={fieldID + '-confidence'}>Min confidence</label>
+          <input id={fieldID + '-confidence'} type="number" step="0.05" min="0" max="1" value={form.quality.min_confidence} onInput={(e) => update('quality.min_confidence', Number(e.target.value))} disabled={running} />
         </div>
       </div>
 
@@ -163,7 +165,7 @@ export function RunForm({ onLaunched, prefill, gateOnActiveRun = true }) {
                 ? 'Blocked by preflight'
                 : 'Run deterministic extraction'}
         </button>
-        <button class="btn secondary" onClick={() => { setForm(load(prefill)); }} disabled={running}>Reset</button>
+        <button class="btn secondary" onClick={() => { setForm(loadRunForm(prefill)); }} disabled={running}>Reset</button>
       </div>
 
       {preflightBlocked && (
@@ -172,7 +174,7 @@ export function RunForm({ onLaunched, prefill, gateOnActiveRun = true }) {
         </div>
       )}
 
-      {error && <div class="banner error">{error}</div>}
+      {error && <div class="banner error" role="alert">{error}</div>}
 
       <details>
         <summary>Equivalent CLI</summary>
