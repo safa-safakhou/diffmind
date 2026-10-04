@@ -120,9 +120,12 @@ type Param struct {
 
 // CallSite is a single function/method invocation.
 type CallSite struct {
-	Caller         string
-	CalleeRaw      string
-	ReceiverRaw    string
+	Caller      string
+	CalleeRaw   string
+	ReceiverRaw string
+	// AssignedTo is a direct simple-variable assignment of this call result.
+	// Currently populated for Python; nested/destructured assignments stay empty.
+	AssignedTo     string
 	CalleeResolved []string
 	File           string
 	Range          Range

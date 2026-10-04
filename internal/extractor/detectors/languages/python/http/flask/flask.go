@@ -3,6 +3,8 @@ package flask
 import (
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/ast"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors/languages/internal/frameworkutil"
+	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -23,8 +25,13 @@ func (d *detector) Detect(idx *ast.ProjectIndex) []ast.FrameworkBinding {
 		}
 		for _, sym := range fa.Symbols {
 			for _, ann := range sym.Annotations {
-				if b := flaskAnnotationToBinding(sym, ann, prefixes); b != nil {
-					out = append(out, *b)
+				if b := flaskAnnotationToBinding(sym, ann, prefixes[fa.Path]); b != nil {
+					route := strings.TrimPrefix(b.Trigger, "GET ")
+					for _, method := range flaskRouteMethods(ann.Arguments) {
+						binding := *b
+						binding.Trigger = method + " " + route
+						out = append(out, binding)
+					}
 				}
 			}
 		}
@@ -46,13 +53,13 @@ func flaskAnnotationToBinding(sym ast.SymbolDef, ann ast.Annotation, prefixes ma
 		return nil
 	}
 	prefix := flaskBlueprintPrefix(prefixes, receiver)
+	if prefix == unknownPrefix {
+		return nil
+	}
 	if prefix != "" {
 		path = frameworkutil.JoinPath(prefix, path)
 	}
-	httpMethod := strings.ToUpper(method)
-	if method == "route" {
-		httpMethod = flaskRouteMethod(ann.Arguments)
-	}
+	httpMethod := "GET"
 	reason := "flask_decorator_literal_path"
 	if prefix != "" {
 		reason = "flask_decorator_literal_path_blueprint_prefix"
@@ -70,69 +77,125 @@ func flaskAnnotationToBinding(sym ast.SymbolDef, ann ast.Annotation, prefixes ma
 	}
 }
 
-func flaskBlueprintPrefixes(idx *ast.ProjectIndex) map[string]string {
-	out := map[string]string{}
+const unknownPrefix = "\x00unknown"
+
+func flaskBlueprintPrefixes(idx *ast.ProjectIndex) map[string]map[string]string {
+	out := map[string]map[string]string{}
 	if idx == nil {
 		return out
 	}
-	for _, fa := range idx.Files {
+	type definition struct{ file, name string }
+	var definitions []definition
+	files := make([]string, 0, len(idx.Files))
+	for file := range idx.Files {
+		files = append(files, file)
+	}
+	sort.Strings(files)
+	for _, file := range files {
+		fa := idx.Files[file]
+		if fa.Language != "python" {
+			continue
+		}
+		out[fa.Path] = map[string]string{}
+		for _, call := range fa.Calls {
+			if (call.CalleeRaw != "Blueprint" && call.CalleeRaw != "flask.Blueprint") || call.AssignedTo == "" {
+				continue
+			}
+			prefix, _ := flaskURLPrefix(call.Arguments)
+			if _, duplicate := out[fa.Path][call.AssignedTo]; duplicate {
+				prefix = unknownPrefix
+			} else {
+				definitions = append(definitions, definition{fa.Path, call.AssignedTo})
+			}
+			out[fa.Path][call.AssignedTo] = prefix
+		}
+	}
+	// Registration overrides constructor defaults. Resolve to a specific
+	// definition; reused names in different files must never share a prefix.
+	registrations := map[definition]string{}
+	for _, file := range files {
+		fa := idx.Files[file]
 		if fa.Language != "python" {
 			continue
 		}
 		for _, call := range fa.Calls {
-			callee := strings.TrimSpace(call.CalleeRaw)
-			if callee != "register_blueprint" && !strings.HasSuffix(callee, ".register_blueprint") {
+			if !strings.HasSuffix(call.CalleeRaw, ".register_blueprint") && call.CalleeRaw != "register_blueprint" {
 				continue
 			}
 			if len(call.Arguments) == 0 {
 				continue
 			}
-			blueprint := strings.TrimSpace(call.Arguments[0].Source)
-			if blueprint == "" || strings.ContainsAny(blueprint, "({[ \t\n") {
+			prefix, present := flaskURLPrefix(call.Arguments)
+			if !present {
 				continue
 			}
-			if prefix := flaskRegisterBlueprintURLPrefix(call.Arguments); prefix != "" {
-				out[blueprint] = prefix
+			receiver := strings.TrimSpace(call.Arguments[0].Source)
+			var candidates []definition
+			for _, d := range definitions {
+				matches := receiver == d.name
+				if dot := strings.LastIndex(receiver, "."); dot >= 0 {
+					module := strings.ReplaceAll(receiver[:dot], ".", "/") + ".py"
+					matches = receiver[dot+1:] == d.name && (filepath.ToSlash(d.file) == module || strings.HasSuffix(filepath.ToSlash(d.file), "/"+module))
+				}
+				if matches {
+					candidates = append(candidates, d)
+				}
+			}
+			if len(candidates) > 1 {
+				var local []definition
+				for _, d := range candidates {
+					if d.file == fa.Path {
+						local = append(local, d)
+					}
+				}
+				candidates = local
+			}
+			if len(candidates) != 1 {
+				continue
+			}
+			d := candidates[0]
+			if previous, ok := registrations[d]; ok && previous != prefix {
+				registrations[d] = unknownPrefix
+			} else {
+				registrations[d] = prefix
 			}
 		}
+	}
+	for d, prefix := range registrations {
+		out[d.file][d.name] = prefix
 	}
 	return out
 }
 
-func flaskRegisterBlueprintURLPrefix(args []ast.ArgumentExpr) string {
-	for _, arg := range args[1:] {
-		src := strings.TrimSpace(arg.Source)
-		if !strings.HasPrefix(src, "url_prefix") {
+func flaskURLPrefix(args []ast.ArgumentExpr) (string, bool) {
+	for _, arg := range args {
+		pair := strings.SplitN(strings.TrimSpace(arg.Source), "=", 2)
+		if len(pair) != 2 || strings.TrimSpace(pair[0]) != "url_prefix" {
 			continue
 		}
-		eq := strings.Index(src, "=")
-		if eq < 0 {
-			continue
+		prefix, ok := flaskLiteralString(pair[1])
+		if !ok || (prefix != "" && !strings.HasPrefix(prefix, "/")) {
+			return unknownPrefix, true
 		}
-		value := strings.TrimSpace(src[eq+1:])
-		if !(strings.HasPrefix(value, `"`) || strings.HasPrefix(value, "'") || strings.HasPrefix(value, "`")) {
-			continue
-		}
-		prefix := strings.Trim(strings.TrimSpace(value), `"'`+"`")
-		if strings.HasPrefix(prefix, "/") {
-			return prefix
-		}
+		return prefix, true
 	}
-	return ""
+	return "", false
+}
+
+func flaskLiteralString(value string) (string, bool) {
+	value = strings.TrimSpace(value)
+	if len(value) < 2 || (value[0] != 39 && value[0] != 34) || value[len(value)-1] != value[0] {
+		return "", false
+	}
+	body := value[1 : len(value)-1]
+	if strings.ContainsAny(body, "\\\"'\r\n") {
+		return "", false
+	}
+	return body, true
 }
 
 func flaskBlueprintPrefix(prefixes map[string]string, receiver string) string {
-	if len(prefixes) == 0 {
-		return ""
-	}
-	receiver = strings.TrimSpace(receiver)
-	if p := prefixes[receiver]; p != "" {
-		return p
-	}
-	if dot := strings.LastIndex(receiver, "."); dot >= 0 {
-		return prefixes[receiver[dot+1:]]
-	}
-	return ""
+	return prefixes[strings.TrimSpace(receiver)]
 }
 
 func splitDecoratorName(name string) (receiver, method string) {
@@ -160,16 +223,37 @@ func flaskRouteReceiver(receiver string) bool {
 	return receiver != ""
 }
 
-func flaskRouteMethod(args string) string {
+func flaskRouteMethods(args string) []string {
 	named, _, _ := frameworkutil.ParseAnnotationArgs(args)
-	if raw := named["methods"]; raw != "" {
-		for _, v := range frameworkutil.ExtractStringArgs(raw) {
-			m := strings.ToUpper(strings.TrimSpace(v))
-			switch m {
-			case "GET", "POST", "PUT", "PATCH", "DELETE":
-				return m
+	raw, present := named["methods"]
+	if !present {
+		return []string{"GET"}
+	}
+	raw = strings.TrimSpace(raw)
+	if len(raw) < 2 || !((raw[0] == '[' && raw[len(raw)-1] == ']') || (raw[0] == '(' && raw[len(raw)-1] == ')')) {
+		return nil
+	}
+	parts := strings.Split(raw[1:len(raw)-1], ",")
+	var methods []string
+	seen := map[string]bool{}
+	for i, part := range parts {
+		if strings.TrimSpace(part) == "" && i == len(parts)-1 {
+			continue
+		}
+		method, ok := flaskLiteralString(part)
+		if !ok || method == "" {
+			return nil
+		}
+		method = strings.ToUpper(method)
+		for _, c := range method {
+			if c < 'A' || c > 'Z' {
+				return nil
 			}
 		}
+		if !seen[method] {
+			methods = append(methods, method)
+			seen[method] = true
+		}
 	}
-	return "GET"
+	return methods
 }
