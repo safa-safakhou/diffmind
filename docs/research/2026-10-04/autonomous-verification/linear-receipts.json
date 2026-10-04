@@ -1,0 +1,58 @@
+[
+  {
+    "id": "MNI-180",
+    "title": "Guide agent onboarding project selection and evidence use",
+    "status": "Done",
+    "url": "https://linear.app/mnim/issue/MNI-180/guide-agent-onboarding-project-selection-and-evidence-use",
+    "updated_at": "2026-10-04T17:10:30.750Z",
+    "verification_note": "## Autonomous verification — 4 October 2026\n\nOwner direction: zero human verification. Codex executed and evaluated all checks; no recruitment or human sign-off remains required. Evidence: `docs/research/2026-10-04/autonomous-verification/README.md` and hashed safe artifacts. Latest product `66cf19a1e7c86223979bf284b06336117ff3ded6` passes full Go (65 tested packages), CLI/agent API/UI/MCP race suites, go vet and native Linux AMD64 installation. Installed-model cohort `36db2ab` uses Codex CLI 0.160.0, gpt-6-luna/high. Later CLI typo rejection is separately verified; cohort identities are retained, not relabeled.\n\nFixed editor refresh guidance (011e4ee): the actual editor initially chose forbidden direct ingestion; the repeat chose enqueue_refresh and completed one analysis/five reuses without configuration authority. Fixed read-only PR discovery (36db2ab). Ten actual model cases cover fresh/returning, empty/query-only, local-only, viewer/editor/revoked, ambiguous project, exact and stale PR. All final case outcomes pass. Recovered tool mistakes and the public-PR timeout/retry are retained. Done for observed bounded behavior, not long-term adoption."
+  },
+  {
+    "id": "MNI-192",
+    "title": "Align existing repository provider settings with PR retrieval states",
+    "status": "In Progress",
+    "url": "https://linear.app/mnim/issue/MNI-192/align-existing-repository-provider-settings-with-pr-retrieval-states",
+    "updated_at": "2026-10-04T17:10:35.070Z",
+    "verification_note": "## Autonomous verification — 4 October 2026\n\nOwner direction: zero human verification. Codex executed and evaluated all checks; no recruitment or human sign-off remains required. Evidence: `docs/research/2026-10-04/autonomous-verification/README.md` and hashed safe artifacts. Latest product `66cf19a1e7c86223979bf284b06336117ff3ded6` passes full Go (65 tested packages), CLI/agent API/UI/MCP race suites, go vet and native Linux AMD64 installation. Installed-model cohort `36db2ab` uses Codex CLI 0.160.0, gpt-6-luna/high. Later CLI typo rejection is separately verified; cohort identities are retained, not relabeled.\n\nActual public provider/PR and controlled host/credential safeguards remain verified. No authorized real Enterprise endpoint/SSO environment is available in this workspace. This remains a technical environment coverage gap, not a request for human verification. In Progress."
+  },
+  {
+    "id": "MNI-197",
+    "title": "Verify real-source graph and PR corpus with automated oracles",
+    "status": "Done",
+    "url": "https://linear.app/mnim/issue/MNI-197/verify-real-source-graph-and-pr-corpus-with-automated-oracles",
+    "updated_at": "2026-10-04T17:10:31.537Z",
+    "verification_note": "## Autonomous verification — 4 October 2026\n\nOwner direction: zero human verification. Codex executed and evaluated all checks; no recruitment or human sign-off remains required. Evidence: `docs/research/2026-10-04/autonomous-verification/README.md` and hashed safe artifacts. Latest product `66cf19a1e7c86223979bf284b06336117ff3ded6` passes full Go (65 tested packages), CLI/agent API/UI/MCP race suites, go vet and native Linux AMD64 installation. Installed-model cohort `36db2ab` uses Codex CLI 0.160.0, gpt-6-luna/high. Later CLI typo rejection is separately verified; cohort identities are retained, not relabeled.\n\nDelivered frozen source/runtime corpus and explicit miss accounting. Pinned Flask tutorial 3.1.2: all six controlled-head explicit route sets match actual Flask URL maps (12 operations except removal: 11). Enclosing root and tutorial subdirectory each recover all 12 labeled tutorial operations with appropriate path prefixes. Direct positive, removal/helper/configuration/docs, revision negatives, actual public PR5918 and earlier Boutique provenance/rollback are retained. Exactness expectations meet 5/6: changed form field produces a potential caller, not exact evidence; same submitted form returns runtime 200 before and 400 after. This miss remains false in the result, not hidden or relabeled. Done means the bounded corpus and limits are established; it does not certify universal extraction or upstream positive impact accuracy."
+  },
+  {
+    "id": "MNI-198",
+    "title": "Make PR revision eligibility and deletion limitations actionable",
+    "status": "Done",
+    "url": "https://linear.app/mnim/issue/MNI-198/make-pr-revision-eligibility-and-deletion-limitations-actionable",
+    "updated_at": "2026-10-04T17:10:32.288Z",
+    "verification_note": "## Autonomous verification — 4 October 2026\n\nOwner direction: zero human verification. Codex executed and evaluated all checks; no recruitment or human sign-off remains required. Evidence: `docs/research/2026-10-04/autonomous-verification/README.md` and hashed safe artifacts. Latest product `66cf19a1e7c86223979bf284b06336117ff3ded6` passes full Go (65 tested packages), CLI/agent API/UI/MCP race suites, go vet and native Linux AMD64 installation. Installed-model cohort `36db2ab` uses Codex CLI 0.160.0, gpt-6-luna/high. Later CLI typo rejection is separately verified; cohort identities are retained, not relabeled.\n\nClean direct changed-route head yields one exact caller. Missing patch, unrelated file, deleted line, stale head and dirty caller are ineligible. Actual clean removal/helper/configuration/docs heads retain conservative limitations. The actual model explains matching versus stale PR-head evidence, removed-route uncertainty and dirty caller state; no checkout switching or PR posting occurred. The form-body case remains candidate-only and explicitly unproven. Done for truthful eligibility/limitation behavior under the automated source/runtime standard."
+  },
+  {
+    "id": "MNI-199",
+    "title": "Present PR evidence before heuristic scores and clarify delivery",
+    "status": "Done",
+    "url": "https://linear.app/mnim/issue/MNI-199/present-pr-evidence-before-heuristic-scores-and-clarify-delivery",
+    "updated_at": "2026-10-04T17:10:33.019Z",
+    "verification_note": "## Autonomous verification — 4 October 2026\n\nOwner direction: zero human verification. Codex executed and evaluated all checks; no recruitment or human sign-off remains required. Evidence: `docs/research/2026-10-04/autonomous-verification/README.md` and hashed safe artifacts. Latest product `66cf19a1e7c86223979bf284b06336117ff3ded6` passes full Go (65 tested packages), CLI/agent API/UI/MCP race suites, go vet and native Linux AMD64 installation. Installed-model cohort `36db2ab` uses Codex CLI 0.160.0, gpt-6-luna/high. Later CLI typo rejection is separately verified; cohort identities are retained, not relabeled.\n\nActual installed-model exact and stale reviews now discover and invoke pull_request_impact, explain source/head/caller limitations, separate uncalibrated heuristic from proof and explicitly state no review was posted. Before-fix missed discovery is retained. One public-PR run reached the 300-second harness limit before answering; identical retry completed in 105.598 seconds with a 600-second allowance. No first-attempt reliability, calibrated risk or merge-safety claim. Done for the bounded presentation and interpretation criteria."
+  },
+  {
+    "id": "MNI-201",
+    "title": "Verify developer journeys and actual installed-agent use automatically",
+    "status": "Done",
+    "url": "https://linear.app/mnim/issue/MNI-201/verify-developer-journeys-and-actual-installed-agent-use-automatically",
+    "updated_at": "2026-10-04T17:10:34.291Z",
+    "verification_note": "## Autonomous verification — 4 October 2026\n\nOwner direction: zero human verification. Codex executed and evaluated all checks; no recruitment or human sign-off remains required. Evidence: `docs/research/2026-10-04/autonomous-verification/README.md` and hashed safe artifacts. Latest product `66cf19a1e7c86223979bf284b06336117ff3ded6` passes full Go (65 tested packages), CLI/agent API/UI/MCP race suites, go vet and native Linux AMD64 installation. Installed-model cohort `36db2ab` uses Codex CLI 0.160.0, gpt-6-luna/high. Later CLI typo rejection is separately verified; cohort identities are retained, not relabeled.\n\nCompleted ten successful model cases: four individual (fresh, return, query-only, local-only), three joining (viewer, editor, revoked) and three explorer (ambiguous company, exact PR, stale actual PR). Each retains ordinary prompt, selected tools, critical responses, answer, model/settings and elapsed time. Browser cohort additionally records 22 workspace/18 extractor observations and 31 axe scans with no reported violations/exceptions. All answers were checked by Codex against source/runtime/fixture expectations. One timeout and all exploratory failures remain in evidence. No humans required; no human satisfaction, adoption or retention inference."
+  },
+  {
+    "id": "MNI-202",
+    "title": "Verify the exact candidate across all three journeys and safeguards",
+    "status": "In Progress",
+    "url": "https://linear.app/mnim/issue/MNI-202/verify-the-exact-candidate-across-all-three-journeys-and-safeguards",
+    "updated_at": "2026-10-04T17:10:36.689Z",
+    "verification_note": "## Autonomous verification — 4 October 2026\n\nOwner direction: zero human verification. Codex executed and evaluated all checks; no recruitment or human sign-off remains required. Evidence: `docs/research/2026-10-04/autonomous-verification/README.md` and hashed safe artifacts. Latest product `66cf19a1e7c86223979bf284b06336117ff3ded6` passes full Go (65 tested packages), CLI/agent API/UI/MCP race suites, go vet and native Linux AMD64 installation. Installed-model cohort `36db2ab` uses Codex CLI 0.160.0, gpt-6-luna/high. Later CLI typo rejection is separately verified; cohort identities are retained, not relabeled.\n\nTen model journey outcomes, live browser reruns, paired source scopes and expanded runtime corpus are retained across explicit candidate identities. Three further fixes: editor guidance, PR evidence discovery, unknown-command default UI startup. The latter now exits 2 without opening a workspace. No human or login gate remains. Still In Progress/unreleased: actual Enterprise and other native architectures/platforms, broader live auth/browser/operational coverage, actual upstream positive exact-caller case, and the measured Flask form-field exactness limit (candidate only; runtime changed from 200 to400). Full current Go/native gates are green, but that is not universal correctness. Candidate remains unpublished."
+  }
+]

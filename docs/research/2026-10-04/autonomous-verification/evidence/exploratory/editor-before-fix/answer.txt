@@ -1,0 +1,5 @@
+**Result:** The context is still on saved graph `20261004T163324Z` (6 repositories, 6 services, 9 edges). I did not update it: both the catalog-only analysis and incremental refresh were rejected with `403`. The readiness and capabilities checks report refresh as available for the editor token, so the service’s authorization response conflicts with those checks.
+
+The catalog checkout has an uncommitted change in `app.py`. I left it untouched. No repositories were added or removed, and no company configuration was changed.
+
+**Remaining limitations:** `catalog` is still marked dirty; dependency coverage is unverified; the registered repositories are local-only, with no supported Git remote for PR queries. Refresh requires resolving the authorization mismatch before retrying.

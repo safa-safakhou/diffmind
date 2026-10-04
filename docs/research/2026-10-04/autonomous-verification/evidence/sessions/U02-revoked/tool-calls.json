@@ -1,0 +1,16 @@
+[
+  {
+    "server": "codex",
+    "tool": "list_mcp_resources",
+    "arguments": {},
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "codex",
+    "tool": "list_mcp_resource_templates",
+    "arguments": {},
+    "status": "completed",
+    "error": null
+  }
+]

@@ -1,0 +1,94 @@
+{
+  "id": "U03-public-stale-pr",
+  "mode": "http",
+  "host_version": "codex-cli 0.160.0",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 105.598,
+  "prompt": "Review pallets/flask PR 5918 using the configured company context. Explain which services may be affected, what can actually be concluded from the saved revision and available evidence, and whether your review has been delivered to the PR. Inspect only; preserve local source.",
+  "tools": [
+    {
+      "server": "diffmind",
+      "tool": "list_projects",
+      "status": "completed",
+      "error": null,
+      "arguments": {}
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_readiness",
+      "status": "completed",
+      "error": null,
+      "arguments": {}
+    },
+    {
+      "server": "diffmind",
+      "tool": "describe_management",
+      "status": "completed",
+      "error": null,
+      "arguments": {}
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_graph_summary",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "list_services",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_service",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z",
+        "service": "flask",
+        "detail": "full"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "inspect_workspace",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "operation": "pull_request_impact",
+        "selectors": {
+          "pid": "public-flask-controlled-pr",
+          "repo_id": "flask",
+          "number": "5918"
+        },
+        "query": {
+          "run_id": "20261004T164844Z"
+        }
+      }
+    }
+  ],
+  "shell_commands": [
+    "/usr/bin/zsh -lc \"pwd && git status --short && git rev-parse --show-toplevel && git log -1 --oneline && rg --files -g 'AGENTS.md' -g '*5918*' -g '*context*' -g '*company*' | head -100\"",
+    "/usr/bin/zsh -lc \"ls -la && find .. -maxdepth 3 -type d -name .git -print && rg --files -g 'AGENTS.md' -g '*5918*' -g '*pr*' | head -80\"",
+    "/usr/bin/zsh -lc 'git -C ../flask status --short && git -C ../flask log -1 --oneline && git -C ../flask remote -v && git -C ../flask rev-parse --show-toplevel'",
+    "/usr/bin/zsh -lc 'git -C ../flask status --porcelain=v1 && git -C ../flask show --stat --oneline --decorate --no-renames HEAD && git -C ../flask show --format=fuller --no-ext-diff --find-renames HEAD --'",
+    "/usr/bin/zsh -lc \"rg -n '(/login|login|auth\\\\.login|url_for\\\\(.login|url_for\\\\(\\\"auth\\\\.login|url_for\\\\('\\\\''auth\\\\.login)' ../flask ../caller 2>/dev/null | head -200 && git -C ../flask branch -avv && git -C ../flask diff HEAD --stat && git -C ../flask status --short\""
+  ],
+  "answer_exists": true,
+  "unrelated_mcp_config_loaded": false,
+  "approved_tools": [],
+  "apps_feature_disabled": true,
+  "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe"
+}

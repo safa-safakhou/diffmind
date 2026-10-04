@@ -1,0 +1,284 @@
+[
+  {
+    "server": "diffmind",
+    "tool": "describe_management",
+    "arguments": {
+      "operation": "pull_request_impact"
+    },
+    "status": "completed",
+    "error": null,
+    "response": {
+      "name": "pull_request_impact",
+      "method": "GET",
+      "path": "/api/projects/{pid}/pull-requests/{repo_id}/{number}/impact",
+      "description": "On-demand PR evidence: changed files, attention signals, matching clean-head caller evidence, separate candidates, limitations and next_action. Optional run_id pins a saved graph. Read evidence before the uncalibrated heuristic score; no/low score or absent exact callers does not establish merge safety. Updating a default branch cannot guarantee PR-head eligibility. Does not clone, switch branches, post comments or create code-host checks.",
+      "destructive": false
+    }
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_readiness",
+    "arguments": {
+      "project": "public-flask-controlled-pr"
+    },
+    "status": "completed",
+    "error": null,
+    "response": {
+      "access": "allowed",
+      "actions": {
+        "configure": true,
+        "inspect_work": true,
+        "query": true,
+        "refresh": true
+      },
+      "connection_mode": "managed",
+      "evidence": {
+        "analysis_freshness": "fresh",
+        "basis": "static_source",
+        "coverage": "unverified",
+        "dirty": 0,
+        "fresh": 2,
+        "freshness_basis": "live_checkout_status",
+        "freshness_reference": "latest_repository_analysis",
+        "graph_state": "saved",
+        "repository_count": 2,
+        "saved_run_id": "20261004T164713Z",
+        "stale": 0,
+        "unknown": 0
+      },
+      "graph": "queryable",
+      "inputs": [
+        {
+          "diffmind_run_id": "20261004T164713.150645335Z",
+          "repo_id": "caller"
+        },
+        {
+          "diffmind_run_id": "20261004T164713.150617960Z",
+          "repo_id": "flask"
+        }
+      ],
+      "limits": [
+        "Static source evidence; dependency coverage remains unverified.",
+        "Checkout freshness compares the latest repository analysis, not the saved graph or a PR head."
+      ],
+      "maintenance": "available",
+      "next_action": "query_saved_graph",
+      "observed_at": "2026-10-04T16:47:27.60168905Z",
+      "pr_head_eligibility": "unknown",
+      "project_id": "public-flask-controlled-pr",
+      "runtime": "available",
+      "saved_at": "2026-10-04T16:47:13.199320255Z",
+      "saved_run_id": "20261004T164713Z",
+      "sources": [
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164713.150645335Z",
+          "repository_id": "caller",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164713.150617960Z",
+          "repository_id": "flask",
+          "revision_basis": "stored_repository_status"
+        }
+      ],
+      "work": {
+        "id": "20261004T164713.113619586Z",
+        "kind": "ingestion",
+        "phase": "complete",
+        "status": "completed",
+        "updated_at": "2026-10-04T16:47:13.209768946Z"
+      }
+    }
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "pull_request_impact",
+      "selectors": {
+        "pid": "public-flask-controlled-pr",
+        "repo_id": "flask",
+        "number": "1"
+      },
+      "query": {
+        "run_id": "20261004T164713Z"
+      }
+    },
+    "status": "completed",
+    "error": null,
+    "response": {
+      "status": 200,
+      "data": {
+        "codebase": {
+          "additions": 1,
+          "areas": [
+            "flaskr/auth.py"
+          ],
+          "categories": [
+            {
+              "additions": 1,
+              "deletions": 1,
+              "files": 1,
+              "id": "security",
+              "label": "Security & identity",
+              "risk": 25
+            }
+          ],
+          "changed_files": 1,
+          "commits": 1,
+          "deletions": 1,
+          "files": [
+            {
+              "additions": 1,
+              "category": "security",
+              "deletions": 1,
+              "path": "flaskr/auth.py",
+              "status": "modified"
+            }
+          ],
+          "risk_level": "low",
+          "risk_reasons": [
+            "Security or authorization boundary changed"
+          ],
+          "risk_score": 24,
+          "signals": [
+            {
+              "files": [
+                "flaskr/auth.py"
+              ],
+              "kind": "security_boundary",
+              "label": "Security or authorization boundary changed",
+              "severity": "high"
+            }
+          ]
+        },
+        "company": {
+          "available": true,
+          "changed_entrypoints": [
+            {
+              "file": "flaskr/auth.py",
+              "id": "http.get_auth_sign_in",
+              "kind": "http_endpoint",
+              "match": "changed_line",
+              "name": "GET /auth/sign-in"
+            },
+            {
+              "file": "flaskr/auth.py",
+              "id": "http.post_auth_sign_in",
+              "kind": "http_endpoint",
+              "match": "changed_line",
+              "name": "POST /auth/sign-in"
+            }
+          ],
+          "confidence": "changed_surface_evidence",
+          "direct_services": 1,
+          "flow": {
+            "edges": [
+              {
+                "cross_service": true,
+                "from": "service:flask",
+                "kind": "http",
+                "match_status": "impacted",
+                "to": "service:caller"
+              }
+            ],
+            "entry": {
+              "service": "flask"
+            },
+            "nodes": [
+              {
+                "id": "service:caller",
+                "kind": "service",
+                "label": "caller",
+                "service": "caller"
+              },
+              {
+                "id": "service:flask",
+                "kind": "service",
+                "label": "flask",
+                "service": "flask"
+              }
+            ],
+            "run_id": "20261004T164713Z",
+            "services": [
+              {
+                "depth": 0,
+                "entry_status": "impact_root",
+                "name": "flask",
+                "team": "default"
+              },
+              {
+                "depth": 1,
+                "entry_status": "impacted",
+                "name": "caller",
+                "team": "default"
+              }
+            ],
+            "stats": {
+              "cycle_count": 0,
+              "edge_count": 1,
+              "node_count": 2,
+              "service_count": 2
+            },
+            "status": "complete"
+          },
+          "freshness": "fresh",
+          "graph_revision": {
+            "branch": "master",
+            "commit": "6fdbfe258d8cfa0f70247fea363de771809496d4"
+          },
+          "indirect_services": 0,
+          "limitations": [
+            "Removed entrypoints may be absent from the head graph. No matching merge-base evidence is used here, so deleted-surface callers remain unproven.",
+            "Internal, transitive and configuration changes may affect unchanged routes without intersecting their source locations; file-scope matches are candidates only.",
+            "No exact matches is incomplete evidence, not proof that a PR is safe to merge. Extracted request-field compatibility is a separate saved-snapshot comparison."
+          ],
+          "next_action": "Inspect available PR files; select saved evidence from a matching clean PR-head revision for exact caller checks.",
+          "notes": [
+            "the technical graph is repository-wide context; only exact changed-surface matches count toward PR risk"
+          ],
+          "root_service": "flask",
+          "run_id": "20261004T164713Z",
+          "score_eligible": true,
+          "services": [
+            {
+              "depth": 1,
+              "evidence": [
+                "GET /auth/sign-in"
+              ],
+              "name": "caller",
+              "reason": "caller matches a changed entrypoint",
+              "team": "default",
+              "tier": "exact_endpoint_caller"
+            }
+          ],
+          "teams": [
+            "default"
+          ]
+        },
+        "delivery": "On-demand inspection only. No automatic code-host comments, checks or merge decisions are delivered.",
+        "generated_at": "2026-10-04T16:47:35.487931342Z",
+        "pull_request": {
+          "author": "",
+          "base": "baseline",
+          "created_at": "0001-01-01T00:00:00Z",
+          "draft": false,
+          "head": "validation",
+          "head_sha": "6fdbfe258d8cfa0f70247fea363de771809496d4",
+          "number": 1,
+          "repo_id": "flask",
+          "repo_name": "flask",
+          "team": "default",
+          "title": "Controlled route rename",
+          "updated_at": "0001-01-01T00:00:00Z",
+          "url": "https://controlled-pr.example.test/flask/pull/1"
+        },
+        "risk_level": "low",
+        "risk_score": 26,
+        "score_meaning": "Uncalibrated attention heuristic from file categories and eligible changed-surface evidence; not a probability, merge recommendation or proof of safety. Ineligible company context is excluded."
+      }
+    }
+  }
+]

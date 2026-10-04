@@ -1,0 +1,22 @@
+{
+  "id": "U03-ambiguous",
+  "mode": "mcp",
+  "host_version": "codex-cli 0.160.0",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 13.149,
+  "prompt": "What services could be affected by changes to checkout? Explain the evidence.",
+  "tools": [],
+  "shell_commands": [
+    "/usr/bin/zsh -lc 'rg -n -i \"checkout\" .'",
+    "/usr/bin/zsh -lc \"rg --files -g '\"'!node_modules'\"' -g '\"'!vendor'\"' | head -200\"",
+    "/usr/bin/zsh -lc 'pwd && ls -la && git status --short --branch'"
+  ],
+  "answer_exists": true,
+  "unrelated_mcp_config_loaded": false,
+  "approved_tools": [],
+  "apps_feature_disabled": true,
+  "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe"
+}

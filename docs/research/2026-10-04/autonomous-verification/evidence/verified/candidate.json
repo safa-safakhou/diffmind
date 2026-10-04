@@ -1,0 +1,7 @@
+{
+  "commit": "36db2ab3f800cfc5baba0383d2b1d7ad5c76d958",
+  "sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+  "built_at": "2026-10-04T16:47:09.479762+00:00",
+  "platform": "linux/amd64",
+  "go": "1.26.6"
+}

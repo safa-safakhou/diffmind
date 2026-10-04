@@ -1,0 +1,5 @@
+The saved context is updated. The manual refresh succeeded as run `20261004T165430Z`, keeping the existing six-repository scope: it analyzed `catalog`, reused the other five repositories, and synced none. I didn’t change maintenance settings or enable automatic maintenance.
+
+Your catalog edit was preserved: the refreshed analysis records the catalog checkout as dirty. The graph shows one inbound caller, `gateway`, with a detected `GET http://catalog/products` call at `gateway/main.go:15`. The extracted handler/symbol is labeled `checkout`.
+
+This is static source evidence, not observed runtime traffic. Dependency coverage is unverified, so the graph can’t establish that this is the only real caller. Catalog’s analysis also came from a dirty working tree, and the saved evidence does not establish PR-head eligibility.

@@ -1,0 +1,8 @@
+{
+  "source": "<TRIAL_ROOT>/verified-demo/repositories/catalog/app.py",
+  "after_sha256": "f77e1e3caa8266242a92d21598f5ccacbbfc1b838deb83a23d09d81026441834",
+  "expected_analyzed": 1,
+  "expected_reused": 5,
+  "expected_registrations": 6,
+  "prior_run": "20261004T164917Z"
+}

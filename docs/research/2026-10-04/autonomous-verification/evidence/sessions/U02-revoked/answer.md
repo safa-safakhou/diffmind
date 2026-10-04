@@ -1,0 +1,1 @@
+I couldn’t retrieve the saved Demo Commerce architecture. I checked the available tools and company resources; no company connection or resources were exposed in this session. I haven’t verified any architecture details, so I won’t invent them.

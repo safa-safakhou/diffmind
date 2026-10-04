@@ -1,0 +1,9 @@
+{
+  "refresh_interval": "0",
+  "refresh_on_start": false,
+  "refresh_concurrency": 4,
+  "project_access": "legacy",
+  "repository_workers": 4,
+  "job_workers": 2,
+  "queue_capacity": 256
+}

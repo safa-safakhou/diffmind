@@ -1,0 +1,427 @@
+[
+  {
+    "server": "diffmind",
+    "tool": "get_readiness",
+    "arguments": {},
+    "status": "completed",
+    "error": null,
+    "response": {
+      "access": "allowed",
+      "actions": {
+        "configure": false,
+        "inspect_work": true,
+        "query": true,
+        "refresh": true
+      },
+      "connection_mode": "managed",
+      "evidence": {
+        "analysis_freshness": "needs_update",
+        "basis": "static_source",
+        "coverage": "unverified",
+        "dirty": 1,
+        "fresh": 5,
+        "freshness_basis": "live_checkout_status",
+        "freshness_reference": "latest_repository_analysis",
+        "graph_state": "saved",
+        "repository_count": 6,
+        "saved_run_id": "20261004T164807Z",
+        "stale": 0,
+        "unknown": 0
+      },
+      "graph": "queryable",
+      "inputs": [
+        {
+          "diffmind_run_id": "20261004T164807.042291879Z",
+          "repo_id": "catalog"
+        },
+        {
+          "diffmind_run_id": "20261004T164807.047314954Z",
+          "repo_id": "checkout"
+        },
+        {
+          "diffmind_run_id": "20261004T164807.090013986Z",
+          "repo_id": "gateway"
+        },
+        {
+          "diffmind_run_id": "20261004T164807.095385758Z",
+          "repo_id": "notification"
+        },
+        {
+          "diffmind_run_id": "20261004T164807.137492762Z",
+          "repo_id": "payment"
+        },
+        {
+          "diffmind_run_id": "20261004T164807.141555666Z",
+          "repo_id": "storefront"
+        }
+      ],
+      "limits": [
+        "Static source evidence; dependency coverage remains unverified.",
+        "Checkout freshness compares the latest repository analysis, not the saved graph or a PR head."
+      ],
+      "maintenance": "available",
+      "next_action": "query_saved_graph",
+      "observed_at": "2026-10-04T16:49:43.274030425Z",
+      "pr_head_eligibility": "unknown",
+      "project_id": "demo-commerce",
+      "runtime": "available",
+      "saved_at": "2026-10-04T16:48:07.173051892Z",
+      "saved_run_id": "20261004T164807Z",
+      "sources": [
+        {
+          "analysis_freshness": "dirty",
+          "last_analysis_id": "20261004T164807.042291879Z",
+          "repository_id": "catalog",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164807.047314954Z",
+          "repository_id": "checkout",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164807.090013986Z",
+          "repository_id": "gateway",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164807.095385758Z",
+          "repository_id": "notification",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164807.137492762Z",
+          "repository_id": "payment",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164807.141555666Z",
+          "repository_id": "storefront",
+          "revision_basis": "stored_repository_status"
+        }
+      ],
+      "work": {
+        "id": "20261004T164807.008482567Z",
+        "kind": "ingestion",
+        "phase": "complete",
+        "status": "completed",
+        "updated_at": "2026-10-04T16:48:07.184459387Z"
+      }
+    }
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "get_capabilities",
+      "selectors": {
+        "pid": "demo-commerce"
+      }
+    },
+    "status": "completed",
+    "error": null,
+    "response": {
+      "status": 200,
+      "data": {
+        "can_configure": false,
+        "can_delete": false,
+        "can_manage_access": false,
+        "can_refresh": true,
+        "mode": "scoped",
+        "role": "editor"
+      }
+    }
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "get_ingestion",
+      "selectors": {
+        "pid": "demo-commerce"
+      }
+    },
+    "status": "completed",
+    "error": null,
+    "response": {
+      "status": 200,
+      "data": {
+        "analyzed": 6,
+        "attempt": 1,
+        "attempt_started_at": "2026-10-04T16:48:07.008482567Z",
+        "discovered": 0,
+        "finished_at": "2026-10-04T16:48:07.184450175Z",
+        "graph_run_id": "20261004T164807Z",
+        "id": "20261004T164807.008482567Z",
+        "imported": 0,
+        "phase": "complete",
+        "project_id": "demo-commerce",
+        "repo_progress": [
+          {
+            "repo_id": "catalog",
+            "run_id": "20261004T164807.042291879Z",
+            "status": "completed"
+          },
+          {
+            "repo_id": "checkout",
+            "run_id": "20261004T164807.047314954Z",
+            "status": "completed"
+          },
+          {
+            "repo_id": "gateway",
+            "run_id": "20261004T164807.090013986Z",
+            "status": "completed"
+          },
+          {
+            "repo_id": "notification",
+            "run_id": "20261004T164807.095385758Z",
+            "status": "completed"
+          },
+          {
+            "repo_id": "payment",
+            "run_id": "20261004T164807.137492762Z",
+            "status": "completed"
+          },
+          {
+            "repo_id": "storefront",
+            "run_id": "20261004T164807.141555666Z",
+            "status": "completed"
+          }
+        ],
+        "repositories": 6,
+        "request": {
+          "concurrency": 2,
+          "options": {}
+        },
+        "reused": 0,
+        "skipped": 0,
+        "started_at": "2026-10-04T16:48:07.008482567Z",
+        "status": "completed",
+        "synced": 0,
+        "updated_at": "2026-10-04T16:48:07.184459387Z"
+      }
+    }
+  },
+  {
+    "server": "diffmind",
+    "tool": "manage_workspace",
+    "arguments": {
+      "operation": "enqueue_refresh",
+      "selectors": {
+        "pid": "demo-commerce"
+      },
+      "body": {}
+    },
+    "status": "completed",
+    "error": null,
+    "response": {
+      "status": 202,
+      "data": {
+        "duplicate": false,
+        "job": {
+          "attempts": [],
+          "created_at": "2026-10-04T16:50:22.486893394Z",
+          "id": "refresh-3996e9f93bd0dfdf3d49b26ca83fc801",
+          "max_attempts": 3,
+          "not_before": "2026-10-04T16:50:22.486893394Z",
+          "project_id": "demo-commerce",
+          "status": "queued",
+          "trigger": "manual",
+          "updated_at": "2026-10-04T16:50:22.486893394Z"
+        }
+      }
+    }
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_readiness",
+    "arguments": {},
+    "status": "completed",
+    "error": null,
+    "response": {
+      "access": "allowed",
+      "actions": {
+        "configure": false,
+        "inspect_work": true,
+        "query": true,
+        "refresh": true
+      },
+      "connection_mode": "managed",
+      "evidence": {
+        "analysis_freshness": "needs_update",
+        "basis": "static_source",
+        "coverage": "unverified",
+        "dirty": 1,
+        "fresh": 5,
+        "freshness_basis": "live_checkout_status",
+        "freshness_reference": "latest_repository_analysis",
+        "graph_state": "saved",
+        "repository_count": 6,
+        "saved_run_id": "20261004T165022Z",
+        "stale": 0,
+        "unknown": 0
+      },
+      "graph": "queryable",
+      "inputs": [
+        {
+          "diffmind_run_id": "20261004T165022.619872162Z",
+          "repo_id": "catalog"
+        },
+        {
+          "diffmind_run_id": "20261004T164807.047314954Z",
+          "repo_id": "checkout"
+        },
+        {
+          "diffmind_run_id": "20261004T164807.090013986Z",
+          "repo_id": "gateway"
+        },
+        {
+          "diffmind_run_id": "20261004T164807.095385758Z",
+          "repo_id": "notification"
+        },
+        {
+          "diffmind_run_id": "20261004T164807.137492762Z",
+          "repo_id": "payment"
+        },
+        {
+          "diffmind_run_id": "20261004T164807.141555666Z",
+          "repo_id": "storefront"
+        }
+      ],
+      "limits": [
+        "Static source evidence; dependency coverage remains unverified.",
+        "Checkout freshness compares the latest repository analysis, not the saved graph or a PR head."
+      ],
+      "maintenance": "available",
+      "next_action": "query_saved_graph",
+      "observed_at": "2026-10-04T16:50:25.537228655Z",
+      "pr_head_eligibility": "unknown",
+      "project_id": "demo-commerce",
+      "runtime": "available",
+      "saved_at": "2026-10-04T16:50:22.656844658Z",
+      "saved_run_id": "20261004T165022Z",
+      "sources": [
+        {
+          "analysis_freshness": "dirty",
+          "last_analysis_id": "20261004T165022.619872162Z",
+          "repository_id": "catalog",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164807.047314954Z",
+          "repository_id": "checkout",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164807.090013986Z",
+          "repository_id": "gateway",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164807.095385758Z",
+          "repository_id": "notification",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164807.137492762Z",
+          "repository_id": "payment",
+          "revision_basis": "stored_repository_status"
+        },
+        {
+          "analysis_freshness": "fresh",
+          "last_analysis_id": "20261004T164807.141555666Z",
+          "repository_id": "storefront",
+          "revision_basis": "stored_repository_status"
+        }
+      ],
+      "work": {
+        "id": "refresh-3996e9f93bd0dfdf3d49b26ca83fc801",
+        "kind": "refresh_job",
+        "phase": "complete",
+        "status": "completed",
+        "updated_at": "2026-10-04T16:50:22.684221939Z"
+      }
+    }
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "get_ingestion",
+      "selectors": {
+        "pid": "demo-commerce"
+      }
+    },
+    "status": "completed",
+    "error": null,
+    "response": {
+      "status": 200,
+      "data": {
+        "analyzed": 1,
+        "attempt": 1,
+        "attempt_started_at": "2026-10-04T16:50:22.576994194Z",
+        "discovered": 0,
+        "finished_at": "2026-10-04T16:50:22.668284086Z",
+        "graph_run_id": "20261004T165022Z",
+        "id": "20261004T165022.576994194Z",
+        "imported": 0,
+        "job_id": "refresh-3996e9f93bd0dfdf3d49b26ca83fc801",
+        "phase": "complete",
+        "project_id": "demo-commerce",
+        "provider": "manual",
+        "repo_progress": [
+          {
+            "repo_id": "catalog",
+            "run_id": "20261004T165022.619872162Z",
+            "status": "completed"
+          },
+          {
+            "repo_id": "checkout",
+            "run_id": "20261004T164807.047314954Z",
+            "status": "reused"
+          },
+          {
+            "repo_id": "gateway",
+            "run_id": "20261004T164807.090013986Z",
+            "status": "reused"
+          },
+          {
+            "repo_id": "notification",
+            "run_id": "20261004T164807.095385758Z",
+            "status": "reused"
+          },
+          {
+            "repo_id": "payment",
+            "run_id": "20261004T164807.137492762Z",
+            "status": "reused"
+          },
+          {
+            "repo_id": "storefront",
+            "run_id": "20261004T164807.141555666Z",
+            "status": "reused"
+          }
+        ],
+        "repositories": 6,
+        "request": {
+          "concurrency": 4,
+          "options": {}
+        },
+        "reused": 5,
+        "skipped": 0,
+        "started_at": "2026-10-04T16:50:22.576994194Z",
+        "status": "completed",
+        "synced": 0,
+        "updated_at": "2026-10-04T16:50:22.668292509Z"
+      }
+    }
+  }
+]

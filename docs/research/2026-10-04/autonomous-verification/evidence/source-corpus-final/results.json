@@ -1,0 +1,98 @@
+{
+  "safety_checks_passed": true,
+  "exact_expectations_met": false,
+  "rows": [
+    {
+      "case": "direct",
+      "oracle_sha256": "3ee1505b72510ce93c3578465269446675362713f5bcd5e7b8d4a02bee1bc63a",
+      "runtime_operations": 12,
+      "runtime_agreement": true,
+      "expected_exact": 1,
+      "actual_exact": 1,
+      "eligible": true,
+      "freshness": "fresh",
+      "changed_entrypoints": [
+        {
+          "id": "http.get_auth_sign_in",
+          "kind": "http_endpoint",
+          "name": "GET /auth/sign-in",
+          "file": "flaskr/auth.py",
+          "match": "changed_line"
+        },
+        {
+          "id": "http.post_auth_sign_in",
+          "kind": "http_endpoint",
+          "name": "POST /auth/sign-in",
+          "file": "flaskr/auth.py",
+          "match": "changed_line"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "case": "removal",
+      "oracle_sha256": "288fad66b4d2df8e2dcaf5f694c273b1956a04e1ff5155f41b65253890480f62",
+      "runtime_operations": 11,
+      "runtime_agreement": true,
+      "expected_exact": 0,
+      "actual_exact": 0,
+      "eligible": false,
+      "freshness": "fresh",
+      "changed_entrypoints": [],
+      "passed": true
+    },
+    {
+      "case": "internal-helper",
+      "oracle_sha256": "1fdb5455f542fea23072bc067e759b06195440c01e85bc327f29d7addf2ef1f7",
+      "runtime_operations": 12,
+      "runtime_agreement": true,
+      "expected_exact": 0,
+      "actual_exact": 0,
+      "eligible": false,
+      "freshness": "fresh",
+      "changed_entrypoints": [],
+      "passed": true
+    },
+    {
+      "case": "configuration",
+      "oracle_sha256": "cc97aef527222dc760de3ac90a1bfd8c2f83e450a8a43be37c1f618e01d9648a",
+      "runtime_operations": 12,
+      "runtime_agreement": true,
+      "expected_exact": 0,
+      "actual_exact": 0,
+      "eligible": false,
+      "freshness": "fresh",
+      "changed_entrypoints": [],
+      "passed": true
+    },
+    {
+      "case": "contract",
+      "oracle_sha256": "b6169f8db7a9c4b86931c67daa3cb1ddfc72a618ddd2e5060205fd74a34016e2",
+      "runtime_operations": 12,
+      "runtime_agreement": true,
+      "expected_exact": 1,
+      "actual_exact": 0,
+      "eligible": false,
+      "freshness": "fresh",
+      "changed_entrypoints": [],
+      "passed": false,
+      "classification": "candidate_only_contract_limit",
+      "potential_callers": [
+        "caller"
+      ]
+    },
+    {
+      "case": "no-impact",
+      "oracle_sha256": "415a4d680ab19a7bdb6ec953af0c7a13570cbb6471af27d1914dbc70f444f15d",
+      "runtime_operations": 12,
+      "runtime_agreement": true,
+      "expected_exact": 0,
+      "actual_exact": 0,
+      "eligible": false,
+      "freshness": "fresh",
+      "changed_entrypoints": [],
+      "passed": true
+    }
+  ],
+  "limits": "Six controlled mutations and one literal synthetic caller per case; not downstream runtime outcomes or complete graph accuracy."
+}

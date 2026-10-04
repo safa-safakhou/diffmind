@@ -1,0 +1,14 @@
+## Saved context status
+
+The Demo Commerce context is **not yet usable**. DiffMind listed no existing projects, and its project-creation request was rejected by the management tool’s approval gate. I did not retry it. That means the six repositories were not registered or analyzed, and manual maintenance could not be configured. No source files were changed.
+
+The approved scope is exactly `catalog`, `checkout`, `gateway`, `notification`, `payment`, and `storefront` under `<TRIAL_ROOT>/demo/repositories`. I inspected files only within those repositories.
+
+## Call paths found in the source
+
+- **Storefront calls Gateway** at `POST http://gateway/api/checkout`. **Gateway calls both Catalog** at `GET http://catalog/products` **and Checkout** at `POST http://checkout/v1/checkout`. [storefront](<<TRIAL_ROOT>/demo/repositories/storefront/main.go:8>) · [gateway](<<TRIAL_ROOT>/demo/repositories/gateway/main.go:14>)
+- **Checkout to Notification:** the publisher sends to the Kafka topic `orders.created`, and Notification listens on that same topic. Checkout also configures its `order-out-0` binding to `orders.created`. [publisher](<<TRIAL_ROOT>/demo/repositories/checkout/src/main/java/example/OrderPublisher.java:8>) · [binding](<<TRIAL_ROOT>/demo/repositories/checkout/src/main/resources/application.yml:1>) · [consumer](<<TRIAL_ROOT>/demo/repositories/notification/src/main/java/example/OrderNotificationConsumer.java:5>)
+
+These are static source findings, not confirmation of runtime traffic. In particular, the Checkout controller currently returns `"accepted"` without invoking the payment client or order publisher; the publisher and consumer contain demo scaffolding, and the consumer comment says it sends no external message. [controller](<<TRIAL_ROOT>/demo/repositories/checkout/src/main/java/example/CheckoutController.java:7>) · [consumer](<<TRIAL_ROOT>/demo/repositories/notification/src/main/java/example/OrderNotificationConsumer.java:6>)
+
+To make the saved context usable, project creation and the reviewed six-repository import still need to succeed through the management tool.

@@ -1,0 +1,118 @@
+[
+  {
+    "server": "diffmind",
+    "tool": "list_projects",
+    "arguments": {},
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_readiness",
+    "arguments": {
+      "project": "demo-commerce"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "describe_management",
+    "arguments": {},
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "get_capabilities",
+      "selectors": {
+        "pid": "demo-commerce"
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "manage_workspace",
+    "arguments": {
+      "operation": "enqueue_refresh",
+      "selectors": {
+        "pid": "demo-commerce"
+      },
+      "body": {}
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "list_jobs",
+      "query": {
+        "project": "demo-commerce",
+        "limit": "10",
+        "offset": "0"
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_readiness",
+    "arguments": {
+      "project": "demo-commerce"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_graph_summary",
+    "arguments": {
+      "project": "demo-commerce"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "list_services",
+    "arguments": {
+      "project": "demo-commerce",
+      "run": "20261004T165430Z"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_dependencies",
+    "arguments": {
+      "project": "demo-commerce",
+      "run": "20261004T165430Z",
+      "service": "catalog",
+      "direction": "inbound",
+      "limit": 50,
+      "offset": 0
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_service",
+    "arguments": {
+      "project": "demo-commerce",
+      "run": "20261004T165430Z",
+      "service": "catalog",
+      "detail": "full"
+    },
+    "status": "completed",
+    "error": null
+  }
+]

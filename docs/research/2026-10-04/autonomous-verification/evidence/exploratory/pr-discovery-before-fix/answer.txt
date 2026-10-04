@@ -1,0 +1,9 @@
+## Review: PR 1
+
+**The route rename can break callers still using `/auth/login`.** The PR changes the Flask route from `/login` to `/sign-in` for both GET and POST, with no compatibility route shown in the diff ([auth.py](<TRIAL_ROOT>/pr-final/flask/flaskr/auth.py:84)).
+
+**Affected services:** The configured graph identifies one other service, `caller`. Its source requests `GET http://flask/auth/sign-in`, which matches the new route ([client.py](<TRIAL_ROOT>/pr-final/client/client.py:4)); I found no evidence that this service is broken by the rename. The graph contains only `caller` and `flask`, so it cannot identify unconfigured or external consumers. The app’s own login links use `url_for('auth.login')`, so they should follow the route change. Existing tests and fixtures still hard-code `/auth/login` ([test_auth.py](<TRIAL_ROOT>/pr-final/flask/tests/test_auth.py:41), [conftest.py](<TRIAL_ROOT>/pr-final/flask/tests/conftest.py:53)); I did not run tests.
+
+**Evidence and limits:** The source diff supports that the old route was replaced. The saved architecture evidence is fresh for the checked-out commits, but its dependency coverage is unverified and PR-head eligibility is unknown. This review therefore cannot establish runtime traffic, enumerate every consumer, or confirm that the checked-out commit is PR 1’s head.
+
+**Posted on the PR:** No. I inspected only; no PR posting capability was available, and no source files were changed.

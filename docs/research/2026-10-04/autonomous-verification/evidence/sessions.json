@@ -1,0 +1,107 @@
+{
+  "passed": 10,
+  "cases": [
+    {
+      "case": "U01-fresh",
+      "status": "PASS",
+      "elapsed_seconds": 296.918,
+      "tool_calls": 26,
+      "recovered_tool_errors": 2,
+      "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "case": "U01-return",
+      "status": "PASS",
+      "elapsed_seconds": 86.223,
+      "tool_calls": 11,
+      "recovered_tool_errors": 0,
+      "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "case": "U01-query-only",
+      "status": "PASS",
+      "elapsed_seconds": 35.904,
+      "tool_calls": 2,
+      "recovered_tool_errors": 1,
+      "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "case": "U01-local-only",
+      "status": "PASS",
+      "elapsed_seconds": 5.069,
+      "tool_calls": 0,
+      "recovered_tool_errors": 0,
+      "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "case": "U02-viewer",
+      "status": "PASS",
+      "elapsed_seconds": 79.214,
+      "tool_calls": 10,
+      "recovered_tool_errors": 0,
+      "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "case": "U02-editor",
+      "status": "PASS",
+      "elapsed_seconds": 92.008,
+      "tool_calls": 17,
+      "recovered_tool_errors": 0,
+      "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "case": "U02-revoked",
+      "status": "PASS",
+      "elapsed_seconds": 17.391,
+      "tool_calls": 2,
+      "recovered_tool_errors": 0,
+      "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "case": "U03-ambiguous",
+      "status": "PASS",
+      "elapsed_seconds": 13.149,
+      "tool_calls": 0,
+      "recovered_tool_errors": 0,
+      "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "case": "U03-exact-pr",
+      "status": "PASS",
+      "elapsed_seconds": 89.355,
+      "tool_calls": 11,
+      "recovered_tool_errors": 0,
+      "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "case": "U03-stale-pr",
+      "status": "PASS",
+      "elapsed_seconds": 105.598,
+      "tool_calls": 7,
+      "recovered_tool_errors": 0,
+      "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    }
+  ],
+  "evaluation": "Codex reviewed complete answers against frozen source/runtime/fixture expectations; structural checks supplement that evaluation. Historical exploratory failures are retained separately.",
+  "human_verification_required": false
+}

@@ -1,0 +1,3 @@
+I couldn’t set up saved company context in this session. DiffMind has no projects, and the available connection exposes query-only tools with no setup or import operations. The workspace is also read-only.
+
+I confirmed the approved repositories are `catalog`, `checkout`, `gateway`, `notification`, `payment`, and `storefront`. I made no changes to any source files. To complete setup with manual maintenance, this session needs a DiffMind connection that supports project setup and repository imports.

@@ -1,0 +1,328 @@
+[
+  {
+    "server": "diffmind",
+    "tool": "get_readiness",
+    "arguments": {},
+    "status": "failed",
+    "error": null,
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "select project: no DiffMind projects exist"
+        }
+      ],
+      "structured_content": null
+    }
+  },
+  {
+    "server": "diffmind",
+    "tool": "list_projects",
+    "arguments": {},
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "describe_management",
+    "arguments": {},
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "manage_workspace",
+    "arguments": {
+      "operation": "create_project",
+      "body": {
+        "name": "Demo Commerce",
+        "search_roots": [
+          "<TRIAL_ROOT>/verified-demo/repositories"
+        ],
+        "instruction": "Approved scope: only the six repositories payment, notification, gateway, storefront, catalog, and checkout under <TRIAL_ROOT>/verified-demo/repositories. Do not discover or import repositories outside this exact set. Keep refresh and maintenance manual; do not schedule automatic refresh."
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "get_capabilities",
+      "selectors": {
+        "pid": "demo-commerce"
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "manage_workspace",
+    "arguments": {
+      "operation": "import_repositories",
+      "selectors": {
+        "pid": "demo-commerce"
+      },
+      "body": {
+        "dry_run": true,
+        "provider": "local",
+        "root": "<TRIAL_ROOT>/verified-demo/repositories",
+        "include": "^(payment|notification|gateway|storefront|catalog|checkout)$",
+        "recursive": false,
+        "team": "demo-commerce"
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "manage_workspace",
+    "arguments": {
+      "operation": "start_ingestion",
+      "selectors": {
+        "pid": "demo-commerce"
+      },
+      "body": {
+        "concurrency": 4,
+        "import": {
+          "provider": "local",
+          "root": "<TRIAL_ROOT>/verified-demo/repositories",
+          "include": "^(payment|notification|gateway|storefront|catalog|checkout)$",
+          "recursive": false,
+          "team": "demo-commerce",
+          "preview_digest": "f6d552eff119c2bae85336fc88b7fd4f5e59b97edbbc1bc14bdb241c5af1b42c"
+        }
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "get_live_status",
+      "selectors": {
+        "pid": "demo-commerce"
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "get_ingestion",
+      "selectors": {
+        "pid": "demo-commerce"
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "list_graph_runs",
+    "arguments": {
+      "project": "demo-commerce",
+      "limit": 5
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "list_services",
+    "arguments": {
+      "project": "demo-commerce",
+      "run": "20261004T164917Z"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_readiness",
+    "arguments": {
+      "project": "demo-commerce"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_graph_summary",
+    "arguments": {
+      "project": "demo-commerce",
+      "run": "20261004T164917Z"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_service",
+    "arguments": {
+      "project": "demo-commerce",
+      "run": "20261004T164917Z",
+      "service": "notification",
+      "detail": "full"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_service",
+    "arguments": {
+      "project": "demo-commerce",
+      "run": "20261004T164917Z",
+      "service": "checkout",
+      "detail": "full"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_service",
+    "arguments": {
+      "project": "demo-commerce",
+      "run": "20261004T164917Z",
+      "service": "gateway",
+      "detail": "full"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_service",
+    "arguments": {
+      "project": "demo-commerce",
+      "run": "20261004T164917Z",
+      "service": "checkout",
+      "detail": "full"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "get_project",
+      "selectors": {
+        "pid": "demo-commerce"
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "refresh_status"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "agent_runtime",
+    "arguments": {
+      "action": "status"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "agent_runtime",
+    "arguments": {
+      "action": "configure",
+      "settings": {
+        "refresh_interval": "0s",
+        "refresh_on_start": false,
+        "refresh_concurrency": 4,
+        "project_access": "legacy",
+        "repository_workers": 4,
+        "job_workers": 2,
+        "queue_capacity": 256
+      }
+    },
+    "status": "failed",
+    "error": null,
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "refresh_interval must be 0, empty, or a duration >=1s"
+        }
+      ],
+      "structured_content": null
+    }
+  },
+  {
+    "server": "diffmind",
+    "tool": "agent_runtime",
+    "arguments": {
+      "action": "configure",
+      "settings": {
+        "refresh_interval": "0",
+        "refresh_on_start": false,
+        "refresh_concurrency": 4,
+        "project_access": "legacy",
+        "repository_workers": 4,
+        "job_workers": 2,
+        "queue_capacity": 256
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "agent_runtime",
+    "arguments": {
+      "action": "status"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "list_repositories",
+      "selectors": {
+        "pid": "demo-commerce"
+      }
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "get_readiness",
+    "arguments": {
+      "project": "demo-commerce"
+    },
+    "status": "completed",
+    "error": null
+  },
+  {
+    "server": "diffmind",
+    "tool": "inspect_workspace",
+    "arguments": {
+      "operation": "refresh_status"
+    },
+    "status": "completed",
+    "error": null
+  }
+]

@@ -1,0 +1,243 @@
+{
+  "issues": [
+    {
+      "id": "MNI-202",
+      "title": "Verify the exact candidate across all three journeys and safeguards",
+      "status": "In Progress",
+      "parentId": "MNI-174",
+      "url": "https://linear.app/mnim/issue/MNI-202/verify-the-exact-candidate-across-all-three-journeys-and-safeguards"
+    },
+    {
+      "id": "MNI-192",
+      "title": "Align existing repository provider settings with PR retrieval states",
+      "status": "In Progress",
+      "parentId": "MNI-172",
+      "url": "https://linear.app/mnim/issue/MNI-192/align-existing-repository-provider-settings-with-pr-retrieval-states"
+    },
+    {
+      "id": "MNI-201",
+      "title": "Verify developer journeys and actual installed-agent use automatically",
+      "status": "Done",
+      "parentId": "MNI-174",
+      "url": "https://linear.app/mnim/issue/MNI-201/verify-developer-journeys-and-actual-installed-agent-use-automatically"
+    },
+    {
+      "id": "MNI-199",
+      "title": "Present PR evidence before heuristic scores and clarify delivery",
+      "status": "Done",
+      "parentId": "MNI-172",
+      "url": "https://linear.app/mnim/issue/MNI-199/present-pr-evidence-before-heuristic-scores-and-clarify-delivery"
+    },
+    {
+      "id": "MNI-198",
+      "title": "Make PR revision eligibility and deletion limitations actionable",
+      "status": "Done",
+      "parentId": "MNI-172",
+      "url": "https://linear.app/mnim/issue/MNI-198/make-pr-revision-eligibility-and-deletion-limitations-actionable"
+    },
+    {
+      "id": "MNI-197",
+      "title": "Verify real-source graph and PR corpus with automated oracles",
+      "status": "Done",
+      "parentId": "MNI-174",
+      "url": "https://linear.app/mnim/issue/MNI-197/verify-real-source-graph-and-pr-corpus-with-automated-oracles"
+    },
+    {
+      "id": "MNI-180",
+      "title": "Guide agent onboarding project selection and evidence use",
+      "status": "Done",
+      "parentId": "MNI-169",
+      "url": "https://linear.app/mnim/issue/MNI-180/guide-agent-onboarding-project-selection-and-evidence-use"
+    },
+    {
+      "id": "MNI-196",
+      "title": "Verify upgrade backup and restore with access-policy reconciliation",
+      "status": "Done",
+      "parentId": "MNI-173",
+      "url": "https://linear.app/mnim/issue/MNI-196/verify-upgrade-backup-and-restore-with-access-policy-reconciliation"
+    },
+    {
+      "id": "MNI-184",
+      "title": "Make graph selection readable keyboard-accessible and fully inspectable",
+      "status": "Done",
+      "parentId": "MNI-170",
+      "url": "https://linear.app/mnim/issue/MNI-184/make-graph-selection-readable-keyboard-accessible-and-fully"
+    },
+    {
+      "id": "MNI-183",
+      "title": "Repair shared modal form and confirmation accessibility",
+      "status": "Done",
+      "parentId": "MNI-170",
+      "url": "https://linear.app/mnim/issue/MNI-183/repair-shared-modal-form-and-confirmation-accessibility"
+    },
+    {
+      "id": "MNI-173",
+      "title": "Epic: Safe company entry access and continuity",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-173/epic-safe-company-entry-access-and-continuity"
+    },
+    {
+      "id": "MNI-171",
+      "title": "Epic: Architecture evidence users can trust",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-171/epic-architecture-evidence-users-can-trust"
+    },
+    {
+      "id": "MNI-170",
+      "title": "Epic: Simple accessible onboarding and exploration",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-170/epic-simple-accessible-onboarding-and-exploration"
+    },
+    {
+      "id": "MNI-168",
+      "title": "Epic: One understandable workspace model",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-168/epic-one-understandable-workspace-model"
+    },
+    {
+      "id": "MNI-193",
+      "title": "Make shared access scope explicit and safely adopt scoped defaults",
+      "status": "Done",
+      "parentId": "MNI-173",
+      "url": "https://linear.app/mnim/issue/MNI-193/make-shared-access-scope-explicit-and-safely-adopt-scoped-defaults"
+    },
+    {
+      "id": "MNI-189",
+      "title": "Use the existing gap and pack workflow for reviewed corrections",
+      "status": "Done",
+      "parentId": "MNI-171",
+      "url": "https://linear.app/mnim/issue/MNI-189/use-the-existing-gap-and-pack-workflow-for-reviewed-corrections"
+    },
+    {
+      "id": "MNI-181",
+      "title": "Enable bounded background refresh after approved onboarding",
+      "status": "Done",
+      "parentId": "MNI-169",
+      "url": "https://linear.app/mnim/issue/MNI-181/enable-bounded-background-refresh-after-approved-onboarding"
+    },
+    {
+      "id": "MNI-177",
+      "title": "Define one approved scope contract for discovery and automation",
+      "status": "Done",
+      "parentId": "MNI-168",
+      "url": "https://linear.app/mnim/issue/MNI-177/define-one-approved-scope-contract-for-discovery-and-automation"
+    },
+    {
+      "id": "MNI-182",
+      "title": "Clarify local lifecycle and handle shared clients without competing owners",
+      "status": "Done",
+      "parentId": "MNI-169",
+      "url": "https://linear.app/mnim/issue/MNI-182/clarify-local-lifecycle-and-handle-shared-clients-without-competing"
+    },
+    {
+      "id": "MNI-200",
+      "title": "Align installation operation and evaluation docs with the implemented journey",
+      "status": "Done",
+      "parentId": "MNI-174",
+      "url": "https://linear.app/mnim/issue/MNI-200/align-installation-operation-and-evaluation-docs-with-the-implemented"
+    },
+    {
+      "id": "MNI-194",
+      "title": "Make joining browser and agent setup a clear role-aware handoff",
+      "status": "Done",
+      "parentId": "MNI-173",
+      "url": "https://linear.app/mnim/issue/MNI-194/make-joining-browser-and-agent-setup-a-clear-role-aware-handoff"
+    },
+    {
+      "id": "MNI-178",
+      "title": "Standardize actionable feedback and recovery across UI and agents",
+      "status": "Done",
+      "parentId": "MNI-168",
+      "url": "https://linear.app/mnim/issue/MNI-178/standardize-actionable-feedback-and-recovery-across-ui-and-agents"
+    },
+    {
+      "id": "MNI-195",
+      "title": "Make access loss and offboarding understandable across independent grants",
+      "status": "Done",
+      "parentId": "MNI-173",
+      "url": "https://linear.app/mnim/issue/MNI-195/make-access-loss-and-offboarding-understandable-across-independent"
+    },
+    {
+      "id": "MNI-190",
+      "title": "Explain snapshot differences through input provenance and evidence",
+      "status": "Done",
+      "parentId": "MNI-171",
+      "url": "https://linear.app/mnim/issue/MNI-190/explain-snapshot-differences-through-input-provenance-and-evidence"
+    },
+    {
+      "id": "MNI-188",
+      "title": "Explain evidence origin uncertainty and coverage consistently",
+      "status": "Done",
+      "parentId": "MNI-171",
+      "url": "https://linear.app/mnim/issue/MNI-188/explain-evidence-origin-uncertainty-and-coverage-consistently"
+    },
+    {
+      "id": "MNI-185",
+      "title": "Distinguish empty loading denied failed and partial workspace states",
+      "status": "Done",
+      "parentId": "MNI-170",
+      "url": "https://linear.app/mnim/issue/MNI-185/distinguish-empty-loading-denied-failed-and-partial-workspace-states"
+    },
+    {
+      "id": "MNI-175",
+      "title": "Define shared readiness freshness and capability states",
+      "status": "Done",
+      "parentId": "MNI-168",
+      "url": "https://linear.app/mnim/issue/MNI-175/define-shared-readiness-freshness-and-capability-states"
+    },
+    {
+      "id": "MNI-174",
+      "title": "Epic: Prove the complete experience",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-174/epic-prove-the-complete-experience"
+    },
+    {
+      "id": "MNI-172",
+      "title": "Epic: Clear evidence-based change and PR investigation",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-172/epic-clear-evidence-based-change-and-pr-investigation"
+    },
+    {
+      "id": "MNI-169",
+      "title": "Epic: Install once and maintain approved context",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-169/epic-install-once-and-maintain-approved-context"
+    },
+    {
+      "id": "MNI-191",
+      "title": "Expose existing contract compatibility alongside graph changes",
+      "status": "Done",
+      "parentId": "MNI-172",
+      "url": "https://linear.app/mnim/issue/MNI-191/expose-existing-contract-compatibility-alongside-graph-changes"
+    },
+    {
+      "id": "MNI-186",
+      "title": "Apply approved file scope consistently to facts contracts and metrics",
+      "status": "Done",
+      "parentId": "MNI-171",
+      "url": "https://linear.app/mnim/issue/MNI-186/apply-approved-file-scope-consistently-to-facts-contracts-and-metrics"
+    },
+    {
+      "id": "MNI-187",
+      "title": "Turn import preview into a retained review-and-build flow",
+      "status": "Done",
+      "parentId": "MNI-170",
+      "url": "https://linear.app/mnim/issue/MNI-187/turn-import-preview-into-a-retained-review-and-build-flow"
+    },
+    {
+      "id": "MNI-179",
+      "title": "Make installed startup and worker execution independent of PATH accidents",
+      "status": "Done",
+      "parentId": "MNI-169",
+      "url": "https://linear.app/mnim/issue/MNI-179/make-installed-startup-and-worker-execution-independent-of-path"
+    },
+    {
+      "id": "MNI-176",
+      "title": "Use one primary refresh action with role-aware advanced operations",
+      "status": "Done",
+      "parentId": "MNI-168",
+      "url": "https://linear.app/mnim/issue/MNI-176/use-one-primary-refresh-action-with-role-aware-advanced-operations"
+    }
+  ],
+  "hasNextPage": false
+}

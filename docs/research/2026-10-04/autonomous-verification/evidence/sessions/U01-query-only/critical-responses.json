@@ -1,0 +1,10 @@
+[
+  {
+    "server": "diffmind",
+    "tool": "get_readiness",
+    "arguments": {},
+    "status": "failed",
+    "error": null,
+    "response": null
+  }
+]

@@ -1,0 +1,1 @@
+I can’t identify affected services from this workspace: it’s empty, and there’s no Git repository or checkout code to trace. Please provide the repository or point me to the checkout changes, and I can map their callers and dependencies to the services they may affect.

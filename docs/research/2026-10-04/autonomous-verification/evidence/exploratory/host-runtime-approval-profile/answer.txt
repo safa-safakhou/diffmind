@@ -1,0 +1,12 @@
+**Demo Commerce is usable now** as DiffMind project `demo-commerce`, with saved graph run `20261004T163202Z`. Readiness reports the graph as queryable, with all six approved repositories analyzed and fresh. The graph contains six services and nine dependency edges.
+
+The saved evidence shows:
+
+- **Gateway calls Catalog** with `GET http://catalog/products` (`gateway/main.go:15`) and **Checkout** with `POST http://checkout/v1/checkout` (`gateway/main.go:17`).
+- **Checkout connects to Notification through Kafka topic `orders.created`**: Checkout publishes to the topic (`checkout/src/main/resources/application.yml:6`), and Notification consumes it (`notification/src/main/java/example/OrderNotificationConsumer.java:6–9`).
+
+The local import preview matched exactly the six approved repositories: catalog, checkout, gateway, notification, payment, and storefront. Import and analysis completed for all six. The analysis reports zero dirty repositories; the import reports zero synced, consistent with leaving the source files in place.
+
+**Maintenance is not fully manual yet.** The project instructions record your manual-only preference, but the host reports automatic refresh enabled every 15 minutes. I couldn’t change that setting: the runtime configuration tool requires approval, and the current approval policy disallows it.
+
+Limits: this is static source evidence with dependency coverage marked unverified; it describes declared connections, not proof of runtime traffic or end-to-end execution. The repositories are local-only and have no supported Git remote for PR queries.

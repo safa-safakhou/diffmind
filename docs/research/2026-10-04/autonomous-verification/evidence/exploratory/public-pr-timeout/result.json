@@ -1,0 +1,216 @@
+{
+  "id": "U03-public-stale-pr",
+  "mode": "http",
+  "host_version": "codex-cli 0.160.0",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "exit_code": 0,
+  "timed_out": true,
+  "elapsed_seconds": 300.068,
+  "prompt": "Review pallets/flask PR 5918 using the configured company context. Explain which services may be affected, what can actually be concluded from the saved revision and available evidence, and whether your review has been delivered to the PR. Inspect only; preserve local source.",
+  "tools": [
+    {
+      "server": "diffmind",
+      "tool": "list_projects",
+      "status": "completed",
+      "error": null,
+      "arguments": {}
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_readiness",
+      "status": "completed",
+      "error": null,
+      "arguments": {}
+    },
+    {
+      "server": "diffmind",
+      "tool": "list_projects",
+      "status": "completed",
+      "error": null,
+      "arguments": {}
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_readiness",
+      "status": "completed",
+      "error": null,
+      "arguments": {}
+    },
+    {
+      "server": "diffmind",
+      "tool": "list_graph_runs",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "limit": 50
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "describe_management",
+      "status": "completed",
+      "error": null,
+      "arguments": {}
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_graph_summary",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "inspect_workspace",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "operation": "list_repositories",
+        "selectors": {
+          "pid": "public-flask-controlled-pr"
+        }
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "list_services",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "inspect_workspace",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "operation": "list_pull_requests",
+        "selectors": {
+          "pid": "public-flask-controlled-pr"
+        }
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "inspect_workspace",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "operation": "pull_request_impact",
+        "selectors": {
+          "pid": "public-flask-controlled-pr",
+          "repo_id": "flask",
+          "number": "5918"
+        },
+        "query": {
+          "run_id": "20261004T164844Z"
+        }
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_dependencies",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z",
+        "service": "caller",
+        "direction": "outbound"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_dependencies",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z",
+        "service": "flask",
+        "direction": "outbound"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_service",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z",
+        "service": "flask",
+        "detail": "full"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_dependencies",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z",
+        "service": "flask",
+        "direction": "outbound"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_dependencies",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z",
+        "service": "caller",
+        "direction": "both"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_dependencies",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z",
+        "service": "flask",
+        "direction": "both"
+      }
+    },
+    {
+      "server": "diffmind",
+      "tool": "get_object_trace",
+      "status": "completed",
+      "error": null,
+      "arguments": {
+        "project": "public-flask-controlled-pr",
+        "run": "20261004T164844Z",
+        "service": "caller",
+        "object_id": "httpcall.get_flask_http_flask_auth_sign_in"
+      }
+    }
+  ],
+  "shell_commands": [
+    "/usr/bin/zsh -lc \"pwd && rg --files -g 'AGENTS.md' -g '*5918*' -g '*context*' -g '*README*' -g '.git*' | head -100 && git status --short --branch && git remote -v\"",
+    "/usr/bin/zsh -lc \"ls -la && find .. -maxdepth 3 -type d -name .git -print && rg --files -g AGENTS.md -g '*5918*' -g 'README*' | head -80\"",
+    "/usr/bin/zsh -lc 'git status --short --branch && git log -1 --oneline --decorate && git remote -v && git diff --stat && git show --stat --oneline HEAD'",
+    "/usr/bin/zsh -lc 'pwd; ls -la ..; find <TRIAL_ROOT> -maxdepth 4 -type d -name .git -print'",
+    "/usr/bin/zsh -lc 'git status --short --branch && git log -1 --oneline --decorate && git remote -v && git show --stat --oneline HEAD && git diff --stat'",
+    "/usr/bin/zsh -lc 'git status --porcelain=v1; git show --format=fuller --find-renames HEAD -- flaskr/auth.py; git branch -vv; git remote -v'"
+  ],
+  "answer_exists": false,
+  "unrelated_mcp_config_loaded": false,
+  "approved_tools": [],
+  "apps_feature_disabled": true,
+  "binary_sha256": "8c7f1f13124dfcb8b731b12204462010d003c98485be1251249d9a5dec6191fe"
+}
