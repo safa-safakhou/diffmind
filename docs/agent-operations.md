@@ -112,6 +112,14 @@ No mutation is automatically retried. Destructive operations require
 Read the current object and preserve unrelated configuration before replacement.
 This is not a substitute for the user's authorization.
 
+## PR inspection
+
+For a PR review, discover `pull_request_impact` and call it through
+`inspect_workspace` with the project, repository and PR number. This read-only
+operation checks PR-head eligibility and caller evidence. General readiness
+cannot establish that the graph matches a PR head. The result is an on-demand
+inspection; it does not post a comment or review.
+
 ## End-to-end workflow
 
 Read project capabilities first. A scoped **editor** refreshes registered

@@ -135,7 +135,7 @@ func Decode(status int, headers http.Header, body io.Reader) (Result, error) {
 }
 
 func AddTools(server *mcp.Server, invoke Invoke) {
-	mcp.AddTool(server, &mcp.Tool{Name: "describe_management", Description: "Discover all project, repository, ingestion, job, pack, configuration, permissions, token and quota operations. Call before using inspect_workspace/manage_workspace. Operations remain subject to the authenticated caller's permissions.", Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true}},
+	mcp.AddTool(server, &mcp.Tool{Name: "describe_management", Description: "Discover PR listing/impact review and all project, repository, ingestion, job, pack, configuration, permissions, token and quota operations. PR inspection is read-only; discover pull_request_impact for review tasks. Call before using inspect_workspace/manage_workspace. Operations remain subject to the authenticated caller's permissions.", Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true}},
 		func(_ context.Context, _ *mcp.CallToolRequest, in struct {
 			Operation string `json:"operation,omitempty"`
 		}) (*mcp.CallToolResult, any, error) {
@@ -152,7 +152,7 @@ func AddTools(server *mcp.Server, invoke Invoke) {
 		name, desc := "manage_workspace", "Create/configure projects, import repositories, build/update/cancel/retry graphs, teach packs, and administer access/tokens/limits. Use describe_management and inspect get_capabilities first. Scoped editors refresh existing scope with enqueue_refresh; start_ingestion and repository analysis require administrator. Accepted async work is NOT completed: inspect its persisted status. Mutations are audited and permission checked. No automatic mutation retries."
 		if readOnly {
 			name = "inspect_workspace"
-			desc = "Inspect configuration, repositories, work status/history, capabilities, access, packs, and limits using an operation from describe_management. Does not mutate workspace state."
+			desc = "Inspect PR impact/revision/caller evidence (pull_request_impact), PR listings, configuration, repositories, work status/history, capabilities, access, packs, and limits using an operation from describe_management. Does not mutate workspace state."
 		}
 		mcp.AddTool(server, &mcp.Tool{Name: name, Description: desc, Annotations: &mcp.ToolAnnotations{ReadOnlyHint: readOnly, DestructiveHint: boolPointer(!readOnly), OpenWorldHint: boolPointer(!readOnly)}},
 			func(ctx context.Context, call *mcp.CallToolRequest, in Input) (*mcp.CallToolResult, any, error) {
