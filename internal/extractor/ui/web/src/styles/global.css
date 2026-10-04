@@ -1,6 +1,7 @@
 /* DiffMind dashboard — dark, dense, information-rich. */
 
 :root {
+  color-scheme: dark;
   --bg: #0a0f1c;
   --bg-1: #0e1424;
   --bg-2: #131b30;
