@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -881,7 +882,7 @@ func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changed
 				matched = ids[edge.Type+"\x00"+detail.ID]
 			}
 			if matched == "" && edge.Type == "http" {
-				matched = operations[normalizedOperation(detail.Name)]
+				matched = operations[httpCallerOperation(detail)]
 			}
 			if matched != "" {
 				result[edge.From] = appendUnique(result[edge.From], matched)
@@ -889,6 +890,56 @@ func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changed
 		}
 	}
 	return result
+}
+
+// Display names may contain a service prefix and a full URL. Use the
+// source fact's HTTP fields after the graph has resolved its destination.
+func httpCallerOperation(detail archgraph.EntitySummary) string {
+	fields := detail.Details
+	method, _ := fields["method"].(string)
+	address, _ := fields["path"].(string)
+	if address == "" {
+		address, _ = fields["url_template"].(string)
+	}
+	if method == "" && address == "" {
+		metadata, _ := fields["metadata"].(map[string]any)
+		nested, _ := metadata["details"].(map[string]any)
+		method, _ = nested["method"].(string)
+		address, _ = nested["path"].(string)
+		if address == "" {
+			address, _ = nested["url_template"].(string)
+		}
+	}
+	if method == "" && address == "" {
+		return normalizedOperation(detail.Name)
+	}
+	if method == "" || address == "" || len(strings.Fields(method)) != 1 || strings.ContainsAny(address, " \t\r\n") {
+		return ""
+	}
+	parsed, err := url.Parse(address)
+	if err != nil {
+		return ""
+	}
+	if parsed.IsAbs() {
+		if (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
+			return ""
+		}
+	} else if !strings.HasPrefix(address, "/") || strings.HasPrefix(address, "//") {
+		return ""
+	}
+	route := parsed.EscapedPath()
+	if route == "" {
+		route = "/"
+	}
+	// Preserve literal escaping/case/trailing slash; normalize only the existing
+	// recognized route-parameter notation.
+	if !strings.Contains(address, "%") {
+		route = parsed.Path
+		if route == "" {
+			route = "/"
+		}
+	}
+	return normalizedOperation(method + " " + route)
 }
 
 func exactSurfaceProtocol(kind string) string {

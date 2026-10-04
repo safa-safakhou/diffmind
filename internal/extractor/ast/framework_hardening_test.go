@@ -584,3 +584,26 @@ app.register_blueprint(multi_bp,url_prefix="/second")
 		assertNoBinding(t, idx.Frameworks, "flask", "http_handler", "GET "+route)
 	}
 }
+
+func TestFlaskRouteEvidenceUsesItsOwnDecoratorCoordinates(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "routes.py", `from flask import Flask
+app=Flask(__name__)
+@app.route("/first")
+@app.route("/second")
+def endpoint(): return "ok"
+`)
+	idx := buildIndex(t, dir)
+	for _, binding := range idx.Frameworks {
+		if binding.Framework != "flask" {
+			continue
+		}
+		want := uint32(2)
+		if binding.Trigger == "GET /second" {
+			want = 3
+		}
+		if binding.Range.StartLine != want || binding.Range.EndLine != want {
+			t.Fatalf("%s source range=%+v; want only decorator line %d", binding.Trigger, binding.Range, want)
+		}
+	}
+}

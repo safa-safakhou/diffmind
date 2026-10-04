@@ -65,14 +65,15 @@ func flaskAnnotationToBinding(sym ast.SymbolDef, ann ast.Annotation, prefixes ma
 		reason = "flask_decorator_literal_path_blueprint_prefix"
 	}
 	return &ast.FrameworkBinding{
-		Framework:        "flask",
-		Kind:             "http_handler",
-		Direction:        "inbound",
-		Symbol:           sym.Qualified,
-		Trigger:          httpMethod + " " + path,
-		TriggerSource:    "@" + ann.Name + "(" + ann.Arguments + ")",
-		File:             sym.File,
-		Range:            sym.Range,
+		Framework:     "flask",
+		Kind:          "http_handler",
+		Direction:     "inbound",
+		Symbol:        sym.Qualified,
+		Trigger:       httpMethod + " " + path,
+		TriggerSource: "@" + ann.Name + "(" + ann.Arguments + ")",
+		File:          sym.File,
+		// Route identity is declared by this decorator, not the function body.
+		Range:            ann.Range,
 		ConfidenceReason: reason,
 	}
 }

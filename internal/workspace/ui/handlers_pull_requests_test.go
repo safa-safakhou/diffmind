@@ -349,3 +349,32 @@ func TestExactPRCallerRejectsCrossProtocolAndUnknownSurface(t *testing.T) {
 		})
 	}
 }
+
+func TestExactPRCallerUsesStructuredHTTPAddress(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		details map[string]any
+		want    int
+	}{
+		{"actual Python caller", map[string]any{"method": "GET", "url_template": "http://api/auth/sign-in"}, 1},
+		{"query parameters", map[string]any{"method": "GET", "url_template": "https://api/auth/sign-in?next=home"}, 1},
+		{"path case", map[string]any{"method": "GET", "url_template": "http://api/Auth/sign-in"}, 0},
+		{"different method", map[string]any{"method": "POST", "url_template": "http://api/auth/sign-in"}, 0},
+		{"trailing slash", map[string]any{"method": "GET", "url_template": "http://api/auth/sign-in/"}, 0},
+		{"escaped space", map[string]any{"method": "GET", "url_template": "http://api/auth/sign-in%20other"}, 0},
+		{"escaped slash", map[string]any{"method": "GET", "url_template": "http://api/auth%2Fsign-in"}, 0},
+		{"invalid literal space", map[string]any{"method": "GET", "url_template": "http://api/auth/sign-in other"}, 0},
+		{"wrong path", map[string]any{"method": "GET", "url_template": "http://api/unrelated"}, 0},
+		{"incomplete metadata", map[string]any{"method": "GET"}, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.details["evidence_origin"] = "deterministic"
+			tc.details["repository_revision"] = map[string]any{"commit": "caller-head"}
+			g := &archgraph.ArchGraph{Services: []*archgraph.ServiceNode{{Name: "api"}, {Name: "caller", AnalysisStatus: &archgraph.RepositoryAnalysisStatus{State: "analyzed_clean", AnalyzedRevision: "caller-head"}}}, Edges: []*archgraph.GraphEdge{{From: "caller", To: "api", Type: "http", Details: []archgraph.EntitySummary{{Name: "api GET http://api/auth/sign-in", Kind: "http_call", Details: tc.details}}}}}
+			got := exactChangedSurfaceCallers(g, "api", []changedEntrypoint{{Kind: "http_endpoint", Name: "GET /auth/sign-in", Match: "changed_line"}})
+			if len(got) != tc.want {
+				t.Fatalf("exact callers=%+v; want %d", got, tc.want)
+			}
+		})
+	}
+}
