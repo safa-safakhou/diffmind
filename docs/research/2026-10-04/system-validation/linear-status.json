@@ -1,6 +1,27 @@
 {
   "issues": [
     {
+      "id": "MNI-202",
+      "title": "Verify the exact candidate across all three journeys and safeguards",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-202/verify-the-exact-candidate-across-all-three-journeys-and-safeguards",
+      "parentId": "MNI-174"
+    },
+    {
+      "id": "MNI-201",
+      "title": "Observe independent developers and actual installed-agent use",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-201/observe-independent-developers-and-actual-installed-agent-use",
+      "parentId": "MNI-174"
+    },
+    {
+      "id": "MNI-196",
+      "title": "Verify upgrade backup and restore with access-policy reconciliation",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-196/verify-upgrade-backup-and-restore-with-access-policy-reconciliation",
+      "parentId": "MNI-173"
+    },
+    {
       "id": "MNI-199",
       "title": "Present PR evidence before heuristic scores and clarify delivery",
       "status": "In Progress",
@@ -13,6 +34,41 @@
       "status": "In Progress",
       "url": "https://linear.app/mnim/issue/MNI-198/make-pr-revision-eligibility-and-deletion-limitations-actionable",
       "parentId": "MNI-172"
+    },
+    {
+      "id": "MNI-197",
+      "title": "Establish an independently labeled real-source graph and PR corpus",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-197/establish-an-independently-labeled-real-source-graph-and-pr-corpus",
+      "parentId": "MNI-174"
+    },
+    {
+      "id": "MNI-192",
+      "title": "Align existing repository provider settings with PR retrieval states",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-192/align-existing-repository-provider-settings-with-pr-retrieval-states",
+      "parentId": "MNI-172"
+    },
+    {
+      "id": "MNI-180",
+      "title": "Guide agent onboarding project selection and evidence use",
+      "status": "In Progress",
+      "url": "https://linear.app/mnim/issue/MNI-180/guide-agent-onboarding-project-selection-and-evidence-use",
+      "parentId": "MNI-169"
+    },
+    {
+      "id": "MNI-184",
+      "title": "Make graph selection readable keyboard-accessible and fully inspectable",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-184/make-graph-selection-readable-keyboard-accessible-and-fully",
+      "parentId": "MNI-170"
+    },
+    {
+      "id": "MNI-183",
+      "title": "Repair shared modal form and confirmation accessibility",
+      "status": "Done",
+      "url": "https://linear.app/mnim/issue/MNI-183/repair-shared-modal-form-and-confirmation-accessibility",
+      "parentId": "MNI-170"
     },
     {
       "id": "MNI-173",
@@ -37,20 +93,6 @@
       "title": "Epic: One understandable workspace model",
       "status": "Done",
       "url": "https://linear.app/mnim/issue/MNI-168/epic-one-understandable-workspace-model"
-    },
-    {
-      "id": "MNI-202",
-      "title": "Verify the exact candidate across all three journeys and safeguards",
-      "status": "In Progress",
-      "url": "https://linear.app/mnim/issue/MNI-202/verify-the-exact-candidate-across-all-three-journeys-and-safeguards",
-      "parentId": "MNI-174"
-    },
-    {
-      "id": "MNI-196",
-      "title": "Verify upgrade backup and restore with access-policy reconciliation",
-      "status": "Done",
-      "url": "https://linear.app/mnim/issue/MNI-196/verify-upgrade-backup-and-restore-with-access-policy-reconciliation",
-      "parentId": "MNI-173"
     },
     {
       "id": "MNI-193",
@@ -86,20 +128,6 @@
       "status": "Done",
       "url": "https://linear.app/mnim/issue/MNI-182/clarify-local-lifecycle-and-handle-shared-clients-without-competing",
       "parentId": "MNI-169"
-    },
-    {
-      "id": "MNI-201",
-      "title": "Observe independent developers and actual installed-agent use",
-      "status": "In Progress",
-      "url": "https://linear.app/mnim/issue/MNI-201/observe-independent-developers-and-actual-installed-agent-use",
-      "parentId": "MNI-174"
-    },
-    {
-      "id": "MNI-197",
-      "title": "Establish an independently labeled real-source graph and PR corpus",
-      "status": "In Progress",
-      "url": "https://linear.app/mnim/issue/MNI-197/establish-an-independently-labeled-real-source-graph-and-pr-corpus",
-      "parentId": "MNI-174"
     },
     {
       "id": "MNI-200",
@@ -151,32 +179,11 @@
       "parentId": "MNI-170"
     },
     {
-      "id": "MNI-184",
-      "title": "Make graph selection readable keyboard-accessible and fully inspectable",
-      "status": "Done",
-      "url": "https://linear.app/mnim/issue/MNI-184/make-graph-selection-readable-keyboard-accessible-and-fully",
-      "parentId": "MNI-170"
-    },
-    {
       "id": "MNI-175",
       "title": "Define shared readiness freshness and capability states",
       "status": "Done",
       "url": "https://linear.app/mnim/issue/MNI-175/define-shared-readiness-freshness-and-capability-states",
       "parentId": "MNI-168"
-    },
-    {
-      "id": "MNI-192",
-      "title": "Align existing repository provider settings with PR retrieval states",
-      "status": "In Progress",
-      "url": "https://linear.app/mnim/issue/MNI-192/align-existing-repository-provider-settings-with-pr-retrieval-states",
-      "parentId": "MNI-172"
-    },
-    {
-      "id": "MNI-180",
-      "title": "Guide agent onboarding project selection and evidence use",
-      "status": "In Progress",
-      "url": "https://linear.app/mnim/issue/MNI-180/guide-agent-onboarding-project-selection-and-evidence-use",
-      "parentId": "MNI-169"
     },
     {
       "id": "MNI-174",
@@ -215,13 +222,6 @@
       "title": "Turn import preview into a retained review-and-build flow",
       "status": "Done",
       "url": "https://linear.app/mnim/issue/MNI-187/turn-import-preview-into-a-retained-review-and-build-flow",
-      "parentId": "MNI-170"
-    },
-    {
-      "id": "MNI-183",
-      "title": "Repair shared modal form and confirmation accessibility",
-      "status": "Done",
-      "url": "https://linear.app/mnim/issue/MNI-183/repair-shared-modal-form-and-confirmation-accessibility",
       "parentId": "MNI-170"
     },
     {

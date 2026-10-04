@@ -57,7 +57,7 @@
     "2cd9d32"
   ],
   "retained_file_sha256": {
-    "README.md": "15bcac7bf84f13602fdbe92a5c7246c4aa12e900d93f25d7904a4968288aacaf",
+    "README.md": "ac86a0a3f86b659ab98d6558492e61e804d41c4ff3dfb386edb311be371ece80",
     "evidence/boutique-labels.json": "6c688a2408ce8b29789534eb2453c99fec266f6c137f5f94fcd92da29d6f6712",
     "evidence/candidate-build-info.txt": "908f03de6628684b2ed5b2f0e3a01441eb9799d2eee8c7976d25c9b2e95f2a44",
     "evidence/extractor-before.json": "128dd4ba4c062518e43d9882d6664416869a8ed403464219dc079a02c644b611",
@@ -121,7 +121,8 @@
     "findings.md": "67d7a7df125ba5d29bf345c7ae09f64c16bb2d64f33e7b46f8cb2866d19fde35",
     "harness/flask-runtime-oracle.py": "6c121b90a213a9ea4edbb427b84fc685adb1c8cde2746c3efcd93bcd23dca1f3",
     "harness/public-pr.mjs.txt": "b6e7636752a591e2eb8cb65385f997b6e559ca3bc646d4ac0830506a21d8e478",
-    "linear-status.json": "cc7884d445feb9b00f5f8450ee69406f98f4f1e94af615ca7c2046b7a30c53a7",
+    "linear-receipt.json": "cf4805838f1856b5a9b532ac66e4af65dd9518cf19e93ad67813442d5c72c6b6",
+    "linear-status.json": "424fe7d6409007a6210a4ce9ad450bf8e372ad6eb7b0c67c40f9f40e38a0108b",
     "scenarios.md": "cfbc327092073f548df0e0c3f9fb2543add28447a18dca7f3b8edb02a19df73b"
   }
 }

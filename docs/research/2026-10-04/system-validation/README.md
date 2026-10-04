@@ -18,7 +18,7 @@ This is an operator-led assessment on Linux AMD64 inside WSL, performed on 4 Oct
 | Actual upstream PR | Read [pallets/flask PR 5918](https://github.com/pallets/flask/pull/5918), observed head a82e942870b6472bb40017349cca772c242eb1ad, through the provider, browser and HTTP MCP, with matching company evidence. The saved tutorial graph is stale for this PR; exact eligibility is correctly false. The UI identifies on-demand evidence and the heuristic limit. No positive exact-impact claim is made for this upstream PR. |
 | Access and recovery | Exercised scoped viewer/editor/admin/ungranted identities on loopback, rejected stale scope approval, and verified immutable history. Upgraded/restored from prior implementation e2e9530 on JSON and SQLite, independently reconciled resurrected membership and assigned-token grants, and preserved unrelated service/admin access. |
 
-Source and binary identities, package versions and evidence hashes are in [manifest.json](manifest.json). Detailed coverage is in [scenarios.md](scenarios.md) and [findings.md](findings.md). The [Linear snapshot](linear-status.json) separates task state from this run's evidence.
+Source and binary identities, package versions and evidence hashes are in [manifest.json](manifest.json). Detailed coverage is in [scenarios.md](scenarios.md) and [findings.md](findings.md). The [Linear snapshot](linear-status.json) separates task state from this run's evidence. [Verified update receipts](linear-receipt.json) record ten issue updates; child tasks remain 21 Done and 7 In Progress.
 
 ## Defects found and repaired
 
