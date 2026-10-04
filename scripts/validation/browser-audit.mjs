@@ -32,6 +32,20 @@ try{
  const context=await browser.newContext({extraHTTPHeaders:headers});
  const page=await context.newPage();
  page.on('pageerror',e=>errors.push(e.message));
+ const checkGraphSpace=async()=>{
+  const layout=await page.evaluate(()=>{
+   const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height};};
+   const board=box('.workspace-board'),toolbar=box('.graph-mode-toolbar'),header=box('.workspace-topbar'),readiness=box('.workspace-alerts');
+   const controls=[...document.querySelectorAll('.workspace-topbar button,.workspace-topbar h1,.graph-mode-toolbar input,.graph-mode-toolbar select,.graph-mode-toolbar button')].map(e=>{const r=e.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};});
+   return {board,toolbar,header,readiness,controls,viewport:innerWidth,height:innerHeight};
+  });
+  assert.ok(layout.readiness.height>=100,'readiness must remain readable above the graph');
+  assert.ok(layout.board.height>=320,'graph needs usable height');
+  assert.ok(layout.board.bottom-layout.toolbar.bottom>=180,'toolbar must leave visible graph space');
+  assert.ok(layout.controls.every(r=>r.left>=0&&r.right<=layout.viewport+1),'workspace controls must fit horizontally: '+JSON.stringify(layout));
+  assert.ok(layout.controls.every(r=>r.top>=-1),'workspace controls must not clip above the page: '+JSON.stringify(layout));
+  return layout;
+ };
  const routes=[['projects','/'],['workspace','/projects/'+pid],['operations','/projects/'+pid+'/operations'],['access','/projects/'+pid+'/access'],['pull-requests','/projects/'+pid+'/pull-requests'],['compare','/projects/'+pid+'/compare']];
  for(const width of [1440,768,390]){
   await page.setViewportSize({width,height:1000});
@@ -43,12 +57,29 @@ try{
    await page.waitForTimeout(350);
    const loadMs=Math.round(performance.now()-started);
    const audit=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+   if(name==='workspace')await page.evaluate(()=>{scrollTo(0,0);document.querySelector('.workspace').scrollTop=0;});
+   const layout=name==='workspace'?await checkGraphSpace():undefined;
    const size=await page.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth}));
-   rows.push({name,width,load_ms:loadMs,size,violations:audit.violations.map(v=>({id:v.id,impact:v.impact,description:v.description,nodes:v.nodes.map(n=>({target:n.target,html:n.html,summary:n.failureSummary}))}))});
+   rows.push({name,width,load_ms:loadMs,size,layout,violations:audit.violations.map(v=>({id:v.id,impact:v.impact,description:v.description,nodes:v.nodes.map(n=>({target:n.target,html:n.html,summary:n.failureSummary}))}))});
    await page.screenshot({path:path.join(output,name+'-'+width+'.png'),fullPage:true});
    save();console.log(name,width,'violations',audit.violations.map(v=>v.id).join(','),'overflow',size.document-width);
   }
  }
+ // A short phone must retain a usable, scroll-reachable graph and inspector.
+ await page.setViewportSize({width:390,height:640});
+ await page.goto(url+'/#/projects/'+pid);await page.locator('.compact-service-name').first().waitFor();
+ await page.waitForLoadState('networkidle');
+ await page.evaluate(()=>{scrollTo(0,0);document.querySelector('.workspace').scrollTop=0;});
+ const phoneLayout=await checkGraphSpace();
+ await page.getByLabel('Graph team',{exact:true}).selectOption('checkout');
+ const search=page.getByLabel('Search service',{exact:true});
+ await search.fill('checkout-api');await search.press('Enter');
+ const phoneNode=page.locator('.service-system[data-select-id="checkout-api"]');
+ await phoneNode.waitFor();await phoneNode.focus();await page.keyboard.press('Enter');
+ assert.match(await page.locator('.workspace-right').innerText(),/checkout-api/);
+ await page.locator('.workspace-right').scrollIntoViewIfNeeded();
+ await page.screenshot({path:path.join(output,'phone-graph-selection.png'),fullPage:true});
+ rows.push({name:'short-phone-graph',layout:phoneLayout,selected:true});
  // Real keyboard-only dialog entry, trap, dismissal and focus restoration.
  await page.setViewportSize({width:1440,height:1000});
  await page.goto(url+'/#/projects/'+pid);await page.getByLabel('Workspace readiness').waitFor();

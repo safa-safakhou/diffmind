@@ -607,6 +607,9 @@ textarea { resize: vertical; }
   z-index: 8;
   top: 14px;
   left: 14px;
+  right: 14px;
+  width: fit-content;
+  max-width: calc(100% - 28px);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -1477,8 +1480,19 @@ textarea { resize: vertical; }
 
 @media (max-width: 1100px) {
   .workspace {
+    overflow: auto;
     grid-template-columns: 240px minmax(0, 1fr);
-    grid-template-rows: 58px auto minmax(0, 1fr) minmax(190px, 30vh) 34px;
+    grid-template-rows: max-content 132px minmax(420px, 55vh) minmax(190px, 30vh) 34px;
+  }
+  .workspace-topbar {
+    min-height: 58px;
+    flex-wrap: wrap;
+    padding: 8px 16px;
+  }
+  .workspace-crumbs,
+  .workspace-actions {
+    min-width: 0;
+    flex-wrap: wrap;
   }
   .workspace-right {
     display: block;
@@ -1498,6 +1512,7 @@ textarea { resize: vertical; }
 		grid-column: 2;
 		grid-row: 2;
 		padding: 8px 16px 0;
+    overflow: auto;
 	}
   .workspace-alerts > .graph-quality {
 		margin: 0;
@@ -1507,7 +1522,7 @@ textarea { resize: vertical; }
 @media (max-width: 760px) {
   .workspace {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto 132px minmax(0, 1fr) minmax(210px, 34vh) 38px;
+    grid-template-rows: max-content 132px 132px minmax(420px, 60vh) minmax(210px, 34vh) 38px;
   }
   .workspace-topbar {
     grid-column: 1;
@@ -1569,6 +1584,11 @@ textarea { resize: vertical; }
     grid-column: 1;
     grid-row: 4;
   }
+  .graph-scope-summary {
+    white-space: normal;
+    flex-wrap: wrap;
+    padding: 5px 10px;
+  }
   .workspace-right {
     display: block;
     grid-column: 1;
@@ -1605,7 +1625,7 @@ textarea { resize: vertical; }
 
 @media (max-width: 440px) {
   .workspace {
-    grid-template-rows: auto auto 118px minmax(0, 1fr) minmax(220px, 38vh) 38px;
+    grid-template-rows: max-content 132px 118px minmax(420px, 60vh) minmax(220px, 38vh) 38px;
   }
   .workspace-topbar {
     min-height: 84px;
