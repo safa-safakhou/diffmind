@@ -1,66 +1,80 @@
-# Validating a DiffMind candidate
+# Contributor validation
 
-Run from the source checkout with Go 1.26.6 or newer, Git and a C compiler.
+Use the Go version in `go.mod`, Git and a C compiler. Dashboard changes also
+require the Node.js version supported by the frontend packages.
+
+## Required checks
+
+Run `make test` for every change. Run the additional checks that apply:
+
+| Change | Checks |
+| --- | --- |
+| Extraction rules or knowledge packs | `make test-packs test-acceptance` |
+| Ingestion, storage or graph pipeline | `make test-race` |
+| Either dashboard | `make ui-test ui-build` |
+| Frontend dependencies | `make ui-audit` |
+| Go dependencies | `make vulncheck` |
+| Installation or distribution | `make test-distribution` |
+| Agent management or onboarding | `make test-agent` |
+
+`make verify` runs the comprehensive local suite. See
+[CONTRIBUTING](../CONTRIBUTING.md) and [distribution](distribution.md) for the
+contribution and release requirements. For a built native archive, run
+`make test-release-native ARCHIVE="$diffmind_archive" VERSION="$diffmind_version"`
+with the archive location and its exact version.
+
+The [company acceptance fixture](../testdata/company/README.md) builds the real
+CLI and checks synthetic Go/Python/Java relationships, HTTP/MCP queries,
+incremental refresh and recovery. The public demo has a separate check:
 
 ```sh
-go test ./...
-go test -race ./internal/workspace/archgraph ./internal/workspace/query ./internal/workspace/ui ./internal/workspace/agentapi ./internal/workspace/mcpserver
-go build -o bin/diffmind ./cmd/diffmind
-sh scripts/test-showcase.sh
+make test-showcase
 ```
 
-The showcase script prepares six public-safe synthetic repositories in a new
-temporary directory, runs the actual analyzer and applies the canonical checkout
-change. It removes only its own temporary directory. It requires the preceding
-`bin/diffmind` build. It validates extraction mechanisms and source-change
-regressions, not universal semantic coverage or PR accuracy.
+To check an installed binary, set `DIFFMIND_BINARY` to its location and run
+`sh scripts/test-showcase.sh`. Use a disposable workspace for manual checks;
+never run fixture mutations against a company workspace.
 
-To check an already installed candidate without replacing a local build, use
-`DIFFMIND_BINARY=/absolute/path/to/diffmind sh scripts/test-showcase.sh`.
+## Optional integration checks
 
-For frontend changes, use a supported Node.js runtime in
-`internal/workspace/ui/web`:
+The scripts in `scripts/validation` cover boundaries beyond the normal suite.
+Arguments are documented at the top of each script. Pass output directories
+outside the checkout. Use new destinations and check each script's requirements
+before running it.
 
-```sh
-node --test src/lib/*.test.js
-node scripts/test-components.mjs
-node node_modules/vite/bin/vite.js build
-```
+| Scripts | Coverage |
+| --- | --- |
+| `prepare-boutique.py`, `public-correction.mjs` | Pinned public source, reviewed correction packs and graph rollback |
+| `flask-pr.py`, `source-corpus.py`, `upstream-pr.py` | Runtime/source expectations and PR caller evidence |
+| `provider-matrix.py` | Provider state, credential and redirect boundaries |
+| `background-matrix.py` | Concurrent reads, refresh reuse and access checks on both queue backends |
+| `recovery-upgrade.py` | Prior-to-current backup/restore and grant reconciliation |
+| `systemd-native.py` | Backup service lifecycle on an isolated Linux host |
+| `installed-host.py`, `company-host.py` | Installed agent capabilities, project scope and token revocation |
+| `browser-audit.mjs`, `extractor-browser.mjs` | Browser layout, keyboard behavior and accessibility |
 
-Install frontend dependencies first if absent. Retain the resulting embedded
-bundle with the candidate. Browser tests must use the candidate containing that
-bundle; a screenshot from an older binary is not candidate verification.
+Browser checks require Playwright; accessibility checks also require
+`@axe-core/playwright`. Set `DIFFMIND_PLAYWRIGHT_MODULE` and `DIFFMIND_AXE_MODULE`
+to modules from your dependency installation. `DIFFMIND_BROWSER` selects
+`chromium`, `firefox` or `webkit`; `DIFFMIND_CHROMIUM` optionally selects a
+Chromium executable. Source/runtime checks document their pinned upstream
+revisions and Python dependencies.
 
-For an isolated source installation, follow [AGENT_SETUP](../AGENT_SETUP.md).
-Use a fresh private home and user-owned binary directory. Query-only `mcp`,
-full-management `agent`, and company HTTP `/mcp` are distinct contracts.
-Verify actual installed-client discovery and source-backed queries before
-reporting a working connection; prescribed tool calls do not demonstrate
-unprompted adoption or human comprehension. See [agent operations](agent-operations.md)
-and [company access](project-access.md).
+## Evidence and limits
 
-The current CLI has **no `eval` command**. References to `diffmind eval --mode
-cheap`, `score-run`, `variance`, `floor-coverage`, `internal/eval` or `internal/floor`
-in historical extractor designs and fixture notes are obsolete. Preserve those
-records as history, not installation or validation instructions.
+Define expected relationships from source, runtime registration or independent
+contract parsing before comparing analyzer output. Include near-match negatives,
+unsupported cases and unknown truth. Test dirty/stale revisions, access loss,
+missing patches and failed provider requests as well as successful cases.
 
-The [pinned public benchmarks](../examples/public-benchmarks/README.md) report
-bounded compatibility observations. Detector counts, rendered graph scale,
-assembled graph correctness, actual installed-agent behavior and human outcomes
-must be reported separately. Expected labels should precede candidate scoring.
-Unknown truth is not a false positive or false negative. Synthetic PR fixtures
-do not establish real code-host review accuracy or calibrated scores.
+Record the source revision, binary identity, environment, commands, results and
+limitations in the PR or CI artifacts. Keep generated graphs, logs, transcripts,
+screenshots, clones and backups outside Git. Reusable fixtures must be synthetic
+and should contain only the inputs and expected behavior needed by a test.
 
-Native support covers macOS/Linux on AMD64/ARM64; platform support and the
-platform actually tested for a candidate are separate facts. Record the exact
-binary, source revision, environment, commands, retained evidence and limitations.
-The [release verifier](distribution.md) exercises installed archives; publishing a
-release is a separate action. Background maintenance and access migration retain
-their [operational](operations.md) and [shared deployment](company-deployment.md)
-requirements.
-
-## Remaining acceptance scenarios
-
-Use the [test scenario pack](testing/README.md) for executable checks, independent
-labels, unprompted persona sessions, Enterprise trials and evidence templates.
-Preparation is not an execution or completion receipt.
+Report static extraction, declared configuration, graph rendering and actual
+agent behavior separately. Synthetic graphs and scripted model sessions do not
+establish complete framework coverage, human usability or production reliability.
+Native release checks must run on every supported target; cross-compilation alone
+does not verify installation. PR heuristics and zero exact callers do not prove
+that a change is safe to merge.

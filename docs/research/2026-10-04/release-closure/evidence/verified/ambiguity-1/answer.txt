@@ -1,1 +1,0 @@
-There are two saved architecture graphs, and the checkout service could differ between them. Which should I trace: **East Commerce** (`demo-commerce`) or **West Commerce** (`west-commerce`)?

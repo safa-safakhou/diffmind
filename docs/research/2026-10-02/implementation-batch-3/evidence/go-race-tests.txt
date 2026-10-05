@@ -1,3 +1,0 @@
-ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	17.546s
-ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/store	(cached)
-ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi	(cached)

@@ -5,7 +5,7 @@ Usage: installed-host.py SPEC_JSON NEW_OUTPUT_DIRECTORY
 A spec supplies binary, mode (mcp/agent/http), home or url, work, prompt and
 optional token_env and approved_tools (explicit test-scope authorization). The existing Codex model/effort settings are preserved;
 unrelated MCP configuration is not loaded. Raw private transcripts may contain
-tool data: review/redact them before retaining evidence in Git.
+tool data: review/redact them before sharing as CI or PR artifacts.
 """
 import hashlib,json,os,signal,subprocess,sys,time,tomllib
 from pathlib import Path

@@ -1,1 +1,0 @@
-I found two saved architecture projects: **East Commerce** (`demo-commerce`) and **West Commerce** (`west-commerce`). Which should I trace for checkout? You can choose both.

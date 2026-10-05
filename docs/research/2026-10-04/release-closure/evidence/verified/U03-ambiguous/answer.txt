@@ -1,1 +1,0 @@
-Which project do you mean: **East Commerce** (`demo-commerce`) or **West Commerce** (`west-commerce`)? Both have a saved checkout service, and the architecture query requires choosing one before I can trace affected services.

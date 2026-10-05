@@ -21,8 +21,9 @@ coverage measurements.
 Create it in a new directory:
 
 ```bash
-make enterprise-showcase DEST=/tmp/diffmind-enterprise
-DIFFMIND_HOME=/tmp/diffmind-enterprise ./bin/diffmind ui --no-spa-rebuild
+diffmind_enterprise="$(mktemp -d)/enterprise"
+make enterprise-showcase DEST="$diffmind_enterprise"
+DIFFMIND_HOME="$diffmind_enterprise" ./bin/diffmind ui --no-spa-rebuild
 ```
 
 Open `http://127.0.0.1:8090`. A workspace this large opens on one team, showing
@@ -35,8 +36,9 @@ The generator uses seed `20260910` by default. Override it to vary metrics while
 preserving topology counts:
 
 ```bash
-GOCACHE="$PWD/.gocache" go run ./scripts/enterprise-showcase \
-  --home /tmp/diffmind-enterprise-alt \
+diffmind_enterprise_alt="$(mktemp -d)/enterprise"
+go run ./scripts/enterprise-showcase \
+  --home "$diffmind_enterprise_alt" \
   --seed 42
 ```
 

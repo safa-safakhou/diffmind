@@ -1,8 +1,0 @@
-#!/bin/sh
-mode=$(cat "$(dirname "$0")/failure-mode")
-case "$mode" in
- slow) sleep 3 ;;
- all) exit 31 ;;
- partial) case "$*" in *advendio-gateway*) exit 31 ;; esac ;;
-esac
-exec /tmp/diffmind-backlog-candidate "$@"

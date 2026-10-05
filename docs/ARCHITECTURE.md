@@ -56,9 +56,8 @@ project and repository-operation workers, remote MCP, and authentication through
 an admin token, scoped project agent token, or trusted identity proxy. It is not a distributed queue or
 multi-tenant database service. A data directory must have one server writer.
 
-No OpenCode server or LLM provider is required. Older extractor catalog/design
-notes are not the authority for the current platform plan.
-See [the roadmap](ROADMAP.md) for completed and remaining work.
+No model provider is required for extraction. See [the roadmap](ROADMAP.md)
+for remaining work.
 
 ## Local data
 

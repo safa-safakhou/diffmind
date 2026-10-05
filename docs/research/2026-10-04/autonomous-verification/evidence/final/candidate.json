@@ -1,8 +1,0 @@
-{
-  "commit": "a7c83692a1c549ae0f50bcc7e440617f34a5165e",
-  "sha256": "908f15ee16f3548d89d76a3e8985f40fcaf6780c0ae9967cc81230866aad37d7",
-  "product_change": "011e4ee",
-  "go": "1.26.6",
-  "platform": "linux/amd64",
-  "built_at": "2026-10-04T16:42:19.002373+00:00"
-}

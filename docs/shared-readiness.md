@@ -32,7 +32,3 @@ The response separates these dimensions:
 | Query-only stdio | Queryable if readable locally | Persisted observation, not a worker liveness guarantee | Not applicable | Mutation actions always false; maintenance unknown | Query saved evidence or request an editor |
 
 Readiness reads do not register/import repositories, mutate snapshots, sync source trees, fetch PRs, retry jobs or extend grants. Browser requests from a previous project or an older poll cannot replace a newer workspace. HTTP artifact validation reuses the existing file-size/mtime cache so repeated polls do not repeatedly parse large graph files.
-
-## Verification
-
-See [the 3 October validation record](research/2026-10-03/shared-readiness/README.md). This contract completes the shared-readiness foundation (MNI-175); it does not complete the background contention, enterprise deployment, independent corpus, installed-agent adoption or release gates tracked separately.

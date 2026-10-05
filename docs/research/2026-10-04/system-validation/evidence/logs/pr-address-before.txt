@@ -1,8 +1,0 @@
---- FAIL: TestExactPRCallerUsesStructuredHTTPAddress (0.00s)
-    --- FAIL: TestExactPRCallerUsesStructuredHTTPAddress/actual_Python_caller (0.00s)
-        handlers_pull_requests_test.go:368: exact callers=map[]; want 1
-    --- FAIL: TestExactPRCallerUsesStructuredHTTPAddress/query_parameters (0.00s)
-        handlers_pull_requests_test.go:368: exact callers=map[]; want 1
-FAIL
-FAIL	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	0.004s
-FAIL

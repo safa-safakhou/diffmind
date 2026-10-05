@@ -1,7 +1,0 @@
-{
-  "commit": "63ca9d31fe988da9f49abeb78fd98393005a4671",
-  "binary_sha256": "d53ddebf5ce8cc4ea898e4d367f9bde0217c9c039cb001f7a499b0288b888818",
-  "source_clean_at_build": true,
-  "platform": "linux/amd64",
-  "version": "0.0.0-validation"
-}

@@ -11,8 +11,9 @@ From your checkout:
 
 ```bash
 make build
-sh scripts/prepare-demo.sh /tmp/diffmind-first-contribution
-export DIFFMIND_HOME=/tmp/diffmind-first-contribution/workspace
+diffmind_demo="$(mktemp -d)/first-contribution"
+sh scripts/prepare-demo.sh "$diffmind_demo"
+export DIFFMIND_HOME="$diffmind_demo/workspace"
 ./bin/diffmind doctor
 ./bin/diffmind ui --no-spa-rebuild
 ```
@@ -22,7 +23,8 @@ copies the shared acceptance fixture into three Git repositories on `master`,
 with synthetic author details. It does not change global Git configuration.
 
 Open `http://127.0.0.1:8090`, create a project, and choose **Import & build** with
-local directory `/tmp/diffmind-first-contribution/repositories`.
+the `repositories` directory inside `$diffmind_demo`. Run
+`printf '%s\n' "$diffmind_demo/repositories"` to display its location.
 
 Expected: Go `gateway` calls Python `catalog` and Java `billing`.
 `status.example.test` stays external. Inspect source evidence for both internal
@@ -31,7 +33,7 @@ source comment in `catalog`, refresh, and only that repository should reanalyze.
 Operations shows durable attempts; graph comparison uses explicit saved runs.
 
 For an agent, set the same `DIFFMIND_HOME` and launch
-`/absolute/path/to/diffmind/bin/diffmind mcp --project PROJECT_ID`. Do not point
+`"$PWD/bin/diffmind" mcp --project PROJECT_ID`. Do not point
 your demo agent at the default real workspace accidentally.
 
 ## Verify and contribute

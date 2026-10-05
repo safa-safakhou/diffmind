@@ -1,1 +1,0 @@
-ok	validation.boutique-addresses@1.0.0

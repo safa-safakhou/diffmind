@@ -1,4 +1,0 @@
-ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/stage/discovery	0.129s
-ok  	github.com/mohammad-safakhou/diffmind/internal/extractor/artifacts	0.032s
-ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/artifacts	(cached)
-ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	(cached)

@@ -1,4 +1,0 @@
-ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	15.696s
-ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/query	(cached)
-ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/agenthost	(cached)
-ok  	github.com/mohammad-safakhou/diffmind/internal/workspace/mcpserver	(cached)

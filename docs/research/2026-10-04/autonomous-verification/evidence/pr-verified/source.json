@@ -1,9 +1,0 @@
-{
-  "controlled_pr": true,
-  "upstream_pr": false,
-  "public_source": "pallets/flask tutorial 3.1.2",
-  "derived_base": "2c55a2e38ef4b01117f8b7f2d2e7ed30ea5b6dee",
-  "derived_head": "6fdbfe258d8cfa0f70247fea363de771809496d4",
-  "patch": "diff --git a/flaskr/auth.py b/flaskr/auth.py\nindex 34c03a2..4e59f8a 100644\n--- a/flaskr/auth.py\n+++ b/flaskr/auth.py\n@@ -81,7 +81,7 @@ def register():\n     return render_template(\"auth/register.html\")\n \n \n-@bp.route(\"/login\", methods=(\"GET\", \"POST\"))\n+@bp.route(\"/sign-in\", methods=(\"GET\", \"POST\"))\n def login():\n     \"\"\"Log in a registered user by adding the user id to the session.\"\"\"\n     if request.method == \"POST\":",
-  "synthetic_caller": true
-}

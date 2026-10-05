@@ -19,13 +19,14 @@ followed by the complete monorepo:
 
 ```bash
 make build
-sh scripts/prepare-public-benchmarks.sh /tmp/diffmind-public-benchmarks
+diffmind_benchmarks="$(mktemp -d)"
+sh scripts/prepare-public-benchmarks.sh "$diffmind_benchmarks/sources"
 sh scripts/analyze-public-monorepo.sh \
-  /tmp/diffmind-public-benchmarks/opentelemetry-demo \
-  /tmp/diffmind-otel-results
+  "$diffmind_benchmarks/sources/opentelemetry-demo" \
+  "$diffmind_benchmarks/otel-results"
 sh scripts/analyze-public-monorepo.sh \
-  /tmp/diffmind-public-benchmarks/online-boutique \
-  /tmp/diffmind-online-boutique-results
+  "$diffmind_benchmarks/sources/online-boutique" \
+  "$diffmind_benchmarks/online-boutique-results"
 ```
 
 The analyzer scopes a nested monorepo run to the requested directory. This is

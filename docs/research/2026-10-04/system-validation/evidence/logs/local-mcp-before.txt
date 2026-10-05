@@ -1,5 +1,0 @@
---- FAIL: TestLocalHTTPMCPManagementPreservesValidatedHost (0.01s)
-    agent_management_test.go:284: local MCP failed: result=&{Meta:map[] Content:[0x14b2f859c7a0] StructuredContent:map[data:map[error:untrusted request host recovery:map[category:access_or_availability next_action:Return to accessible projects or ask your workspace administrator for help. retryable:false]] recovery:map[category:access_or_availability next_action:Return to accessible projects or ask your workspace administrator for help. retryable:false] status:403] IsError:true err:<nil>} err=<nil>
-FAIL
-FAIL	github.com/mohammad-safakhou/diffmind/internal/workspace/ui	0.011s
-FAIL
