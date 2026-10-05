@@ -44,8 +44,9 @@ and lines of code are generated metadata—not runtime telemetry and not claims
 about real repositories.
 
 ```bash
-make enterprise-showcase DEST=/tmp/diffmind-enterprise
-DIFFMIND_HOME=/tmp/diffmind-enterprise \
+diffmind_enterprise="$(mktemp -d)/enterprise"
+make enterprise-showcase DEST="$diffmind_enterprise"
+DIFFMIND_HOME="$diffmind_enterprise" \
   ./bin/diffmind ui --no-spa-rebuild
 ```
 
@@ -69,7 +70,8 @@ Build DiffMind and generate the six independent repositories:
 
 ```bash
 make build
-sh scripts/prepare-showcase.sh /tmp/diffmind-demo-shop
+diffmind_demo="$(mktemp -d)/demo-shop"
+sh scripts/prepare-showcase.sh "$diffmind_demo"
 ```
 
 Run the automated public fixture check:
@@ -81,12 +83,13 @@ make test-showcase
 Start a workspace that contains no private data:
 
 ```bash
-DIFFMIND_HOME=/tmp/diffmind-demo-shop/workspace \
+DIFFMIND_HOME="$diffmind_demo/workspace" \
   ./bin/diffmind ui --no-spa-rebuild
 ```
 
 Open `http://127.0.0.1:8090`, create a project and choose **Import & build**.
-Import `/tmp/diffmind-demo-shop/repositories`. A successful run should match
+Import the `repositories` directory inside `$diffmind_demo` (run
+`printf '%s\n' "$diffmind_demo/repositories"` to display its location). A successful run should match
 [`examples/demo-shop/expected.json`](../examples/demo-shop/expected.json).
 
 ## Demonstrate change impact
@@ -99,7 +102,7 @@ The prepared task evolves `POST /v1/checkout`:
 Apply the scenario after preserving the baseline graph:
 
 ```bash
-sh scripts/apply-demo-shop-change.sh /tmp/diffmind-demo-shop
+sh scripts/apply-demo-shop-change.sh "$diffmind_demo"
 ```
 
 Choose **Update graph**, then compare the saved runs. The request-contract query

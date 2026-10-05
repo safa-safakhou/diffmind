@@ -35,7 +35,7 @@ type Settings struct {
 }
 
 func DefaultSettings() Settings {
-	return Settings{RepositoryWorkers: 4, JobWorkers: 2, QueueCapacity: 256, RefreshConcurrency: 4, ProjectAccess: "legacy"}
+	return Settings{RefreshInterval: "15m", RefreshOnStart: true, RepositoryWorkers: 4, JobWorkers: 2, QueueCapacity: 256, RefreshConcurrency: 4, ProjectAccess: "legacy"}
 }
 func (s Settings) validate() error {
 	if s.RefreshConcurrency < 1 || s.RefreshConcurrency > 16 {

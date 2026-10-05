@@ -1,0 +1,84 @@
+{
+  "api_version": "diffmind.dev/v1alpha1",
+  "kind": "KnowledgePack",
+  "id": "validation.boutique-addresses",
+  "name": "Reviewed Boutique gRPC address declarations",
+  "description": "Evaluation-only narrow pinned deployment syntax; no runtime reachability inference.",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "compatibility": ">=0.2.0",
+  "applies_to": {
+    "kind": "service_repo",
+    "match": {
+      "has_file": "deployment.yaml"
+    }
+  },
+  "extractions": [],
+  "detectors": [
+    {
+      "name": "reviewed literal gRPC addresses",
+      "type": "outbound_rpc",
+      "source": {
+        "glob": "deployment.yaml"
+      },
+      "strategy": "regex",
+      "pattern": "(?m)^[ \\t]*- name: (?:PRODUCT_CATALOG|CURRENCY|CART|RECOMMENDATION|SHIPPING|CHECKOUT|AD)_SERVICE_ADDR[ \\t]*\\r?\\n[ \\t]+value: \"(?P<target>[a-z][a-z0-9-]*:[0-9]+)\"[ \\t]*$"
+    }
+  ],
+  "tests": [
+    {
+      "name": "literal positive",
+      "fixture": "fixtures/positive",
+      "expected": {
+        "service_name": "positive"
+      },
+      "dependencies": [
+        {
+          "type": "outbound_rpc",
+          "target": "cartservice:7070",
+          "file": "deployment.yaml",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "name": "near-match comments placeholders and unrelated variables",
+      "fixture": "fixtures/near-match",
+      "expected": {
+        "service_name": "near-match"
+      }
+    }
+  ],
+  "graph_tests": [
+    {
+      "name": "exact declared relationship",
+      "repositories": [
+        {
+          "name": "positive",
+          "fixture": "fixtures/positive"
+        },
+        {
+          "name": "cartservice",
+          "fixture": "fixtures/cartservice"
+        }
+      ],
+      "edges": [
+        {
+          "from": "positive",
+          "to": "cartservice",
+          "type": "rpc"
+        }
+      ]
+    },
+    {
+      "name": "no phantom negative relationships",
+      "repositories": [
+        {
+          "name": "near-match",
+          "fixture": "fixtures/near-match"
+        }
+      ],
+      "edges": []
+    }
+  ]
+}

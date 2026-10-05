@@ -99,6 +99,7 @@ func extractCalls(root *sitter.Node, src []byte, lang string, sitterLang *sitter
 			Caller:        caller,
 			CalleeRaw:     calleeRaw,
 			ReceiverRaw:   receiverRaw,
+			AssignedTo:    directCallAssignment(callNode, src, lang),
 			File:          relPath,
 			Range:         r,
 			Arguments:     args,
@@ -117,6 +118,28 @@ func extractCalls(root *sitter.Node, src []byte, lang string, sitterLang *sitter
 	out = appendMethodRefArgCalls(out, src, relPath, symbolsInFile, seen, deupKey)
 
 	return out
+}
+
+// Only a direct Python assignment provides a constructor receiver identity.
+func directCallAssignment(node *sitter.Node, src []byte, lang string) string {
+	if lang != "python" {
+		return ""
+	}
+	for node != nil && node.Type() != "call" {
+		node = node.Parent()
+	}
+	if node == nil {
+		return ""
+	}
+	parent := node.Parent()
+	if parent == nil || parent.Type() != "assignment" {
+		return ""
+	}
+	left, right := parent.ChildByFieldName("left"), parent.ChildByFieldName("right")
+	if left == nil || right == nil || left.Type() != "identifier" || right.StartByte() != node.StartByte() || right.EndByte() != node.EndByte() {
+		return ""
+	}
+	return left.Content(src)
 }
 
 // appendMethodRefArgCalls scans the already-extracted calls for arguments that

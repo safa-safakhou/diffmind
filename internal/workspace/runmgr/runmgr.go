@@ -216,13 +216,47 @@ func (m *Manager) buildConfig(pid string, manifest store.RunManifest) (*config.C
 		Artifacts: config.ArtifactsConfig{BaseDir: m.store.RunDir(pid, manifest.ID)},
 	}
 
+	// API selectors use storage keys; the resolver uses manifest IDs.
+	// Accept both, but fail explicitly rather than silently omit a correction.
+	packSelectors := map[string]string{}
+	packs, err := m.store.ListPacks(pid)
+	if err != nil {
+		return nil, warnings, err
+	}
+	for _, meta := range packs {
+		raw, err := m.store.GetPack(pid, meta.ID)
+		if err != nil {
+			return nil, warnings, err
+		}
+		var declared struct {
+			ID string `json:"id"`
+		}
+		if err := json.Unmarshal(raw, &declared); err != nil || declared.ID == "" {
+			return nil, warnings, fmt.Errorf("pack %s has no valid manifest ID", meta.ID)
+		}
+		for _, selector := range []string{meta.ID, declared.ID} {
+			if previous, exists := packSelectors[selector]; exists && previous != declared.ID {
+				return nil, warnings, fmt.Errorf("ambiguous pack selector %s", selector)
+			}
+			packSelectors[selector] = declared.ID
+		}
+	}
+
 	for _, ref := range manifest.Repos {
 		repo, err := m.store.GetRepo(pid, ref.RepoID)
 		if err != nil {
 			warnings = append(warnings, fmt.Sprintf("repo %s not found; skipping", ref.RepoID))
 			continue
 		}
-		entry := config.RepoEntry{Name: repo.Name, Path: repo.Path, PackIDs: append([]string(nil), repo.PackIDs...)}
+		var selected []string
+		for _, selector := range repo.PackIDs {
+			id, exists := packSelectors[selector]
+			if !exists {
+				return nil, warnings, fmt.Errorf("repository %s selects unavailable pack %s; review pack settings before rebuilding", repo.Name, selector)
+			}
+			selected = append(selected, id)
+		}
+		entry := config.RepoEntry{Name: repo.Name, Path: repo.Path, PackIDs: selected}
 		if ref.DiffMindRunID != "" {
 			entry.DiffMindArtifacts = filepath.Join(m.diffmindRunsDir, ref.DiffMindRunID)
 		}

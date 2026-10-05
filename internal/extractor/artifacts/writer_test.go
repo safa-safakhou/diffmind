@@ -527,3 +527,20 @@ func TestRepoMetricsExcludeDependencyAndPythonEnvironmentTrees(t *testing.T) {
 		t.Fatalf("metrics included dependency trees: %+v", metrics)
 	}
 }
+
+func TestMetricsHonorApprovedFileScope(t *testing.T) {
+	repo := t.TempDir()
+	for name, body := range map[string]string{"diffmind-configuration.yaml": "paths:\n  include: [production/**]\n", "production/app.py": "first\nsecond\n", "examples/demo.py": "fake\n", "production/fixtures/demo.py": "fake\n"} {
+		full := filepath.Join(repo, name)
+		if err := os.MkdirAll(filepath.Dir(full), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(full, []byte(body), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	metrics := CollectRepoMetrics(repo, nil)
+	if metrics.FileCount != 1 || metrics.TotalLOC != 2 {
+		t.Fatalf("metrics escaped scope: %+v", metrics)
+	}
+}

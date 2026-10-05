@@ -132,6 +132,14 @@ func TestAgentManagementHTTPPermissionsAndAudit(t *testing.T) {
 				call("manage_workspace", agentapi.Input{Operation: "set_access", Selectors: map[string]string{"pid": pid}, Body: map[string]any{"revision": 0, "members": map[string]string{"editor": "editor"}}}, 200)
 				rt.identity.Store(Identity{User: "editor", Role: RoleEditor})
 				call("manage_workspace", agentapi.Input{Operation: "update_project", Selectors: map[string]string{"pid": pid}, Body: map[string]any{"instruction": "no host config"}}, 403)
+				// The denied direct-analysis path must identify a working
+				// editor recovery route without widening configuration authority.
+				denied := call("manage_workspace", agentapi.Input{Operation: "start_ingestion", Selectors: map[string]string{"pid": pid}}, 403)
+				if message, _ := denied["error"].(string); !strings.Contains(message, "enqueue_refresh") {
+					t.Fatalf("editor refresh recovery missing: %v", denied)
+				}
+				call("manage_workspace", agentapi.Input{Operation: "enqueue_refresh", Selectors: map[string]string{"pid": pid}}, 202)
+				call("inspect_workspace", agentapi.Input{Operation: "list_jobs", Query: map[string]string{"project": pid}}, 200)
 				rt.identity.Store(Identity{User: "admin", Role: RoleAdmin})
 			}
 			call("manage_workspace", agentapi.Input{Operation: "delete_project", Selectors: map[string]string{"pid": pid}, Confirm: "delete_project"}, 200)
@@ -270,5 +278,38 @@ func TestAgentShutdownDrainsActiveIngestion(t *testing.T) {
 	}
 	if _, err = s.runs.Start(p.ID, []store.RunRepoRef{{RepoID: "anything"}}, nil); err == nil {
 		t.Fatal("graph admission remained open")
+	}
+}
+
+func TestLocalHTTPMCPManagementPreservesValidatedHost(t *testing.T) {
+	s := newAuthTestServer(t)
+	hs := httptest.NewServer(s.Handler())
+	defer hs.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client := mcp.NewClient(&mcp.Implementation{Name: "local-http-test", Version: "1"}, nil)
+	session, err := client.Connect(ctx, &mcp.StreamableClientTransport{Endpoint: hs.URL + "/mcp", DisableStandaloneSSE: true}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{Name: "manage_workspace", Arguments: agentapi.Input{Operation: "create_project", Body: map[string]any{"name": "Loopback MCP"}}})
+	if err != nil || result.IsError {
+		t.Fatalf("local MCP failed: result=%+v err=%v", result, err)
+	}
+	b, _ := json.Marshal(result.StructuredContent)
+	var outcome agentapi.Result
+	if err = json.Unmarshal(b, &outcome); err != nil || outcome.Status != 201 {
+		t.Fatalf("result=%s err=%v", b, err)
+	}
+	forged, _ := http.NewRequestWithContext(ctx, "GET", hs.URL+"/api/projects", nil)
+	forged.Host = "untrusted.example"
+	response, err := http.DefaultClient.Do(forged)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusForbidden {
+		t.Fatalf("forged Host status=%d", response.StatusCode)
 	}
 }

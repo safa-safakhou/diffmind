@@ -2,22 +2,28 @@ package ui
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/orchestrator"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/store"
 )
 
 type importReposRequest struct {
+	PreviewDigest   string `json:"preview_digest,omitempty"`
 	Provider        string `json:"provider"`
 	Org             string `json:"org"`
 	Root            string `json:"root"`
@@ -38,12 +44,15 @@ type importReposRequest struct {
 }
 
 type importedRepoResult struct {
-	Name   string `json:"name"`
-	Path   string `json:"path,omitempty"`
-	GitURL string `json:"git_url"`
-	Status string `json:"status"`
-	RepoID string `json:"repo_id,omitempty"`
-	Error  string `json:"error,omitempty"`
+	SourceType    string                    `json:"source_type,omitempty"`
+	DefaultBranch string                    `json:"default_branch,omitempty"`
+	AnalysisPaths *serviceconfig.PathConfig `json:"analysis_paths,omitempty"`
+	Name          string                    `json:"name"`
+	Path          string                    `json:"path,omitempty"`
+	GitURL        string                    `json:"git_url"`
+	Status        string                    `json:"status"`
+	RepoID        string                    `json:"repo_id,omitempty"`
+	Error         string                    `json:"error,omitempty"`
 }
 
 func (s *Server) handleImportRepos(w http.ResponseWriter, r *http.Request) {
@@ -61,26 +70,16 @@ func (s *Server) handleImportRepos(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusBadRequest, err)
 		return
 	}
-	switch req.Provider {
-	case "github":
-		repos, err := githubOrgRepos(r.Context(), req)
-		if err != nil {
-			writeErr(w, http.StatusBadGateway, err)
-			return
-		}
-		results := s.importGitHubRepos(pid, req, repos)
-		writeJSON(w, http.StatusOK, map[string]any{"results": results, "count": len(results)})
-	case "local":
-		repos, err := localRepos(req)
-		if err != nil {
-			writeErr(w, http.StatusBadRequest, err)
-			return
-		}
-		results := s.importLocalRepos(pid, req, repos)
-		writeJSON(w, http.StatusOK, map[string]any{"results": results, "count": len(results)})
-	default:
-		writeErr(w, http.StatusBadRequest, fmt.Errorf("provider %q is not supported yet", req.Provider))
+	prepared, err := s.prepareImport(r.Context(), pid, req)
+	if err != nil {
+		writeImportError(w, err)
+		return
 	}
+	results := prepared.review
+	if !req.DryRun {
+		results = prepared.apply(s, pid, req)
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"results": results, "count": len(results), "preview_digest": prepared.digest, "project_id": pid, "scope": req})
 }
 
 func validateImportReposRequest(req *importReposRequest) error {
@@ -90,6 +89,9 @@ func validateImportReposRequest(req *importReposRequest) error {
 	}
 	switch req.Provider {
 	case "github":
+		if err := validateGitHubAPIBase(req.APIBase); err != nil {
+			return err
+		}
 		if strings.TrimSpace(req.Org) == "" {
 			return fmt.Errorf("org is required")
 		}
@@ -132,8 +134,8 @@ type githubRepo struct {
 
 func githubOrgRepos(ctx context.Context, req importReposRequest) ([]githubRepo, error) {
 	base := strings.TrimRight(firstNonEmpty(req.APIBase, "https://api.github.com"), "/")
-	token := githubToken(ctx, base)
-	client := &http.Client{Timeout: 30 * time.Second}
+	token := githubAPIToken(ctx, base)
+	client := githubHTTPClient(30 * time.Second)
 	var out []githubRepo
 	for page := 1; ; page++ {
 		url := fmt.Sprintf("%s/orgs/%s/repos?per_page=100&page=%d&type=all", base, req.Org, page)
@@ -147,16 +149,19 @@ func githubOrgRepos(ctx context.Context, req importReposRequest) ([]githubRepo, 
 		}
 		resp, err := client.Do(httpReq)
 		if err != nil {
-			return nil, err
+			return nil, githubConnectionError()
 		}
-		body, readErr := io.ReadAll(resp.Body)
+		body, readErr := io.ReadAll(io.LimitReader(resp.Body, 8<<20))
 		_ = resp.Body.Close()
 		if readErr != nil {
 			return nil, readErr
 		}
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			return nil, githubResponseError(resp.StatusCode)
+		}
 		pageRepos, err := parseGitHubReposResponse(resp.StatusCode, resp.Status, body)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("GitHub repository response could not be read. Check the approved API endpoint.")
 		}
 		if len(pageRepos) == 0 {
 			break
@@ -329,7 +334,7 @@ func (s *Server) importLocalRepos(pid string, req importReposRequest, repos []lo
 			break
 		}
 		clean := filepath.Clean(local.Path)
-		result := importedRepoResult{Name: local.Name, Path: clean, Status: "candidate"}
+		result := importedRepoResult{Name: local.Name, Path: clean, SourceType: "local", Status: "candidate"}
 		if existing[clean].ID != "" || existing[local.Name].ID != "" {
 			result.Status = "skipped_existing"
 			results = append(results, result)
@@ -382,7 +387,7 @@ func (s *Server) importGitHubRepos(pid string, req importReposRequest, repos []g
 			break
 		}
 		gitURL := githubCloneURL(gh, req)
-		result := importedRepoResult{Name: gh.Name, GitURL: gitURL, Status: "candidate"}
+		result := importedRepoResult{Name: gh.Name, GitURL: gitURL, SourceType: "git", DefaultBranch: firstNonEmpty(req.DefaultBranch, gh.DefaultBranch), Status: "candidate"}
 		if existing[gitURL].ID != "" || existing[gh.Name].ID != "" {
 			result.Status = "skipped_existing"
 			results = append(results, result)
@@ -398,6 +403,7 @@ func (s *Server) importGitHubRepos(pid string, req importReposRequest, repos []g
 			SourceType:    "git",
 			GitURL:        gitURL,
 			GitProvider:   "github",
+			GitAPIBase:    strings.TrimRight(firstNonEmpty(req.APIBase, "https://api.github.com"), "/"),
 			DefaultBranch: firstNonEmpty(req.DefaultBranch, gh.DefaultBranch),
 			Team:          firstNonEmpty(req.Team, "default"),
 			SyncStatus:    map[bool]string{true: "sync_queued", false: "unknown"}[req.Clone],
@@ -428,7 +434,7 @@ func githubCloneURL(repo githubRepo, req importReposRequest) string {
 	case "ssh":
 		return firstNonEmpty(repo.SSHURL, repo.CloneURL, repo.HTMLURL)
 	default:
-		if githubToken(context.Background(), req.APIBase) != "" {
+		if githubAPIToken(context.Background(), req.APIBase) != "" {
 			return firstNonEmpty(repo.CloneURL, repo.HTMLURL, repo.SSHURL)
 		}
 		return firstNonEmpty(repo.SSHURL, repo.CloneURL, repo.HTMLURL)
@@ -550,4 +556,94 @@ func (s *Server) runDiffMindBatch(pid string, repos []store.Repo, opts orchestra
 		}()
 	}
 	wg.Wait()
+}
+
+// A review digest is a consistency check, not an authorization credential.
+var errImportReviewChanged = errors.New("Repository scope changed since preview. Preview again before importing.")
+
+type preparedImport struct {
+	review []importedRepoResult
+	local  []localRepo
+	github []githubRepo
+	digest string
+}
+
+func (p *preparedImport) apply(s *Server, pid string, req importReposRequest) []importedRepoResult {
+	if req.Provider == "local" {
+		return s.importLocalRepos(pid, req, p.local)
+	}
+	return s.importGitHubRepos(pid, req, p.github)
+}
+
+type importUpstreamError struct{ error }
+
+func writeImportError(w http.ResponseWriter, err error) {
+	code := http.StatusBadRequest
+	var upstream *importUpstreamError
+	if errors.As(err, &upstream) {
+		code = http.StatusBadGateway
+	}
+	if errors.Is(err, errImportReviewChanged) {
+		code = http.StatusConflict
+	}
+	writeErr(w, code, err)
+}
+func (s *Server) prepareImport(ctx context.Context, pid string, req importReposRequest) (*preparedImport, error) {
+	p := &preparedImport{}
+	var err error
+	if req.Provider == "local" {
+		p.local, err = localRepos(req)
+	} else {
+		p.github, err = githubOrgRepos(ctx, req)
+	}
+	if err != nil {
+		if req.Provider == "local" {
+			return nil, fmt.Errorf("Root directory: %w", err)
+		}
+		return nil, &importUpstreamError{err}
+	}
+	review := req
+	review.DryRun = true
+	review.PreviewDigest = ""
+	review.Clone = false // execution mode does not alter repository membership
+	results := p.apply(s, pid, review)
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Name+results[i].Path+results[i].GitURL < results[j].Name+results[j].Path+results[j].GitURL
+	})
+	// Only selected candidates contribute branch and local analysis boundaries.
+	branches := map[string]string{}
+	paths := map[string]serviceconfig.PathConfig{}
+	for i, result := range results {
+		if req.Provider == "local" {
+			config, err := serviceconfig.Load(result.Path)
+			if err != nil {
+				return nil, err
+			}
+			paths[result.Path] = config.Paths
+			results[i].AnalysisPaths = &config.Paths
+		} else {
+			for _, repo := range p.github {
+				if repo.Name == result.Name {
+					branches[repo.Name] = firstNonEmpty(req.DefaultBranch, repo.DefaultBranch)
+				}
+			}
+		}
+	}
+	p.review = results
+	payload, err := json.Marshal(struct {
+		Project    string
+		Request    importReposRequest
+		Candidates []importedRepoResult
+		Branches   map[string]string
+		Paths      map[string]serviceconfig.PathConfig
+	}{pid, review, results, branches, paths})
+	if err != nil {
+		return nil, err
+	}
+	digest := sha256.Sum256(payload)
+	p.digest = hex.EncodeToString(digest[:])
+	if !req.DryRun && req.PreviewDigest != "" && req.PreviewDigest != p.digest {
+		return nil, errImportReviewChanged
+	}
+	return p, nil
 }

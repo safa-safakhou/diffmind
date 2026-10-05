@@ -735,17 +735,18 @@ function drawText(g, text, x, y, cls, anchor = 'middle') {
   return g.append('text').attr('class', cls).attr('x', x).attr('y', y).attr('text-anchor', anchor).text(text)
 }
 
-function visualEdges(edges) {
+export function visualEdges(edges) {
   const byKey = new Map()
   edges.forEach((edge) => {
     const key = `${edge.from}|${edge.to}|${edge.type}`
     if (!byKey.has(key)) {
-      byKey.set(key, { ...edge, label: edge.label, details: [], count: 0, raw: [] })
+      byKey.set(key, { ...edge, label: edge.label, details: [], evidence: [], count: 0, raw: [] })
     }
     const merged = byKey.get(key)
     merged.count += 1
     merged.raw.push(edge)
     merged.details.push(...(edge.details || []))
+    merged.evidence.push(...(edge.evidence || []))
   })
   return Array.from(byKey.values()).map((edge) => ({
     ...edge,
@@ -1083,6 +1084,26 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
     })
 
     drawSelectedConnectionSummary(rootG.append('g').attr('class', 'selected-connections-overlay'), activeSelection, renderedEdges, topPositions, serviceNames, selectThing)
+    rootG.selectAll('.service-system, .resource-node, path.edge')
+      .attr('tabindex', 0).attr('role', 'button')
+      .attr('aria-label', function () {
+        const node = d3.select(this)
+        return node.attr('data-select-id') ? `Inspect ${node.attr('data-select-id')}` : `Inspect ${node.attr('data-type') || 'dependency'} from ${node.attr('data-from')} to ${node.attr('data-to')}`
+      })
+      .on('keydown.accessibility', function (event) {
+        if (event.key !== 'Enter' && event.key !== ' ') return
+        event.preventDefault(); event.stopPropagation()
+        this.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      })
+      .on('focus.accessibility', function () {
+        const bounds = this.getBoundingClientRect(), viewport = svgRef.current.getBoundingClientRect()
+        if (bounds.left >= viewport.left && bounds.right <= viewport.right && bounds.top >= viewport.top + 92 && bounds.bottom <= viewport.bottom) return
+        const current = transformRef.current
+        const dx = viewport.left + viewport.width / 2 - (bounds.left + bounds.width / 2)
+        const dy = viewport.top + viewport.height / 2 - (bounds.top + bounds.height / 2)
+        svg.call(zoom.transform, d3.zoomIdentity.translate(current.x + dx, current.y + dy).scale(current.k))
+      })
+
 
     function selectThing(sel) {
       setActiveSelection(sel)
@@ -1188,7 +1209,9 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
       const availableW = Math.max(240, W - pad * 2)
       const availableH = Math.max(240, H - overlayTopPad - pad)
       const fitScale = Math.min(availableW / graphW, availableH / graphH, 1.05)
-		const minScale = mode === 'detail' ? 0.04 : 0.18
+		// Keep service labels readable in full-detail mode too. Large graphs
+		// remain navigable through focus, search and keyboard panning.
+		const minScale = 0.75
       const scale = Math.min(Math.max(fitScale, minScale), 1.05)
       const tx = (W - graphW * scale) / 2
       const ty = overlayTopPad + (H - overlayTopPad - graphH * scale) / 2
@@ -1200,7 +1223,7 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
     const focusName = focusServiceRef.current
     const focusNode = focusName && top.hasNode(focusName) ? top.node(focusName) : null
     if (focusNode) {
-      const focusScale = mode === 'detail' ? 0.5 : 0.9
+      const focusScale = mode === 'detail' ? 0.75 : 0.9
       const focusTransform = d3.zoomIdentity
         .translate(W / 2 - focusNode.x * focusScale, H / 2 - focusNode.y * focusScale)
         .scale(focusScale)
@@ -1231,6 +1254,7 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
         <span class="graph-toolbar-divider" />
         <input
           class="graph-search"
+          aria-label="Search service"
           value={searchQuery}
           placeholder="Search service"
           onInput={(e) => setSearchQuery(e.currentTarget.value)}
@@ -1240,11 +1264,11 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
 		<button type="button" aria-label="Zoom out" onClick={() => changeZoom(0.8)}>−</button>
 		<button type="button" aria-label="Reset graph view" onClick={resetZoom}>Reset</button>
 		<button type="button" aria-label="Zoom in" onClick={() => changeZoom(1.25)}>+</button>
-        <select class="graph-team-select" value={teamFilter} onInput={(e) => setTeamFilter(e.currentTarget.value)}>
+        <select aria-label="Graph team" class="graph-team-select" value={teamFilter} onInput={(e) => setTeamFilter(e.currentTarget.value)}>
           <option value="">All {teamOptions.length} teams · {totalServiceCount} services</option>
           {teamOptions.map((team) => <option key={team} value={team}>{team} · {teamServiceCounts.get(team) || 0} services</option>)}
         </select>
-        <select class="graph-scope-select" value={teamScope} disabled={!teamFilter} onInput={(e) => setTeamScope(e.currentTarget.value)}>
+        <select aria-label="Graph team scope" class="graph-scope-select" value={teamScope} disabled={!teamFilter} onInput={(e) => setTeamScope(e.currentTarget.value)}>
           <option value="team">Team only</option>
           <option value="connected">Team + connected</option>
         </select>

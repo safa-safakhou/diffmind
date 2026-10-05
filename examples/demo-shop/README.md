@@ -24,7 +24,8 @@ From the DiffMind checkout:
 
 ```bash
 make build
-sh scripts/prepare-showcase.sh /tmp/diffmind-demo-shop
+diffmind_demo="$(mktemp -d)/demo-shop"
+sh scripts/prepare-showcase.sh "$diffmind_demo"
 ```
 
 The command refuses to overwrite an existing destination. It creates
@@ -34,10 +35,10 @@ with synthetic author details.
 Analyze the repositories individually:
 
 ```bash
-for repo in /tmp/diffmind-demo-shop/repositories/*; do
+for repo in "$diffmind_demo"/repositories/*; do
   service=${repo##*/}
   ./bin/diffmind run --repo "$repo" \
-    --out "/tmp/diffmind-demo-shop/analysis/$service"
+    --out "$diffmind_demo/analysis/$service"
 done
 ```
 
@@ -45,7 +46,7 @@ For the combined graph, start DiffMind with the generated workspace and import
 the `repositories` directory through **Import & build**:
 
 ```bash
-DIFFMIND_HOME=/tmp/diffmind-demo-shop/workspace \
+DIFFMIND_HOME="$diffmind_demo/workspace" \
   ./bin/diffmind ui --no-spa-rebuild
 ```
 
@@ -65,7 +66,7 @@ The public demo task is:
 After building the baseline graph, apply and commit the prepared change:
 
 ```bash
-sh scripts/apply-demo-shop-change.sh /tmp/diffmind-demo-shop
+sh scripts/apply-demo-shop-change.sh "$diffmind_demo"
 ```
 
 Update the graph and compare the two runs. DiffMind should report the rename as

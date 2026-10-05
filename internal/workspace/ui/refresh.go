@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -23,12 +23,14 @@ type RefreshConfig struct {
 
 // ProjectRefreshResult records one project's work in a fleet refresh.
 type ProjectRefreshResult struct {
-	ProjectID  string `json:"project_id"`
-	Synced     int    `json:"synced"`
-	Analyzed   int    `json:"analyzed"`
-	Reused     int    `json:"reused"`
-	GraphRunID string `json:"graph_run_id,omitempty"`
-	Error      string `json:"error,omitempty"`
+	ProjectID    string     `json:"project_id"`
+	Skipped      string     `json:"skipped,omitempty"`
+	NextEligible *time.Time `json:"next_eligible_at,omitempty"`
+	Synced       int        `json:"synced"`
+	Analyzed     int        `json:"analyzed"`
+	Reused       int        `json:"reused"`
+	GraphRunID   string     `json:"graph_run_id,omitempty"`
+	Error        string     `json:"error,omitempty"`
 }
 
 // RefreshStatus is the concurrency-safe status projection returned by the API.
@@ -117,7 +119,7 @@ func (s *Server) triggerRefresh(ctx context.Context, trigger string) bool {
 	s.refreshMu.Unlock()
 
 	go func() {
-		projects, err := s.refreshAllProjects(ctx)
+		projects, err := s.refreshProjects(ctx, trigger)
 		s.refreshMu.Lock()
 		s.refreshStatus.Running = false
 		finished := time.Now().UTC()
@@ -132,6 +134,10 @@ func (s *Server) triggerRefresh(ctx context.Context, trigger string) bool {
 }
 
 func (s *Server) refreshAllProjects(ctx context.Context) ([]ProjectRefreshResult, error) {
+	return s.refreshProjects(ctx, "manual")
+}
+
+func (s *Server) refreshProjects(ctx context.Context, trigger string) ([]ProjectRefreshResult, error) {
 	if err := s.StartOperations(ctx); err != nil {
 		return nil, err
 	}
@@ -145,6 +151,20 @@ func (s *Server) refreshAllProjects(ctx context.Context) ([]ProjectRefreshResult
 	for _, project := range projects {
 		if err := ctx.Err(); err != nil {
 			return results, err
+		}
+		if trigger != "manual" {
+			s.refreshMu.Lock()
+			interval := s.refreshConfig.Interval
+			s.refreshMu.Unlock()
+			history, err := s.automaticRefreshHistory(project.ID)
+			if err != nil {
+				return results, err
+			}
+			reason, next := automaticRefreshEligibility(history, interval, time.Now().UTC())
+			if reason != "" {
+				results = append(results, ProjectRefreshResult{ProjectID: project.ID, Skipped: reason, NextEligible: &next})
+				continue
+			}
 		}
 		job, _, err := s.enqueueRefresh(project.ID, "fleet_refresh", "", "")
 		if err != nil {
@@ -231,7 +251,7 @@ func (s *Server) runProjectRefreshWithControl(ctx context.Context, pid string, c
 		return result
 	}
 
-	analyzer, _ := orchestrator.AnalyzerIdentity(firstNonEmpty(os.Getenv("DIFFMIND_BINARY"), "diffmind"))
+	analyzer, _ := orchestrator.AnalyzerIdentity(s.analyzerExecutable())
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	process := func(repo store.Repo) {
@@ -259,7 +279,7 @@ func (s *Server) runProjectRefreshWithControl(ctx context.Context, pid string, c
 			report("cancelled", ctx.Err().Error(), "")
 			return
 		}
-		if strings.TrimSpace(repo.GitURL) != "" {
+		if repo.SourceType != "local" && strings.TrimSpace(repo.GitURL) != "" {
 			report("syncing", "", "")
 			updated, err := s.syncGitRepo(ctx, pid, repo)
 			if err != nil {
@@ -429,4 +449,64 @@ func (s *Server) handleRefreshNow(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusAccepted, map[string]string{"status": "started"})
+}
+
+// Persisted job history prevents reconnects from resetting automatic work and
+// bounded failure backoff. Manual requests deliberately bypass these delays.
+func automaticRefreshEligibility(history []store.RefreshJob, interval time.Duration, now time.Time) (string, time.Time) {
+	if len(history) == 0 {
+		return "", time.Time{}
+	}
+	latest := history[0]
+	if latest.Status == "queued" || latest.Status == "running" {
+		return "", time.Time{}
+	} // queue admission coalesces active work
+	finished := latest.UpdatedAt
+	if len(latest.Attempts) > 0 && !latest.Attempts[len(latest.Attempts)-1].FinishedAt.IsZero() {
+		finished = latest.Attempts[len(latest.Attempts)-1].FinishedAt
+	}
+	if latest.Status == "succeeded" && interval > 0 {
+		next := finished.Add(interval)
+		if now.Before(next) {
+			return "not_due", next
+		}
+	}
+	if latest.Status == "failed" {
+		delay := max(interval, time.Minute)
+		for _, job := range history {
+			if job.Status != "failed" {
+				break
+			}
+			delay = min(delay*2, 6*time.Hour)
+			if delay == 6*time.Hour {
+				break
+			}
+		}
+		next := finished.Add(delay)
+		if now.Before(next) {
+			return "failure_backoff", next
+		}
+	}
+	return "", time.Time{}
+}
+
+// A completed manual ingestion also satisfies the maintenance interval.
+func (s *Server) automaticRefreshHistory(pid string) ([]store.RefreshJob, error) {
+	history, err := s.store.ListJobs(pid)
+	if err != nil {
+		return nil, err
+	}
+	// A manual retry can finish an older job after newer jobs were created.
+	sort.SliceStable(history, func(i, j int) bool { return history[i].UpdatedAt.After(history[j].UpdatedAt) })
+	ingestion, err := s.store.GetIngestion(pid)
+	if errors.Is(err, store.ErrNotFound) {
+		return history, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	if ingestion.Status == store.IngestionCompleted && !ingestion.FinishedAt.IsZero() && (len(history) == 0 || (history[0].Status != "queued" && history[0].Status != "running" && ingestion.FinishedAt.After(history[0].UpdatedAt))) {
+		history = append([]store.RefreshJob{{Status: "succeeded", UpdatedAt: ingestion.FinishedAt}}, history...)
+	}
+	return history, nil
 }

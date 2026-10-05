@@ -337,7 +337,7 @@ func (s *Store) CreateRepo(pid string, r Repo) (*Repo, error) {
 	r.ID = id
 	r.CreatedAt = now
 	r.UpdatedAt = now
-	if r.SourceType == "git" || r.GitURL != "" {
+	if r.SourceType == "git" {
 		r.SourceType = "git"
 		if r.ClonePath == "" {
 			r.ClonePath = s.WorktreeDir(pid, id)

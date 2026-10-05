@@ -70,3 +70,29 @@ func TestOpenAPIContractsFailClosed(t *testing.T) {
 		t.Fatalf("malformed contract mutated exposure: %+v", exposures[0])
 	}
 }
+
+func TestOpenAPIFilesHonorScopeBeforeBudget(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "diffmind-configuration.yaml"), []byte("schema: diffmind.config.v1\npaths:\n  include: [production/**]\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	for _, dir := range []string{"examples", "production", "production/fixtures"} {
+		if err := os.MkdirAll(filepath.Join(root, dir), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(root, dir, "openapi.yaml"), []byte("openapi: 3.0.3\n"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	files, warnings := openAPIFiles(root)
+	if len(warnings) != 0 || len(files) != 1 || files[0] != filepath.Join(root, "production", "openapi.yaml") {
+		t.Fatalf("files=%v warnings=%v", files, warnings)
+	}
+	if err := os.WriteFile(filepath.Join(root, "diffmind-configuration.yaml"), []byte("paths:\n  include: ['[']\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	files, warnings = openAPIFiles(root)
+	if len(files) != 0 || len(warnings) != 1 {
+		t.Fatalf("invalid scope must fail closed: %v %v", files, warnings)
+	}
+}

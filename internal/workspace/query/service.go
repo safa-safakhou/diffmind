@@ -24,17 +24,25 @@ var (
 )
 
 type Service struct {
-	store  *store.Store
-	access func(string) error
+	store                *store.Store
+	access               func(string) error
+	runsDir              string
+	readinessPermissions func(string) (ReadinessActions, error)
+	readinessGraph       func(string) (*store.RunManifest, error)
 }
 
-func New(st *store.Store) *Service { return &Service{store: st} }
+func New(st *store.Store) *Service {
+	return &Service{store: st, runsDir: filepath.Join(st.HomeDir(), "runs")}
+}
 
 // NewWithAccess filters discovery before reading project contents and checks
 // explicit/default project selection. A nil policy is trusted local access.
 func NewWithAccess(st *store.Store, access func(string) error) *Service {
-	return &Service{store: st, access: access}
+	return &Service{store: st, access: access, runsDir: filepath.Join(st.HomeDir(), "runs")}
 }
+
+// WithRunsDir selects the same analysis artifact directory as the dashboard.
+func (s *Service) WithRunsDir(dir string) *Service { s.runsDir = dir; return s }
 
 func (s *Service) visibleProjects() ([]store.Project, error) {
 	projects, err := s.store.ListProjects()
@@ -65,6 +73,7 @@ type Project struct {
 }
 
 type GraphSummary struct {
+	Evidence      EvidenceState                `json:"evidence"`
 	ProjectID     string                       `json:"project_id"`
 	RunID         string                       `json:"run_id"`
 	ServiceCount  int                          `json:"service_count"`
@@ -96,6 +105,7 @@ type DependencyResult struct {
 	Service   string                 `json:"service"`
 	Direction string                 `json:"direction"`
 	Edges     []*archgraph.GraphEdge `json:"edges"`
+	Notes     []string               `json:"notes"`
 }
 
 type SearchResult struct {
@@ -230,14 +240,14 @@ func (s *Service) loadGraph(projectID, runID string) (*store.RunManifest, *archg
 	}
 	graph.RunID = run.ID
 	s.enrichCurrentRepositoryStatus(projectID, graph)
-	return run, graph, nil
+	return run, archgraph.WithRelationshipEvidence(graph), nil
 }
 
 func (s *Service) enrichCurrentRepositoryStatus(projectID string, graph *archgraph.ArchGraph) {
 	if graph == nil {
 		return
 	}
-	repos, err := s.store.ListRepos(projectID)
+	repos, err := s.currentRepositories(projectID)
 	if err != nil {
 		return
 	}
@@ -266,9 +276,7 @@ func (s *Service) enrichCurrentRepositoryStatus(projectID string, graph *archgra
 		if ok {
 			svc.RepoID, svc.DiffMindFreshness = repo.ID, repo.DiffMindFreshness
 			status.CurrentState = repo.DiffMindFreshness
-			if !repo.UpdatedAt.IsZero() {
-				status.CheckedAt = repo.UpdatedAt.UTC().Format(time.RFC3339Nano)
-			}
+			status.CheckedAt = time.Now().UTC().Format(time.RFC3339Nano)
 		} else {
 			status.CurrentState = "unavailable"
 		}
@@ -292,7 +300,17 @@ func (s *Service) Summary(projectID, runID string) (*GraphSummary, error) {
 		teamList = append(teamList, team)
 	}
 	sort.Strings(teamList)
-	return &GraphSummary{
+	freshness := []string{}
+	repos, err := s.currentRepositories(run.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+	for _, repo := range repos {
+		freshness = append(freshness, repo.DiffMindFreshness)
+	}
+	evidence := DescribeEvidence(run.ID, freshness)
+	evidence.FreshnessBasis = "live_checkout_status"
+	return &GraphSummary{Evidence: evidence,
 		ProjectID: run.ProjectID, RunID: run.ID, ServiceCount: len(graph.Services), EdgeCount: len(graph.Edges),
 		ExternalCount: len(graph.ExternalNodes), ResourceCount: len(graph.ResourceNodes), Teams: teamList,
 		Connectivity: graph.Connectivity, Quality: run.GraphQuality,
@@ -375,7 +393,7 @@ func (s *Service) Dependencies(projectID, runID, name, direction string) (*Depen
 		}
 		return edges[i].Type < edges[j].Type
 	})
-	return &DependencyResult{ProjectID: run.ProjectID, RunID: run.ID, Service: name, Direction: direction, Edges: edges}, nil
+	return &DependencyResult{ProjectID: run.ProjectID, RunID: run.ID, Service: name, Direction: direction, Edges: edges, Notes: []string{"Saved static and declared evidence, not observed runtime traffic. Empty results can reflect excluded files, unresolved destinations or unsupported conventions; coverage is unverified. Ask the workspace administrator to review a private improvement gap and a tested detector/configuration/knowledge-pack correction."}}, nil
 }
 
 func (s *Service) Impact(projectID, runID, target string, depth int) (*archgraph.FlowView, error) {

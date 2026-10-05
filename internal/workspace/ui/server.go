@@ -10,12 +10,14 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/mcpserver"
 	querysvc "github.com/mohammad-safakhou/diffmind/internal/workspace/query"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/runmgr"
@@ -42,6 +44,7 @@ type Server struct {
 	host                string
 	port                int
 	log                 *util.Logger
+	analyzerBinary      string
 	version             string
 	authToken           string
 	proxySecret         string
@@ -91,7 +94,7 @@ func New(st *store.Store, runs *runmgr.Manager, diffmindRunsDir, host string, po
 	if log == nil {
 		log = util.NewLogger(util.LevelInfo)
 	}
-	server := &Server{store: st, query: querysvc.New(st), runs: runs, diffmindRunsDir: diffmindRunsDir, host: host, port: port, log: log, auditLogPath: filepath.Join(st.HomeDir(), "audit", "http.jsonl"), liveStatusCache: map[string]liveStatusCacheEntry{}, archGraphCache: map[string]archGraphCacheEntry{}, ingestionActive: map[string]bool{}, projectOps: map[string]bool{}}
+	server := &Server{store: st, query: querysvc.New(st).WithRunsDir(diffmindRunsDir), runs: runs, diffmindRunsDir: diffmindRunsDir, host: host, port: port, log: log, auditLogPath: filepath.Join(st.HomeDir(), "audit", "http.jsonl"), liveStatusCache: map[string]liveStatusCacheEntry{}, archGraphCache: map[string]archGraphCacheEntry{}, ingestionActive: map[string]bool{}, projectOps: map[string]bool{}}
 	server.recoverInterruptedIngestions()
 	server.ingestionCancel = map[string]context.CancelCauseFunc{}
 	server.operationsConfig = OperationsConfig{Workers: 2, Capacity: 256, RepositoryWorkers: 4}
@@ -102,6 +105,13 @@ func New(st *store.Store, runs *runmgr.Manager, diffmindRunsDir, host string, po
 
 // Addr returns "host:port".
 func (s *Server) Addr() string { return fmt.Sprintf("%s:%d", s.host, s.port) }
+
+// SetAnalyzerBinary supplies the executable used by repository workers and cache identity.
+func (s *Server) SetAnalyzerBinary(path string) { s.analyzerBinary = path }
+
+func (s *Server) analyzerExecutable() string {
+	return firstNonEmpty(os.Getenv("DIFFMIND_BINARY"), s.analyzerBinary, "diffmind")
+}
 
 // SetVersion identifies this DiffMind build to MCP clients.
 func (s *Server) SetVersion(version string) {
@@ -121,6 +131,8 @@ func (s *Server) Handler() http.Handler {
 // server into an authenticated same-origin endpoint. Authenticated shared
 // deployments rely on their configured credential/proxy and may legitimately
 // receive a public Host through a reverse proxy.
+type validatedRequestHostKey struct{}
+
 func (s *Server) hostValidated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Direct in-process handler calls have no listener address. The real HTTP
@@ -131,7 +143,9 @@ func (s *Server) hostValidated(next http.Handler) http.Handler {
 			writeErr(w, http.StatusForbidden, fmt.Errorf("untrusted request host"))
 			return
 		}
-		next.ServeHTTP(w, r)
+		// Preserve the checked listener authority for in-process MCP dispatch.
+		ctx := context.WithValue(r.Context(), validatedRequestHostKey{}, r.Host)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
@@ -204,6 +218,7 @@ func (s *Server) routes(raw *http.ServeMux) {
 	mux.HandleFunc("POST /api/v1/projects/{pid}/webhooks/github", s.handleGitHubWebhook)
 	mux.HandleFunc("GET /api/v1/session", s.handleSession)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/capabilities", s.handleCapabilities)
+	mux.HandleFunc("GET /api/v1/projects/{pid}/readiness", s.handleReadiness)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/access", s.handleGetAccess)
 	mux.HandleFunc("PUT /api/v1/projects/{pid}/access", s.handlePutAccess)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/limits", s.handleGetLimits)
@@ -340,7 +355,7 @@ func writeJSON(w http.ResponseWriter, code int, v any) {
 }
 
 func writeErr(w http.ResponseWriter, code int, err error) {
-	writeJSON(w, code, map[string]any{"error": err.Error()})
+	writeJSON(w, code, map[string]any{"error": err.Error(), "recovery": agentapi.RecoveryForStatus(code)})
 }
 
 func decodeJSON(r *http.Request, v any) error {

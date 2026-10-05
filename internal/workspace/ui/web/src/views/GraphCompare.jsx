@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks'
-import { listGraphRuns, compareGraphs } from '../lib/api.js'
+import { listGraphRuns, compareGraphs, compareContracts } from '../lib/api.js'
 import { navigate } from '../lib/router.js'
 import { comparisonDefaults, comparisonKeyLabel } from '../lib/comparison.js'
 import './GraphCompare.css'
@@ -95,12 +95,14 @@ export function GraphCompare({ pid, params }) {
           <span>→</span><button class="btn ghost tiny" onClick={() => openRun(result.to.id)}>After: {result.to.id}</button>
         </div>
         <p class="muted">Repository artifacts changed: {result.repository_artifacts_changed?.join(', ') || 'none recorded'}. Pack digests: {result.from.pack_set_digest || 'not recorded'} → {result.to.pack_set_digest || 'not recorded'}.</p>
+        <details><summary>Saved analysis inputs and file scope</summary><p>Revision, analyzer, schema and file scope are recorded inputs. Missing historical metadata is unknown. A changed input does not prove the cause of a graph change.</p><div class="comparison-evidence"><div><h3>Before: {result.from.id}</h3><pre>{JSON.stringify(result.inputs_before || [], null, 2)}</pre></div><div><h3>After: {result.to.id}</h3><pre>{JSON.stringify(result.inputs_after || [], null, 2)}</pre></div></div></details>
         <ul>{result.notes.map((note) => <li key={note}>{note}</li>)}</ul>
       </div>
       {result.total === 0 && <p class="banner">No architectural fact changes between these snapshots.</p>}
       {result.changes.map((change) => <details class={`comparison-change change-${change.change}`} key={`${change.kind}:${change.key}`}>
         <summary><span class="comparison-kind">{change.change} · {change.kind}</span> {comparisonKeyLabel(change.key)}</summary>
         {change.fields?.length > 0 && <p>Changed fields: {change.fields.join(', ')}</p>}
+        {change.evidence_only && <p>Only recorded provenance or confidence changed. The saved fact is retained; this does not establish a runtime regression.</p>}
         <div class="comparison-evidence">
           <div><h3>Before</h3><pre>{change.before == null ? 'Not present' : JSON.stringify(change.before, null, 2)}</pre></div>
           <div><h3>After</h3><pre>{change.after == null ? 'Not present' : JSON.stringify(change.after, null, 2)}</pre></div>
@@ -112,5 +114,32 @@ export function GraphCompare({ pid, params }) {
         <button class="btn ghost" disabled={result.next_offset == null} onClick={() => setPage({ pair, offset: result.next_offset })}>Next</button>
       </nav>}
     </section>}
+    {params.from && params.to && <ContractComparison key={JSON.stringify([pid, params.from, params.to, reload])} pid={pid} from={params.from} to={params.to} />}
   </main>
+}
+
+export function ContractComparison({ pid, from, to }) {
+  const [state, setState] = useState({ loading: true })
+  const [retry, setRetry] = useState(0)
+  useEffect(() => {
+    let alive = true
+    setState({ loading: true })
+    compareContracts(pid, from, to).then((result) => { if (alive) setState({ result }) })
+      .catch((error) => { if (alive) setState({ error: error.message }) })
+    return () => { alive = false }
+  }, [pid, from, to, retry])
+  return <section aria-label="Contract comparison" class="comparison-result">
+    <h2>Request contract compatibility</h2>
+    <p class="muted">Compares extracted request fields in these saved snapshots. Unsupported schemas, response contracts and runtime behavior may be missing; no differences is not proof of compatibility.</p>
+    {state.loading && <p role="status">Comparing extracted contracts…</p>}
+    {state.error && <p role="alert" class="banner error">{state.error} <button class="btn ghost" onClick={() => setRetry(retry + 1)}>Retry contracts</button></p>}
+    {state.result && <>
+      <p>{state.result.changes?.length || 0} extracted field changes · {from} → {to}</p>
+      {!state.result.changes?.length && <p>No differences found in extracted request fields.</p>}
+      {(state.result.changes || []).map((change) => <details key={change.key} class="comparison-change">
+        <summary>{change.compatibility?.replaceAll('_', ' ')} · {change.change} · {(change.after || change.before)?.service} · {(change.after || change.before)?.name}</summary>
+        <div class="comparison-evidence"><div><h3>Before</h3><pre>{JSON.stringify(change.before || null, null, 2)}</pre></div><div><h3>After</h3><pre>{JSON.stringify(change.after || null, null, 2)}</pre></div></div>
+      </details>)}
+    </>}
+  </section>
 }

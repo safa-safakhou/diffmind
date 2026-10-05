@@ -96,3 +96,8 @@ func positiveInt(raw string, fallback int) int {
 	}
 	return v
 }
+
+func (s *Server) handleReadiness(w http.ResponseWriter, r *http.Request) {
+	out, err := s.queryFor(r).Readiness(r.PathValue("pid"))
+	writeV1Result(w, out, err)
+}

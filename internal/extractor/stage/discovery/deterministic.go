@@ -566,7 +566,57 @@ func EntityFromFrameworkBinding(idx *astpkg.ProjectIndex, obj objectives.Objecti
 	default:
 		return candidate{}, false
 	}
+	// Keep the registration location first (route identity), and retain the
+	// handler body separately so PR line matching can see implementation and
+	// request-contract edits without widening to unrelated code in the file.
+	if obj.Kind == model.KindExposure {
+		if body, ok := bindingHandlerLocation(idx, b); ok && body != loc {
+			e.Locations = append(e.Locations, body)
+			// Protocol consumers hydrate locations from evidence references.
+			// The AST range is evidence of handler ownership, not a claim that
+			// every statement executes or that a caller is certainly broken.
+			e.Evidence = append(e.Evidence, candidateEvidence{
+				File: body.File, StartLine: body.StartLine, EndLine: body.EndLine,
+				Source: "deterministic_ast_handler",
+			})
+		}
+	}
 	return e, true
+}
+
+// Resolve only a concrete symbol in the binding's own indexed file whose
+// definition or annotation owns the binding. A registration inside an unrelated
+// setup function, ambiguous overload, or name in another module is not proof.
+func bindingHandlerLocation(idx *astpkg.ProjectIndex, b astpkg.FrameworkBinding) (candidateLocation, bool) {
+	if idx == nil || strings.TrimSpace(b.Symbol) == "" {
+		return candidateLocation{}, false
+	}
+	fa := idx.Files[b.File]
+	if fa == nil {
+		return candidateLocation{}, false
+	}
+	var result candidateLocation
+	found := false
+	for _, sym := range fa.Symbols {
+		if sym.Qualified != b.Symbol || sym.File != b.File ||
+			(sym.Kind != astpkg.SymbolKindFunction && sym.Kind != astpkg.SymbolKindMethod) ||
+			sym.Range.EndLine < sym.Range.StartLine {
+			continue
+		}
+		owns := b.Range.StartLine >= sym.Range.StartLine && b.Range.EndLine <= sym.Range.EndLine
+		for _, ann := range sym.Annotations {
+			owns = owns || (b.Range.StartLine >= ann.Range.StartLine && b.Range.EndLine <= ann.Range.EndLine)
+		}
+		if !owns {
+			continue
+		}
+		if found {
+			return candidateLocation{}, false
+		}
+		result = candidateLocation{File: sym.File, StartLine: int(sym.Range.StartLine) + 1, EndLine: int(sym.Range.EndLine) + 1}
+		found = true
+	}
+	return result, found
 }
 
 func modelFromOpenAIReason(reason string) string {

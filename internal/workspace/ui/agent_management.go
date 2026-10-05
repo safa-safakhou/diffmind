@@ -17,6 +17,11 @@ func (s *Server) invokeAgentOperation(ctx context.Context, call *mcp.CallToolReq
 		return agentapi.Result{}, errors.New("HTTP management requires current request authentication context")
 	}
 	req = req.WithContext(ctx)
+	// The catalog request uses an internal URL. The listener's original Host
+	// has already passed the outer check and must survive the second dispatch.
+	if host, ok := ctx.Value(validatedRequestHostKey{}).(string); ok {
+		req.Host = host
+	}
 	for _, key := range []string{"Authorization", "X-DiffMind-Token", proxySecretHeader, proxyUserHeader, proxyRoleHeader} {
 		for _, value := range call.Extra.Header.Values(key) {
 			req.Header.Add(key, value)

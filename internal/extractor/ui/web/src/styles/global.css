@@ -1,6 +1,7 @@
 /* DiffMind dashboard — dark, dense, information-rich. */
 
 :root {
+  color-scheme: dark;
   --bg: #0a0f1c;
   --bg-1: #0e1424;
   --bg-2: #131b30;
@@ -9,7 +10,7 @@
   --border-strong: #2c3f72;
   --text: #e9eefa;
   --text-muted: #8593b3;
-  --text-dim: #5b6a8c;
+  --text-dim: #8797ba;
 
   --accent: #4f8cff;
   --accent-strong: #2f6cff;
@@ -28,6 +29,7 @@
 }
 
 * { box-sizing: border-box; }
+html { background: var(--bg); }
 html, body, #app { height: 100%; margin: 0; }
 body {
   background: radial-gradient(circle at 0% 0%, #11192e 0%, #0a0f1c 60%) fixed;
@@ -193,11 +195,11 @@ a:hover { text-decoration: underline; }
 
 .actions { display: flex; gap: 10px; margin-top: 4px; }
 .btn {
-  background: var(--accent); color: white; border: none;
+  background: #245dc9; color: white; border: none;
   padding: 9px 16px; border-radius: 8px; font-weight: 600; cursor: pointer;
   font-size: 13px;
 }
-.btn:hover { background: var(--accent-strong); }
+.btn:hover { background: #1d4ed8; }
 .btn.secondary { background: var(--bg-3); color: var(--text); }
 .btn.secondary:hover { background: var(--bg-2); }
 .btn.danger { background: rgba(239, 68, 68, 0.16); color: var(--error); border: 1px solid var(--error); }
@@ -329,7 +331,7 @@ a:hover { text-decoration: underline; }
    trick (opacity) keeps it from being intrusive when not needed. */
 .timeline-jump {
   position: absolute; right: 16px; bottom: 12px;
-  background: var(--accent); color: white;
+  background: #245dc9; color: white;
   border: none; border-radius: 14px;
   padding: 5px 12px; font-size: 11px; font-weight: 600;
   cursor: pointer; opacity: 0.85;
@@ -348,7 +350,7 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px;
   font-size: 11px; cursor: pointer; color: var(--text-muted); background: transparent;
 }
-.chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+.chip.active { background: #245dc9; color: white; border-color: var(--accent); }
 .timeline-search input {
   width: 100%; background: var(--bg-2); border: 1px solid var(--border);
   border-radius: 6px; padding: 6px 9px; color: var(--text);
@@ -1254,7 +1256,7 @@ button.og-count-chip {
 }
 .detail-workspace > .center-pane { width: 100%; }
 @media (max-width: 1100px) {
-  .detail-workspace { grid-template-columns: 1fr; }
+  .detail-workspace { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* Canonical architecture catalog */
@@ -1488,7 +1490,7 @@ button.og-count-chip {
   display: grid; gap: 14px; padding: 8px 28px 32px;
   grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
 }
-.repo-card { display: flex; flex-direction: column; gap: 10px; cursor: pointer; }
+.repo-card { min-width: 0; display: flex; flex-direction: column; gap: 10px; cursor: pointer; }
 .repo-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .repo-card-name { margin: 0; font-size: 16px; }
 .repo-card-path {
@@ -1801,7 +1803,7 @@ button.og-count-chip {
 @media (max-width: 760px) {
   .topbrand { padding: 10px 16px; }
   .page-header { flex-direction: column; }
-  .repo-grid { grid-template-columns: 1fr; padding-left: 16px; padding-right: 16px; }
+  .repo-grid { grid-template-columns: minmax(0, 1fr); padding-left: 16px; padding-right: 16px; }
   .repo-overview, .repo-graph { padding-left: 16px; padding-right: 16px; }
   .repo-sync-controls { grid-template-columns: 1fr; }
   .fw-path-row { align-items: flex-start; flex-direction: column; }
@@ -1917,3 +1919,21 @@ button.og-count-chip {
 .rg-inspector-head h3 { margin: 2px 0 0; font-size: 15px; word-break: break-word; }
 .rg-inspector-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-dim); flex-wrap: wrap; }
 .rg-inspector-summary { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+/* Keep narrow extraction views within the viewport; each graph still pans. */
+.workspace > section, .center-pane, .details-pane { min-width: 0; }
+.pipeline-strip:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+@media (max-width: 760px) {
+  .topbrand, .topbar, .topbar .right, .detail-topbar-row { flex-wrap: wrap; }
+  .topbar { position: static; padding: 10px 16px; }
+  .topbar .right { margin-left: 0; min-width: 0; }
+  .detail-run-id, .topbar .right > .muted { overflow-wrap: anywhere; }
+  .graph-header, .graph-legend { flex-wrap: wrap; }
+  .row-2, .row-3 { grid-template-columns: minmax(0, 1fr); }
+  .actions { flex-wrap: wrap; }
+  .modal-head { gap: 10px; }
+  .modal-head h2 { overflow-wrap: anywhere; }
+  .modal-body { padding: 12px; }
+}
+
+.timeline-list:focus-visible, .og-canvas-wrap:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }

@@ -510,3 +510,100 @@ func assertRejected(t *testing.T, bindings []ast.FrameworkBinding, reason string
 	}
 	t.Fatalf("rejected binding reason %q not found; got %+v", reason, bindings)
 }
+
+func TestFlaskBlueprintConstructorAndAllDeclaredMethods(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "auth.py", `from flask import Blueprint
+bp = Blueprint("auth", __name__, url_prefix="/auth")
+@bp.route("/login", methods=("GET", "POST", "PATCH"))
+def login(): return "ok"
+@bp.route("/logout", methods=["DELETE"])
+def logout(): return "ok"
+@bp.route("/dynamic", methods=load_methods())
+def dynamic(): return "unknown"
+@bp.route("/mixed", methods=["GET", variable_method])
+def mixed(): return "unknown"
+`)
+	writeFile(t, dir, "blog.py", `from flask import Blueprint
+bp = Blueprint("blog", __name__)
+@bp.route("/", methods=["GET", "POST"])
+def index(): return "ok"
+`)
+	idx := buildIndex(t, dir)
+	for _, method := range []string{"GET", "POST", "PATCH"} {
+		assertBinding(t, idx.Frameworks, "flask", "http_handler", method+" /auth/login", "login")
+	}
+	assertBinding(t, idx.Frameworks, "flask", "http_handler", "DELETE /auth/logout", "logout")
+	for _, method := range []string{"GET", "POST"} {
+		assertBinding(t, idx.Frameworks, "flask", "http_handler", method+" /", "index")
+	}
+	assertNoBinding(t, idx.Frameworks, "flask", "http_handler", "GET /login")
+	assertNoBinding(t, idx.Frameworks, "flask", "http_handler", "GET /auth/")
+	assertNoBinding(t, idx.Frameworks, "flask", "http_handler", "GET /auth/dynamic")
+	assertNoBinding(t, idx.Frameworks, "flask", "http_handler", "GET /auth/mixed")
+}
+func TestFlaskBlueprintRegistrationOverridesOnlyItsDefinition(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "auth.py", `from flask import Blueprint
+bp = Blueprint("auth",__name__,url_prefix="/auth")
+@bp.route("/login")
+def login(): return "ok"
+`)
+	writeFile(t, dir, "blog.py", `from flask import Blueprint
+bp = Blueprint("blog",__name__)
+@bp.route("/")
+def index(): return "ok"
+`)
+	writeFile(t, dir, "app.py", `from flask import Flask
+import auth
+app = Flask(__name__)
+app.register_blueprint(auth.bp,url_prefix="/account")
+`)
+	idx := buildIndex(t, dir)
+	assertBinding(t, idx.Frameworks, "flask", "http_handler", "GET /account/login", "login")
+	assertBinding(t, idx.Frameworks, "flask", "http_handler", "GET /", "index")
+	assertNoBinding(t, idx.Frameworks, "flask", "http_handler", "GET /account/")
+	assertNoBinding(t, idx.Frameworks, "flask", "http_handler", "GET /auth/login")
+}
+
+func TestFlaskUnknownPrefixAndMultipleMountsStayUnproven(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "app.py", `from flask import Blueprint, Flask
+dynamic_bp=Blueprint("dynamic",__name__,url_prefix=get_prefix())
+@dynamic_bp.route("/secret")
+def secret(): return "ok"
+multi_bp=Blueprint("multi",__name__,url_prefix="/base")
+@multi_bp.route("/item")
+def item(): return "ok"
+app=Flask(__name__)
+app.register_blueprint(multi_bp,url_prefix="/first")
+app.register_blueprint(multi_bp,url_prefix="/second")
+`)
+	idx := buildIndex(t, dir)
+	for _, route := range []string{"/secret", "/base/item", "/first/item", "/second/item"} {
+		assertNoBinding(t, idx.Frameworks, "flask", "http_handler", "GET "+route)
+	}
+}
+
+func TestFlaskRouteEvidenceUsesItsOwnDecoratorCoordinates(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "routes.py", `from flask import Flask
+app=Flask(__name__)
+@app.route("/first")
+@app.route("/second")
+def endpoint(): return "ok"
+`)
+	idx := buildIndex(t, dir)
+	for _, binding := range idx.Frameworks {
+		if binding.Framework != "flask" {
+			continue
+		}
+		want := uint32(2)
+		if binding.Trigger == "GET /second" {
+			want = 3
+		}
+		if binding.Range.StartLine != want || binding.Range.EndLine != want {
+			t.Fatalf("%s source range=%+v; want only decorator line %d", binding.Trigger, binding.Range, want)
+		}
+	}
+}

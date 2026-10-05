@@ -8,9 +8,9 @@ registration. Users provide intent and access; the agent operates the platform.
 
 | Connection | Tools | Authority/lifecycle |
 | --- | --- | --- |
-| Local `diffmind agent` | 13 graph + 3 management + 2 host tools | Full local workspace control; starts backend automatically, owns it until disconnect/crash |
-| Local `diffmind mcp` | 13 graph tools | Original trusted read-only integration; no backend ownership |
-| HTTP `/mcp`, viewer | 13 graph tools | Read-only, restricted to accessible projects |
+| Local `diffmind agent` | 14 read + 3 management + 2 host tools | Full local workspace control; starts backend automatically, owns it until disconnect/crash |
+| Local `diffmind mcp` | 14 read tools | Original trusted read-only integration; no backend ownership |
+| HTTP `/mcp`, viewer | 14 read tools | Read-only, restricted to accessible projects |
 | HTTP `/mcp`, editor/admin | Graph and management tools | Same role/membership/host-operation checks as the HTTP API; no local lifecycle/CLI tools |
 
 Local mode is trusted OS-level access, not a sandbox. Its backend binds only
@@ -19,6 +19,57 @@ do not expose/forward it. Use a secured shared deployment on multi-user or remot
 hosts. `--project` is an optional default selector, not a permission boundary.
 Admin tokens grant full platform administration; viewer tokens are intentionally
 insufficient when the user wants the agent to manage projects.
+
+## Background maintenance and primary actions
+
+A new local agent workspace refreshes its registered repositories on connection
+and every 15 minutes while connected. It never expands the imported repository
+set. Existing explicit settings are preserved. Runtime status reports the actual
+policy; use `agent_runtime` to change it while preserving other settings. Setting
+`refresh_interval` to `"0"` and `refresh_on_start` to `false` selects manual updates.
+The owning connection controls availability; disconnecting stops background work.
+
+The dashboard's **Update context** refreshes registered repositories and builds
+context. In scoped company mode, editors enqueue the saved configuration, while
+administrators can also configure/import sources. Viewers explore saved evidence
+and ask an editor to update it. **Reload view** only reloads displayed data.
+Manual analyzer and graph controls are under **Advanced actions**.
+
+Graph summaries distinguish a saved run, repository analysis freshness and
+unverified static coverage. `freshness_basis: live_checkout_status` uses the same read-only check as the dashboard; `freshness_reference: latest_repository_analysis` compares current source against the latest repository analysis, not the selected graph snapshot. Missing or inaccessible local checkouts report unknown.
+These states do not assert that the chosen graph incorporates a newer analysis
+or that PR-head evidence is eligible.
+
+Relationship `evidence` records preserve each linked object's class, answering
+run, recorded revision/source locations, file-scope policy, pack declaration and
+identity-resolution reason. `source_extracted`, `source_inferred`, `pack_declared`,
+`declared` and `unknown` are distinct; even a runtime-origin label remains
+unverified. Missing findings may be excluded or unsupported. Report gaps
+privately to the administrator using the existing improvement workflow; use
+synthetic positive and negative fixtures before changing detectors/config/packs.
+
+`compare_graphs` returns `inputs_before` and `inputs_after` from the pinned saved
+snapshots, including analysis artifact references, revision, schema, analyzer and
+recorded file scope. Missing historical inputs stay unknown. `evidence_only`
+labels changes limited to recognized provenance/confidence fields; original
+before/after evidence is retained. Changed scope, packs or artifacts are possible
+inputs, not an established cause. Use `compare_contracts` for request fields.
+
+PR inspection is on demand through `inspect_workspace(operation="pull_request_impact")`.
+Read changed files, attention signals, exact caller matches, separate candidates,
+eligibility and limitations before the uncalibrated score. A low score is not a
+probability or merge recommendation. Refreshing a default branch does not ensure
+a PR-head match. With explicit authority, analyze a separate clean PR-head checkout
+and select its saved graph via `run_id`; do not switch the user's active branch.
+Deleted surfaces require separate matching baseline evidence; internal/transitive
+and configuration effects may remain unproven. This query neither captures new
+revisions nor posts code-host comments/checks.
+
+Management failures return a conservative `recovery` category and next action
+alongside their HTTP status; browser feedback carries the same guidance. Retain
+the input, reload/review conflicts, and inspect persisted work after a lost write
+response. `retryable:false` prevents interpreting a status as permission to
+replay a mutation. A 202 response is still acceptance rather than completion.
 
 ## Discover, inspect, mutate
 
@@ -61,10 +112,26 @@ No mutation is automatically retried. Destructive operations require
 Read the current object and preserve unrelated configuration before replacement.
 This is not a substitute for the user's authorization.
 
+## PR inspection
+
+For a PR review, discover `pull_request_impact` and call it through
+`inspect_workspace` with the project, repository and PR number. This read-only
+operation checks PR-head eligibility and caller evidence. General readiness
+cannot establish that the graph matches a PR head. The result is an on-demand
+inspection; it does not post a comment or review.
+
 ## End-to-end workflow
 
+Read project capabilities first. A scoped **editor** refreshes registered
+repositories with `manage_workspace(operation="enqueue_refresh")`; poll
+`inspect_workspace(operation="list_jobs", query={"project":"PROJECT_ID"})`
+and `get_ingestion` until terminal, then check readiness. Direct
+`start_ingestion` and repository analysis require an administrator in scoped
+mode, even when no import is requested. A viewer can query saved evidence only.
+The onboarding steps below require configuration authority.
+
 1. `list_projects`; `create_project` only if needed.
-2. `import_repositories` with `dry_run:true` to preview authorized repositories.
+2. `import_repositories` with `dry_run:true` to preview authorized repositories. Keep its returned `preview_digest` and pass it unchanged inside the approved import request. HTTP 409 requires another preview; never silently expand scope.
 3. `start_ingestion` to import/sync/analyze/build, or `body:{}` for incremental
    refresh of registered repositories.
 4. Poll `get_ingestion` until terminal; inspect errors and freshness for partial
@@ -112,7 +179,12 @@ status again. Stop does not erase data; subsequent management starts the backend
 
 One local controller holds a separate lifecycle lock even during maintenance.
 Do not run two controllers for one home. Additional clients may use that
-backend's HTTP MCP while it lives. Normal disconnect stops the child; an inherited
+backend's HTTP MCP while it lives only after the owner enables scoped access
+and issues an appropriate project token. Read `agent_runtime status` for the
+current dashboard URL and append `/mcp`; do not reuse a pre-restart port.
+Keep this backend on loopback and never forward its unauthenticated admin route.
+A separate `DIFFMIND_HOME` creates an independent workspace, not a second writer
+for the same data. Normal disconnect stops the child; an inherited
 lifetime pipe also stops it if the controller is killed. Work/history remain
 durable; reconnect starts recovery. This is not an always-on OS service: use
 shared deployment for refresh independent of developer agent sessions.
@@ -169,3 +241,50 @@ migration, persistent scheduling, reconnect and controller-crash cleanup through
 MCP. Permission, identity-switch, mutation-route parity, request bounds and setup
 tests complement the existing company acceptance/race suites. Native release
 gates run the same agent acceptance test against their installed archive.
+
+## Repository scope and PR provider context
+
+Import previews return candidate `source_type`, effective `default_branch`, local
+`analysis_paths`, the project ID and requested scope alongside `preview_digest`.
+Inspect these before approval. Local repositories are analyzed in place without
+Git pull. Managed repository file configuration remains unknown until checkout;
+the preview does not promise complete extraction or freeze future source edits.
+
+An imported GitHub `api_base` persists as repository `git_api_base` and is reused
+for PR listing, PR files/impact and live status. Explicit add/update operations can
+also configure it. API URLs require HTTPS, except loopback HTTP for local
+integrations. Credentials come from server environment or GitHub CLI using the
+approved API hostname. Redirects to another origin are rejected. Changing
+`git_url` clears a prior custom API endpoint unless the same update explicitly
+approves its replacement.
+
+PR lists distinguish local-only, missing remote, unsupported provider, unavailable
+configuration and provider request failure from a successfully queried empty
+list. `checked_count` counts successful provider queries; `repo_count` counts all
+registered sources. Partial provider availability does not prove an absence of
+PRs. Authentication, access and rate-limit failures give safe next steps without
+reflecting provider response bodies. Public GitHub remains the automatic endpoint
+for public GitHub repository URLs; existing custom sources without an approved
+API endpoint require configuration rather than a guessed endpoint.
+
+## Shared readiness before work
+
+Call native MCP `get_readiness` (or management `inspect_workspace` with operation `get_readiness`) before setup, refresh or investigation. It works before a graph exists and separates the saved run and its input provenance from current work, checkout freshness, coverage limits and currently permitted actions. HTTP clients use `GET /api/v1/projects/{pid}/readiness`; browser workspace metadata includes the same contract. Query-only connections never advertise mutation authority. Follow `next_action`, recheck after acceptance or connection failures, and pin `saved_run_id` for evidence queries. See [the complete state table](shared-readiness.md).
+
+## Installed-client and PR-head validation boundaries
+
+Full-management local stdio has a single lifecycle owner per home. Hosts that initialize several local
+MCP processes for one home can encounter competing-controller startup failure;
+use the existing service's authenticated HTTP connection for shared clients rather
+than deleting locks or starting competing writers.
+
+Exact PR callers require extracted origin and their own recorded clean analysis
+revision matching the linked fact revision. This is a saved-source claim, not
+runtime traffic. Dirty, older, declared and missing caller provenance stays outside
+exact scoring even when the changed service matches the PR head. Explicitly local
+sources stay in place when remote/provider metadata is supplied for PR retrieval;
+that metadata does not authorize managed cloning, pulling or branch changes.
+
+Use [the validation guide](validation.md) to test the installed client and PR
+evidence. Controlled provider fixtures exercise matching and authorization;
+actual upstream PRs and production identity providers require separate checks.

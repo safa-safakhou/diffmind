@@ -172,6 +172,8 @@ type RepositoryAnalysisStatus struct {
 	Dirty            bool   `json:"dirty"`
 	AnalyzedAt       string `json:"analyzed_at,omitempty"`
 	SchemaVersion    string `json:"schema_version,omitempty"`
+	AnalyzerVersion  string `json:"analyzer_version,omitempty"`
+	FileScope        any    `json:"file_scope,omitempty"`
 	CurrentState     string `json:"current_state,omitempty"`
 	CheckedAt        string `json:"checked_at,omitempty"`
 }
@@ -223,14 +225,15 @@ type DatabaseTable struct {
 }
 
 type GraphEdge struct {
-	From       string          `json:"from"`
-	FromPort   string          `json:"from_port"`
-	To         string          `json:"to"`
-	ToPort     string          `json:"to_port"`
-	Type       string          `json:"type"` // "http", "rpc", "workflow", "queue_publish", "queue_consume", "database", "cache", "scheduler"
-	Label      string          `json:"label"`
-	Details    []EntitySummary `json:"details"`
-	Confidence float64         `json:"confidence"`
+	From       string                 `json:"from"`
+	FromPort   string                 `json:"from_port"`
+	To         string                 `json:"to"`
+	ToPort     string                 `json:"to_port"`
+	Type       string                 `json:"type"` // "http", "rpc", "workflow", "queue_publish", "queue_consume", "database", "cache", "scheduler"
+	Label      string                 `json:"label"`
+	Details    []EntitySummary        `json:"details"`
+	Confidence float64                `json:"confidence"`
+	Evidence   []RelationshipEvidence `json:"evidence,omitempty"`
 }
 
 type EntitySummary struct {
@@ -298,6 +301,7 @@ func Overview(g *ArchGraph) *ArchGraph {
 			Type:       edge.Type,
 			Label:      edge.Label,
 			Confidence: edge.Confidence,
+			Evidence:   edge.Evidence,
 		})
 	}
 	return out
@@ -920,9 +924,13 @@ func loadDiffMindData(diffmindDir string) (exposures, dependencies, connections 
 
 func serviceMetadataForRun(serviceName, runDir string) serviceRunMetadata {
 	meta := serviceRunMetadata{}
+	var fileScope any
 	if doc, err := artifacts.ReadProtocol(runDir); err == nil && doc != nil {
 		meta.team = firstNonEmpty(doc.Service.Team, meta.team)
 		meta.repoPath = firstNonEmpty(doc.Repository.Path, meta.repoPath)
+		if raw := doc.Metadata.Labels["analysis_path_scope"]; raw != "" {
+			_ = json.Unmarshal([]byte(raw), &fileScope)
+		}
 	}
 	data, err := os.ReadFile(filepath.Join(runDir, "run_manifest.json"))
 	if err != nil {
@@ -950,7 +958,7 @@ func serviceMetadataForRun(serviceName, runDir string) serviceRunMetadata {
 	if !manifest.FinishedAt.IsZero() {
 		analyzedAt = manifest.FinishedAt.UTC().Format(time.RFC3339Nano)
 	}
-	meta.analysisStatus = &RepositoryAnalysisStatus{State: state, AnalyzedRevision: manifest.RepoGitSHA, Branch: manifest.RepoGitBranch, Dirty: manifest.RepoGitDirty, AnalyzedAt: analyzedAt, SchemaVersion: manifest.SchemaVersion}
+	meta.analysisStatus = &RepositoryAnalysisStatus{State: state, AnalyzedRevision: manifest.RepoGitSHA, Branch: manifest.RepoGitBranch, Dirty: manifest.RepoGitDirty, AnalyzedAt: analyzedAt, SchemaVersion: manifest.SchemaVersion, AnalyzerVersion: manifest.DiffMindVersion, FileScope: fileScope}
 	kind, typ := catalogComponent(meta.repoPath)
 	meta.componentKind = kind
 	meta.componentType = typ
@@ -1019,6 +1027,17 @@ func extractOperations(item map[string]any) string {
 
 func toSummary(item map[string]any) EntitySummary {
 	details := getMap(item, "details")
+	// Retain provenance from legacy artifacts as well as protocol documents.
+	copy := map[string]any{}
+	for key, value := range details {
+		copy[key] = value
+	}
+	for _, key := range []string{"plugin_source", "locations", "evidence"} {
+		if value, ok := item[key]; ok && copy[key] == nil {
+			copy[key] = value
+		}
+	}
+	details = copy
 	kind := getString(item, "type")
 	if nestedKind := getString(details, "kind"); nestedKind != "" {
 		kind = nestedKind

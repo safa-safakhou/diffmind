@@ -55,7 +55,8 @@ hostnames, so it is safe for screenshots, talks and social posts.
 
 ```bash
 make build
-sh scripts/prepare-showcase.sh /tmp/diffmind-demo-shop
+diffmind_demo="$(mktemp -d)/demo-shop"
+sh scripts/prepare-showcase.sh "$diffmind_demo"
 ```
 
 The expected topology and contract fields are checked into the repository, and
@@ -71,8 +72,9 @@ To exercise a company with ten teams and fifteen services per team, generate
 the [synthetic enterprise workspace](examples/enterprise-showcase/README.md):
 
 ```bash
-make enterprise-showcase DEST=/tmp/diffmind-enterprise
-DIFFMIND_HOME=/tmp/diffmind-enterprise ./bin/diffmind ui --no-spa-rebuild
+diffmind_enterprise="$(mktemp -d)/enterprise"
+make enterprise-showcase DEST="$diffmind_enterprise"
+DIFFMIND_HOME="$diffmind_enterprise" ./bin/diffmind ui --no-spa-rebuild
 ```
 
 Large workspaces open in a readable team scope. The graph states how many
@@ -99,7 +101,12 @@ add repositories in the UI. Give your host coding agent this request:
 > wait for completion, and verify known dependencies with source evidence.
 > Perform the setup yourself; do not give me commands or UI chores.
 
-[AGENT_SETUP.md](AGENT_SETUP.md) is the executable playbook for the host agent.
+[AGENT_SETUP.md](AGENT_SETUP.md) is the executable playbook for the host agent. New local agent workspaces maintain already registered
+repositories when overdue on connection and every 15 minutes while connected; existing explicit
+manual policies stay manual. The optional dashboard previews imports before
+registration, offers **Update context** for analysis and **Reload view** for data
+reload, and groups manual controls under **Advanced actions**. See
+[agent operations](docs/agent-operations.md) for roles and lifecycle.
 It runs the source installer, receives machine-readable MCP configuration, and
 registers it with the user's client. The client launches `diffmind agent`, which
 starts its own backend on an available loopback port. No project needs to exist.
@@ -282,8 +289,8 @@ with a [project-scoped viewer token](docs/agent-tokens.md).
   relationships before relying on the graph at work.
 - One server writes each workspace. Distributed workers, automatic SSO group
   provisioning and automatic workspace-path relocation are not implemented.
-  See the [roadmap](docs/ROADMAP.md) and
-  [verification record](docs/readiness-verification.md) for scope and evidence.
+  See the [roadmap](docs/ROADMAP.md) for remaining work and
+  [validation](docs/validation.md) for contributor checks.
 
 ## Teach your conventions
 
@@ -422,8 +429,9 @@ docs/                  setup, operations, architecture and design references
 - [Supported patterns](docs/supported-patterns.md) and [pack authoring](docs/knowledge-packs.md)
 - [Company deployment](docs/company-deployment.md), [permissions](docs/project-access.md) and [agent tokens](docs/agent-tokens.md)
 - [Operations](docs/operations.md), [queue storage](docs/queue-storage.md) and [backup/recovery](docs/backup-recovery.md)
-- [Architecture](docs/ARCHITECTURE.md), [roadmap](docs/ROADMAP.md) and [readiness evidence](docs/readiness-verification.md)
+- [Architecture](docs/ARCHITECTURE.md), [roadmap](docs/ROADMAP.md) and [validation](docs/validation.md)
 - [Distribution and release maintenance](docs/distribution.md)
+- [Contributor validation](docs/validation.md)
 
 ## License
 

@@ -18,7 +18,7 @@ export function ReposTab({ pid }) {
   useEffect(() => { refresh() }, [pid])
 
   const doDelete = async (rid) => {
-    try { await deleteRepo(pid, rid) } catch (e) { setError(e.message) }
+    await deleteRepo(pid, rid)
     setConfirmDel(null); refresh()
   }
 

@@ -23,6 +23,14 @@ import (
 // The analysis runs with workers goroutines for parsing, then single-threaded
 // resolution passes.
 func Build(ctx context.Context, repoRoot, primaryLanguage string, workers int) (*ProjectIndex, error) {
+	cfg, err := serviceconfig.Load(repoRoot)
+	if err != nil {
+		return nil, err
+	}
+	policy, err := sourcefilter.NewPolicy(cfg.Paths.Include, cfg.Paths.Exclude)
+	if err != nil {
+		return nil, err
+	}
 	if workers <= 0 {
 		workers = 8
 	}
@@ -31,7 +39,7 @@ func Build(ctx context.Context, repoRoot, primaryLanguage string, workers int) (
 	var sourceFiles []string
 	var configFiles []string
 
-	err := filepath.WalkDir(repoRoot, func(path string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(repoRoot, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil // skip errors
 		}
@@ -51,6 +59,9 @@ func Build(ctx context.Context, repoRoot, primaryLanguage string, workers int) (
 		}
 		rel, _ := filepath.Rel(repoRoot, path)
 		rel = filepath.ToSlash(rel)
+		if !policy.Allows(rel) {
+			return nil
+		}
 		ext := strings.ToLower(filepath.Ext(rel))
 
 		if LanguageForExtension(ext) != "" {
@@ -380,14 +391,7 @@ func lastSegment(s string) string {
 	return s
 }
 
-func isTestLikePath(path string) bool {
-	path = filepath.ToSlash(strings.ToLower(path))
-	if strings.Contains(path, "/src/test/") || strings.Contains(path, "/test/") || strings.Contains(path, "/tests/") || strings.Contains(path, "/__tests__/") || strings.Contains(path, "/fixtures/") || strings.Contains(path, "/fixture/") {
-		return true
-	}
-	base := filepath.Base(path)
-	return strings.Contains(base, "_test.") || strings.Contains(base, ".test.") || strings.Contains(base, ".spec.") || strings.HasSuffix(base, "test.java") || strings.HasSuffix(base, "tests.java")
-}
+func isTestLikePath(path string) bool { return sourcefilter.SkipTestPath(filepath.ToSlash(path)) }
 
 // symbolsWithMethod returns all qualified symbols whose unqualified name
 // equals method and (optionally) whose qualified name contains prefix.

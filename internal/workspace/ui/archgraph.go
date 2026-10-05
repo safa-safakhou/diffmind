@@ -78,6 +78,7 @@ func archGraphNeedsResourceIndex(graph *ArchGraph) bool {
 }
 
 func archGraphView(graph *ArchGraph, r *http.Request) *ArchGraph {
+	graph = archgraph.WithRelationshipEvidence(graph)
 	if archGraphRequestOverview(r) {
 		return archgraph.Overview(graph)
 	}
@@ -105,14 +106,14 @@ func (s *Server) fullArchGraphForRun(pid, rid string) (*ArchGraph, error) {
 				_ = s.persistArchGraphFiles(pid, rid, rebuilt)
 			}
 		}
-		return graph, nil
+		return archgraph.WithRelationshipEvidence(graph), nil
 	}
 	graph, err := s.archGraphForRun(pid, mft)
 	if err != nil {
 		return nil, err
 	}
 	_ = s.persistArchGraphFiles(pid, rid, graph)
-	return graph, nil
+	return archgraph.WithRelationshipEvidence(graph), nil
 }
 
 func (s *Server) handleRunArchGraphTeam(w http.ResponseWriter, r *http.Request) {

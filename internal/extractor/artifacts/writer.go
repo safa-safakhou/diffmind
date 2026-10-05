@@ -14,6 +14,7 @@ import (
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/model"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/provenance"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/util"
 	"github.com/mohammad-safakhou/diffmind/protocol"
 	"gopkg.in/yaml.v3"
@@ -251,15 +252,31 @@ func normalizeBackstageOwner(owner string) string {
 func CollectRepoMetrics(repoPath string, facts *extraction.RepoFacts) *model.RepoMetrics {
 	m := &model.RepoMetrics{}
 	byLang := map[string]*model.LanguageMetric{}
+	cfg, err := serviceconfig.Load(repoPath)
+	if err != nil {
+		return m
+	}
+	policy, err := sourcefilter.NewPolicy(cfg.Paths.Include, cfg.Paths.Exclude)
+	if err != nil {
+		return m
+	}
 	_ = filepath.WalkDir(repoPath, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
 		name := d.Name()
 		if d.IsDir() {
-			if skipMetricsDir(name) && path != repoPath {
+			if sourcefilter.SkipDirName(name) && path != repoPath {
 				return filepath.SkipDir
 			}
+			return nil
+		}
+		relative, relErr := filepath.Rel(repoPath, path)
+		if relErr != nil || !policy.Allows(filepath.ToSlash(relative)) {
+			return nil
+		}
+		info, infoErr := d.Info()
+		if infoErr != nil || sourcefilter.SkipFileInfo(info) {
 			return nil
 		}
 		lang := languageForPath(path)
@@ -319,16 +336,6 @@ func languageMetricWeight(m model.LanguageMetric) int {
 		return weight / 8
 	default:
 		return weight
-	}
-}
-
-func skipMetricsDir(name string) bool {
-	switch name {
-	case ".git", "node_modules", "vendor", "target", "build", "dist", ".gradle", ".idea", ".gocache", ".diffmind", "coverage", ".cache",
-		".venv", "venv", ".tox", ".nox", "__pycache__", "site-packages":
-		return true
-	default:
-		return false
 	}
 }
 

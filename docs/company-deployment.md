@@ -83,7 +83,12 @@ untrusted network boundary, and never reuse the shared admin token as the proxy
 secret. A request with identity headers but without the correct proxy secret is
 rejected.
 
-By default (`DIFFMIND_PROJECT_ACCESS=legacy`), roles apply globally:
+New shared deployments copying `.env.example` select scoped project access.
+Existing environments and direct CLI launches retain their configured mode; an
+omitted mode still falls back to legacy for compatibility. Verify the active
+mode in `GET /api/v1/session` before inviting ordinary users.
+
+In legacy mode (`DIFFMIND_PROJECT_ACCESS=legacy`), roles apply globally:
 
 | Role | Access |
 | --- | --- |
@@ -91,7 +96,7 @@ By default (`DIFFMIND_PROJECT_ACCESS=legacy`), roles apply globally:
 | `editor` | Viewer access plus project, repository, pack, configuration, sync, and run mutations. |
 | `admin` | Editor access plus deletes, fleet-wide refresh, access/token administration, and project resource limits. |
 
-For explicit project memberships, opt into `DIFFMIND_PROJECT_ACCESS=scoped`.
+For existing deployments, prepare and review grants before explicitly enabling `DIFFMIND_PROJECT_ACCESS=scoped`.
 Admins manage viewer/editor grants in **Project access**, the proxy role remains
 a ceiling, and projects without grants are admin-only. Scoped editors can
 refresh assigned projects, but host configuration/imports/packs are admin-only.

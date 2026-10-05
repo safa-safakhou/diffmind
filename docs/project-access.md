@@ -1,8 +1,10 @@
 # Project access
 
 Shared Diffmind installations can restrict each trusted-proxy user to explicit
-projects across the UI, HTTP API, and remote MCP. This is **opt-in**:
-`DIFFMIND_PROJECT_ACCESS=legacy` is the default and retains global roles.
+projects across the UI, HTTP API, and remote MCP. New shared deployments using
+`.env.example` select scoped access. Direct CLI launches and existing deployments
+with no explicit mode retain the legacy fallback and global roles; upgrading
+does not silently migrate their authority.
 `scoped` denies non-admin access unless a project membership or an explicitly
 issued [project agent token](agent-tokens.md) grants it. This also
 applies to old projects and newly created projects; no grants are inferred.
@@ -21,8 +23,12 @@ applies to old projects and newly created projects; no grants are inferred.
 3. Set `DIFFMIND_PROJECT_ACCESS=scoped` in the server environment or Compose
    `.env`, then restart/recreate the service. The binary also accepts
    `diffmind ui --project-access scoped`. Invalid modes prevent startup.
-4. Test with a non-admin identity: only its projects should appear, guessed
-   project URLs should fail, and its agent should discover the same projects.
+4. Before inviting users, verify scoped mode and admin recovery access. Test
+   separate viewer, editor and ungranted identities in browser/API and remote MCP:
+   only granted projects appear, guessed URLs fail, viewers cannot refresh, and
+   editors can refresh without configuring host paths. A saved grant does not
+   verify that the proxy emits the intended identity. Record the reviewed mode,
+   exact subjects and observed results.
    Grant changes require no restart. Changing the mode does require a restart.
 
 Global admins can always access every project, including membership management.
@@ -97,6 +103,49 @@ Membership mutations, failures, and conflicts use the existing mutation audit
 log. Read/MCP-query auditing belongs at the identity proxy.
 
 ## Agents and revocation
+
+### Operator offboarding sequence
+
+Keep a private access register mapping each explicitly assigned agent credential
+to its project ID, token ID, owner, issuing administrator, purpose and expiry.
+The displayed token name is a label, and `created_by` is the issuer; neither
+establishes the person using a credential. Do not match owners by similar names.
+
+1. Read the current membership policy and remove the exact stable proxy subject
+   from each applicable project. Save using its current revision; review any
+   conflict rather than replaying an old member map.
+2. Review the private register and retained token metadata. Revoke each token
+   explicitly assigned to that person by its project and token ID. Leave unrelated
+   service grants intact. Investigate unassigned credentials with their operator;
+   membership removal does not implicitly revoke them.
+3. Verify new browser/proxy requests and remote MCP requests separately: the
+   removed membership receives generic inaccessible-project responses; a revoked
+   token receives authentication denial. Confirm an unrelated service token and
+   the administrator recovery identity still work.
+4. Review admitted jobs, scheduled refresh and signed-webhook integrations
+   independently. Cancel unwanted admitted work with the existing authorized
+   operation; user offboarding does not cancel server-owned work. Retain a private
+   record of the reviewed memberships, confirmed token IDs and verification time.
+
+Downloaded evidence cannot be retracted. Reconcile this current offboarding
+record **before reopening ordinary traffic after restoring an older backup**;
+that backup can resurrect revoked memberships and token records. Follow the
+[recovery runbook](backup-recovery.md), preserving supported home paths and schema.
+
+### Joining a prepared company workspace
+
+Open the shared browser URL with your ordinary identity. If no projects are
+available, ask the workspace administrator to verify your exact identity and
+grant; guessing project URLs is not an onboarding step. A granted viewer can
+open saved context and use **Connect agent** for the shared `/mcp` endpoint and
+project selector. No local ingestion setup is needed for prepared company data.
+
+Browser cookies do not configure the agent. The administrator provides a viewer
+project token or supported non-interactive identity-proxy route, owns renewal and
+support, and records the explicit token assignment privately. Use the host's
+private secret configuration over HTTPS. Rotate by verifying a replacement
+connection before revoking the old token. Neither admin recovery credentials nor
+the proxy secret belongs in an ordinary user's host configuration.
 
 For agents without proxy-issued credentials, an administrator can issue a
 [project-scoped agent token](agent-tokens.md) on the Project access screen.

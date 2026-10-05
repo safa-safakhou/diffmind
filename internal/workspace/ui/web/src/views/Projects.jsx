@@ -4,8 +4,7 @@ import { canCreateProject } from '../lib/access.js'
 import { navigate } from '../lib/router.js'
 import { Modal, ConfirmDialog } from '../components/Modal.jsx'
 
-// Projects is the index. When no projects exist it forces the create-project
-// flow (prefilled with DEFAULT); otherwise it lists projects with open/delete.
+// Projects is an explicit starting point for creating or joining a workspace.
 export function Projects() {
   const [projects, setProjects] = useState(null)
   const [error, setError] = useState('')
@@ -22,15 +21,10 @@ export function Projects() {
       setError('')
     } catch (e) {
       setError(e.message)
-      setProjects([])
+
     }
   }
   useEffect(() => { refresh() }, [])
-
-  // Force creation when empty.
-  useEffect(() => {
-    if (canCreate && projects && projects.length === 0) setShowCreate(true)
-  }, [projects, canCreate])
 
   const onCreated = (p) => {
     setShowCreate(false)
@@ -38,7 +32,7 @@ export function Projects() {
   }
 
   const doDelete = async (id) => {
-    try { await deleteProject(id) } catch (e) { setError(e.message) }
+    await deleteProject(id)
     setConfirmDel(null)
     refresh()
   }
@@ -53,10 +47,11 @@ export function Projects() {
         {canCreate && <button class="btn" onClick={() => setShowCreate(true)}>+ New Project</button>}
       </header>
 
-      {error && <div class="banner error">{error}</div>}
+      {error && <div class="banner error" role="alert">{error}</div>}
 
       <div class="content">
-        {projects === null && <p class="muted">Loading…</p>}
+        {projects === null && !error && <p class="muted" role="status">Loading projects…</p>}
+        {error && <button class="btn ghost" onClick={refresh}>Retry loading projects</button>}
         {projects && projects.length === 0 && !showCreate && (
           <p class="muted">{canCreate ? 'No projects yet.' : 'No accessible projects. Ask an administrator to grant your user access.'}</p>
         )}
@@ -79,8 +74,7 @@ export function Projects() {
 
       {showCreate && (
         <CreateProject
-          forced={projects && projects.length === 0}
-          onClose={() => { if (!(projects && projects.length === 0)) setShowCreate(false) }}
+          onClose={() => setShowCreate(false)}
           onCreated={onCreated}
         />
       )}
@@ -97,7 +91,7 @@ export function Projects() {
   )
 }
 
-function CreateProject({ onClose, onCreated, forced }) {
+function CreateProject({ onClose, onCreated }) {
   const [name, setName] = useState('DEFAULT')
   const [searchRoots, setSearchRoots] = useState('')
   const [instruction, setInstruction] = useState('')
@@ -120,25 +114,27 @@ function CreateProject({ onClose, onCreated, forced }) {
   }
 
   return (
-    <Modal title={forced ? 'Create your first project' : 'New Project'} onClose={onClose}>
-      {forced && <p class="muted small">A project is required before anything else. We suggest <code>DEFAULT</code>.</p>}
+    <Modal title="New Project" onClose={onClose}>
+      <form onSubmit={(e) => { e.preventDefault(); if (!busy) submit() }}>
       <div class="field">
-        <label>Name</label>
-        <input value={name} onInput={(e) => setName(e.target.value)} />
+        <label>Name
+        <input value={name} onInput={(e) => setName(e.target.value)} /></label>
       </div>
       <div class="field">
-        <label>Repository search roots (one per line, optional)</label>
+        <label>Repository search roots (one per line, optional)
         <textarea rows="3" value={searchRoots} onInput={(e) => setSearchRoots(e.target.value)} placeholder="/path/to/repos" />
+        </label>
       </div>
       <div class="field">
-        <label>Default extraction instruction (optional)</label>
-        <textarea rows="2" value={instruction} onInput={(e) => setInstruction(e.target.value)} />
+        <label>Default extraction instruction (optional)
+        <textarea rows="2" value={instruction} onInput={(e) => setInstruction(e.target.value)} /></label>
       </div>
-      {error && <div class="banner error">{error}</div>}
+      {error && <div class="banner error" role="alert">{error}</div>}
       <div class="actions">
-        <button class="btn" disabled={busy} onClick={submit}>{busy ? 'Creating…' : 'Create project'}</button>
-        {!forced && <button class="btn ghost" onClick={onClose}>Cancel</button>}
+        <button class="btn" disabled={busy} type="submit">{busy ? 'Creating…' : 'Create project'}</button>
+        <button type="button" class="btn ghost" onClick={onClose}>Cancel</button>
       </div>
+      </form>
     </Modal>
   )
 }

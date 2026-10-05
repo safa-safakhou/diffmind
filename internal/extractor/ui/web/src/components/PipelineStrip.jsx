@@ -12,17 +12,22 @@ const PRETTY = {
 export function PipelineStrip() {
   const map = stages.value
   const meta = runMeta.value
-  const elapsed = meta && meta.startedAt ? humanDuration(Date.now() - new Date(meta.startedAt).getTime()) : '–'
+  const terminal = ['completed', 'failed', 'cancelled'].includes(meta?.status)
+  const started = Date.parse(meta?.startedAt)
+  const finished = Date.parse(meta?.finishedAt)
+  const duration = started > 0 ? (terminal ? finished : Date.now()) - started : NaN
+  const elapsed = Number.isFinite(duration) && duration >= 0 ? humanDuration(duration) : '\u2013'
 
   return (
-    <div class="pipeline-strip">
+    <div class="pipeline-strip" tabIndex={0} aria-label="Extraction stages">
       {ORDER.map((id) => {
-        const s = map.get(id) || { name: id, status: 'pending', summary: {} }
+        const s = map.get(id) || { name: id, status: terminal ? 'unrecorded' : 'pending', summary: {} }
         const summary = formatSummary(s.summary)
+        const status = terminal && s.status === 'pending' ? 'unrecorded' : s.status
         return (
-          <div class={'pipeline-stage ' + s.status} key={id}>
+          <div class={'pipeline-stage ' + status} key={id}>
             <div class="name">{PRETTY[id]}</div>
-            <div class="count">{statusLabel(s.status)}</div>
+            <div class="count">{statusLabel(status)}</div>
             <div class="stage-tip">{s.tip}</div>
             <div class="stage-tokens">{summary}</div>
           </div>
@@ -39,6 +44,7 @@ export function PipelineStrip() {
 }
 
 function statusLabel(status) {
+  if (status === 'unrecorded') return 'not recorded'
   if (status === 'success') return 'done'
   if (status === 'running') return 'running'
   if (status === 'failed') return 'failed'

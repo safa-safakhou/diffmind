@@ -82,6 +82,7 @@ type Repo struct {
 	Kind                   string    `json:"kind"` // service_repo | infra_repo
 	SourceType             string    `json:"source_type,omitempty"`
 	GitURL                 string    `json:"git_url,omitempty"`
+	GitAPIBase             string    `json:"git_api_base,omitempty"`
 	GitProvider            string    `json:"git_provider,omitempty"`
 	ClonePath              string    `json:"clone_path,omitempty"`
 	DefaultBranch          string    `json:"default_branch,omitempty"`

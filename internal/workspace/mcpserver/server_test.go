@@ -3,7 +3,9 @@ package mcpserver
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -11,6 +13,7 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/mohammad-safakhou/diffmind/internal/workspace/agentapi"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/archgraph"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/query"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/store"
@@ -92,7 +95,7 @@ func TestMCPProtocolListsAndCallsTools(t *testing.T) {
 		}
 	}
 	sort.Strings(names)
-	want := []string{"compare_contracts", "compare_graphs", "find_dependency_path", "get_contracts", "get_dependencies", "get_graph_summary", "get_impact", "get_object_trace", "get_service", "list_graph_runs", "list_projects", "list_services", "search_architecture"}
+	want := []string{"compare_contracts", "compare_graphs", "find_dependency_path", "get_contracts", "get_dependencies", "get_graph_summary", "get_impact", "get_object_trace", "get_readiness", "get_service", "list_graph_runs", "list_projects", "list_services", "search_architecture"}
 	if len(names) != len(want) {
 		t.Fatalf("tools=%v", names)
 	}
@@ -102,6 +105,18 @@ func TestMCPProtocolListsAndCallsTools(t *testing.T) {
 		}
 	}
 
+	readinessResult, err := clientSession.CallTool(ctx, &mcp.CallToolParams{Name: "get_readiness", Arguments: map[string]any{"project": projectID}})
+	if err != nil || readinessResult.IsError {
+		t.Fatalf("readiness: %+v %v", readinessResult, err)
+	}
+	data, _ := json.Marshal(readinessResult.StructuredContent)
+	var readiness query.Readiness
+	if err := json.Unmarshal(data, &readiness); err != nil {
+		t.Fatal(err)
+	}
+	if !readiness.Actions.Query || readiness.Actions.Refresh || readiness.Actions.Configure || readiness.Graph != "queryable" || readiness.ConnectionMode != "query_only" || readiness.Maintenance != "unknown" {
+		t.Fatalf("query-only readiness: %+v", readiness)
+	}
 	result, err := clientSession.CallTool(ctx, &mcp.CallToolParams{Name: "list_services", Arguments: map[string]any{"project": projectID}})
 	if err != nil {
 		t.Fatal(err)
@@ -127,5 +142,62 @@ func TestMCPProtocolListsAndCallsTools(t *testing.T) {
 	}
 	if !bad.IsError {
 		t.Fatalf("missing service should be a tool error: %#v", bad)
+	}
+}
+
+func TestReadinessFailureHasNoAuthorityOrProjectData(t *testing.T) {
+	for _, access := range []string{"denied", "unknown"} {
+		result, _, err := readinessFailure("disconnected", access, "Readiness unavailable")
+		if err != nil || !result.IsError {
+			t.Fatal(result, err)
+		}
+		data, _ := json.Marshal(result.StructuredContent)
+		var state query.Readiness
+		if err := json.Unmarshal(data, &state); err != nil {
+			t.Fatal(err)
+		}
+		if state.ProjectID != "" || state.SavedRunID != "" || len(state.Inputs) > 0 || state.Actions.Query || state.Actions.Refresh || state.Actions.Configure || state.Actions.InspectWork {
+			t.Fatalf("failure leaked authority/provenance: %+v", state)
+		}
+		expected := "reconnect"
+		if access == "denied" {
+			expected = "request_access"
+		}
+		if state.NextAction != expected {
+			t.Fatalf("next: %+v", state)
+		}
+	}
+}
+
+func TestMCPReadinessManagedDisconnectPausesActions(t *testing.T) {
+	server, pid := testMCPServer(t)
+	server.WithManagement(func(context.Context, *mcp.CallToolRequest, *http.Request) (agentapi.Result, error) {
+		return agentapi.Result{}, errors.New("fixture transport failure")
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	serverTransport, clientTransport := mcp.NewInMemoryTransports()
+	ss, err := server.MCPServer().Connect(ctx, serverTransport, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ss.Close()
+	client := mcp.NewClient(&mcp.Implementation{Name: "readiness-test", Version: "1"}, nil)
+	cs, err := client.Connect(ctx, clientTransport, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cs.Close()
+	result, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: "get_readiness", Arguments: map[string]any{"project": pid}})
+	if err != nil || !result.IsError {
+		t.Fatalf("disconnect: %+v %v", result, err)
+	}
+	raw, _ := json.Marshal(result.StructuredContent)
+	var state query.Readiness
+	if err := json.Unmarshal(raw, &state); err != nil {
+		t.Fatal(err)
+	}
+	if state.Runtime != "disconnected" || state.Access != "unknown" || state.ProjectID != "" || state.SavedRunID != "" || state.Actions.Query || state.Actions.Refresh || state.NextAction != "reconnect" {
+		t.Fatalf("disconnect state: %+v", state)
 	}
 }

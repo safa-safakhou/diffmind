@@ -34,9 +34,10 @@ type Input struct {
 	Confirm   string            `json:"confirm,omitempty" jsonschema:"For destructive operations, repeat the exact operation name to confirm its intended scope."`
 }
 type Result struct {
-	Status     int    `json:"status"`
-	Data       any    `json:"data"`
-	RetryAfter string `json:"retry_after,omitempty"`
+	Status     int       `json:"status"`
+	Data       any       `json:"data"`
+	RetryAfter string    `json:"retry_after,omitempty"`
+	Recovery   *Recovery `json:"recovery,omitempty"`
 }
 type Invoke func(context.Context, *mcp.CallToolRequest, *http.Request) (Result, error)
 
@@ -125,11 +126,16 @@ func Decode(status int, headers http.Header, body io.Reader) (Result, error) {
 			data = string(b)
 		}
 	}
-	return Result{Status: status, Data: data, RetryAfter: headers.Get("Retry-After")}, nil
+	result := Result{Status: status, Data: data, RetryAfter: headers.Get("Retry-After")}
+	if status >= 400 {
+		recovery := RecoveryForStatus(status)
+		result.Recovery = &recovery
+	}
+	return result, nil
 }
 
 func AddTools(server *mcp.Server, invoke Invoke) {
-	mcp.AddTool(server, &mcp.Tool{Name: "describe_management", Description: "Discover all project, repository, ingestion, job, pack, configuration, permissions, token and quota operations. Call before using inspect_workspace/manage_workspace. Operations remain subject to the authenticated caller's permissions.", Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true}},
+	mcp.AddTool(server, &mcp.Tool{Name: "describe_management", Description: "Discover PR listing/impact review and all project, repository, ingestion, job, pack, configuration, permissions, token and quota operations. PR inspection is read-only; discover pull_request_impact for review tasks. Call before using inspect_workspace/manage_workspace. Operations remain subject to the authenticated caller's permissions.", Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true}},
 		func(_ context.Context, _ *mcp.CallToolRequest, in struct {
 			Operation string `json:"operation,omitempty"`
 		}) (*mcp.CallToolResult, any, error) {
@@ -140,23 +146,23 @@ func AddTools(server *mcp.Server, invoke Invoke) {
 				}
 				return nil, op, nil
 			}
-			return nil, map[string]any{"operations": Operations, "workflow": []string{"list projects before creating; do not retry creation blindly after a lost response", "create_project", "import_repositories with dry_run=true to preview", "start_ingestion with import or {} for incremental refresh", "get_ingestion until completed; inspect failures before retry", "query graph and verify source evidence"}}, nil
+			return nil, map[string]any{"operations": Operations, "workflow": []string{"Use inspect_workspace for GET operations and manage_workspace for mutations", "Read get_capabilities before choosing a workflow. Scoped editors refresh with enqueue_refresh, then inspect list_jobs filtered by project and get_ingestion; they cannot use start_ingestion or repository analysis. Viewers cannot refresh. The onboarding steps below require configuration authority", "list projects before creating; do not retry creation blindly after a lost response", "create_project", "import_repositories with dry_run=true to preview", "start_ingestion with import including returned preview_digest, or {} for incremental refresh", "get_ingestion until completed; inspect failures before retry", "query graph and verify source evidence"}}, nil
 		})
 	for _, readOnly := range []bool{true, false} {
-		name, desc := "manage_workspace", "Create/configure projects, import repositories, build/update/cancel/retry graphs, teach packs, and administer access/tokens/limits. Use describe_management first. Accepted async work is NOT completed: inspect its persisted status. Mutations are audited and permission checked. No automatic mutation retries."
+		name, desc := "manage_workspace", "Create/configure projects, import repositories, build/update/cancel/retry graphs, teach packs, and administer access/tokens/limits. Use describe_management and inspect get_capabilities first. Scoped editors refresh existing scope with enqueue_refresh; start_ingestion and repository analysis require administrator. Accepted async work is NOT completed: inspect its persisted status. Mutations are audited and permission checked. No automatic mutation retries."
 		if readOnly {
 			name = "inspect_workspace"
-			desc = "Inspect configuration, repositories, work status/history, capabilities, access, packs, and limits using an operation from describe_management. Does not mutate workspace state."
+			desc = "Inspect PR impact/revision/caller evidence (pull_request_impact), PR listings, configuration, repositories, work status/history, capabilities, access, packs, and limits using an operation from describe_management. Does not mutate workspace state."
 		}
 		mcp.AddTool(server, &mcp.Tool{Name: name, Description: desc, Annotations: &mcp.ToolAnnotations{ReadOnlyHint: readOnly, DestructiveHint: boolPointer(!readOnly), OpenWorldHint: boolPointer(!readOnly)}},
 			func(ctx context.Context, call *mcp.CallToolRequest, in Input) (*mcp.CallToolResult, any, error) {
 				req, err := Request(ctx, in, readOnly)
 				if err != nil {
-					return nil, nil, err
+					return managementFailure(400, err.Error()), nil, nil
 				}
 				result, err := invoke(ctx, call, req)
 				if err != nil {
-					return nil, nil, err
+					return managementFailure(502, "Workspace connection unavailable; inspect persisted work before submitting a mutation again."), nil, nil
 				}
 				if result.Status >= 400 {
 					raw, _ := json.Marshal(result)
@@ -165,5 +171,12 @@ func AddTools(server *mcp.Server, invoke Invoke) {
 				return nil, result, nil
 			})
 	}
+}
+
+func managementFailure(status int, message string) *mcp.CallToolResult {
+	recovery := RecoveryForStatus(status)
+	result := Result{Status: status, Data: map[string]any{"error": message, "recovery": recovery}, Recovery: &recovery}
+	body, _ := json.Marshal(result)
+	return &mcp.CallToolResult{IsError: true, Content: []mcp.Content{&mcp.TextContent{Text: string(body)}}, StructuredContent: result}
 }
 func boolPointer(v bool) *bool { return &v }

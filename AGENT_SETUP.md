@@ -18,6 +18,10 @@ scope, company credentials/SSO approval, system installation permission, or a
 client integration approval that the host requires. Never bypass those boundaries.
 An MCP server cannot install or authorize itself before its host can launch it.
 
+Supported native targets are macOS and Linux on AMD64 and ARM64. Windows users
+can run the Linux build in WSL or connect to a shared deployment; native Windows
+operation is not validated. See the [installation matrix](README.md#manual-installation-alternative).
+
 ## 1. Inspect and install (agent executes)
 
 1. Resolve this source checkout; inspect its Git status/revision. Preserve all
@@ -47,9 +51,9 @@ for an upgrade, then use `--replace` only for that authorized target. Existing
 workspaces must be private real directories; do not chmod an unrelated directory
 just to satisfy setup. A failed build leaves an existing binary intact.
 
-There is no published binary release yet. Do not hand the user a release URL
-that does not exist. After releases are available, the host agent may use the
-verified installer instead, then register the same `agent` launch command.
+For a release installation, verify the chosen release and its platform asset
+before installing it. A published binary can lag this checkout; use source setup
+when validating unreleased changes. Register the same absolute `agent` launch command.
 
 ## 2. Register the full-management connection (agent executes)
 
@@ -85,7 +89,7 @@ action; never claim tools are live before discovery succeeds. Do not ask the
 user to launch a server. Their client launches DiffMind, and DiffMind launches
 its own backend.
 
-Verify discovery of 18 tools: 13 graph tools plus `describe_management`,
+Verify discovery of 19 tools: 14 read tools (including `get_readiness`) plus `describe_management`,
 `inspect_workspace`, `manage_workspace`, `agent_runtime` and `agent_command`.
 Use `agent_runtime(action="status")` to confirm the intended home/backend.
 If another process owns the workspace, inspect it; do not kill it or unlink its
@@ -105,8 +109,9 @@ owns a home; additional query/management clients can share its HTTP endpoint.
    include/exclude regex and an explicit limit where useful. Credentials must be
    available in the backend environment or approved GitHub CLI account. Obtain
    them through approved secret handling, never by asking for a token in chat.
-3. Inspect the preview and narrow it to scope. Start `start_ingestion` with an
-   `import` body using the same fields, without dry-run. For existing
+3. Inspect the preview and narrow it to scope. Retain its `preview_digest`.
+   Start `start_ingestion` with an `import` body using the same reviewed fields
+   and that digest, without dry-run. A 409 requires a fresh preview and review. For existing
    repositories, an empty body runs incremental sync/analysis/graph construction.
 4. Poll `inspect_workspace(operation="get_ingestion")` using the returned
    project selector until terminal. A 202 is acceptance, **not completion**.
@@ -116,9 +121,13 @@ owns a home; additional query/management clients can share its HTTP endpoint.
    known relationships. Inspect evidence and freshness. Missing static-analysis
    facts are unknown, not proof of no dependency. Record patterns requiring
    teaching rather than inventing edges.
-6. If requested, configure refresh via `agent_runtime`: read current settings,
-   preserve unrelated values, then `configure` with a complete settings object.
-   The local backend runs only while its owning agent connection is alive.
+6. New agent workspaces refresh registered repositories on startup and every
+   15 minutes while connected. This never discovers or imports new repositories.
+   Existing explicit manual settings remain manual. Read runtime status to report
+   the effective policy. For a requested change, use `agent_runtime`: preserve
+   unrelated settings and configure a complete object (`refresh_interval: "0"`,
+   `refresh_on_start: false` disables automatic refresh). Local checkouts retain
+   their working tree; the backend stops when its owning connection closes.
 7. Offer useful findings and the optional dashboard URL from runtime status.
    Do not direct the user to create projects or import repositories in the UI.
 

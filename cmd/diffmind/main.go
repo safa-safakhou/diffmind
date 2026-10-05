@@ -55,7 +55,7 @@ Flags (ui):
   --project-access  legacy (default) or scoped per-project user memberships
   --allow-unauthenticated  Allow a non-loopback bind without authentication
   --refresh-interval  Refresh every duration such as 15m or 1h (disabled by default)
-  --refresh-on-start  Refresh all projects immediately after startup
+  --refresh-on-start  Refresh overdue projects after startup
   --refresh-concurrency  Maximum repository operations per project (default 4)
   --job-workers  Concurrent queued project jobs (default 2)
   --queue-capacity  Maximum queued and running jobs (default 256)
@@ -74,7 +74,12 @@ func main() {
 			cmd = args[0]
 			args = args[1:]
 		default:
-			// Unknown leading token: treat as flags to the default ui command.
+			// Preserve the documented shorthand for UI flags, but never start a
+			// server because an agent or user mistyped a command.
+			if !strings.HasPrefix(args[0], "-") {
+				fmt.Fprintf(os.Stderr, "unknown command %q; use 'diffmind help' for commands\n", args[0])
+				os.Exit(2)
+			}
 		}
 	}
 
@@ -275,7 +280,7 @@ func cmdUIListener(args []string, listener net.Listener) {
 	trustedProxySecret := fs.String("trusted-proxy-secret", strings.TrimSpace(os.Getenv("DIFFMIND_TRUSTED_PROXY_SECRET")), "secret used to trust per-user identity headers from an OIDC proxy")
 	allowUnauthenticated := fs.Bool("allow-unauthenticated", false, "allow a non-loopback bind without authentication")
 	refreshInterval := fs.String("refresh-interval", strings.TrimSpace(os.Getenv("DIFFMIND_REFRESH_INTERVAL")), "fleet refresh interval, for example 15m or 1h")
-	refreshOnStart := fs.Bool("refresh-on-start", envBool("DIFFMIND_REFRESH_ON_START"), "refresh every project immediately after startup")
+	refreshOnStart := fs.Bool("refresh-on-start", envBool("DIFFMIND_REFRESH_ON_START"), "refresh overdue projects after startup")
 	refreshConcurrency := fs.Int("refresh-concurrency", envInt("DIFFMIND_REFRESH_CONCURRENCY", 4), "maximum concurrent repository refresh operations per project")
 	jobWorkers := fs.Int("job-workers", envInt("DIFFMIND_JOB_WORKERS", 2), "concurrent queued project refresh jobs")
 	queueCapacity := fs.Int("queue-capacity", envInt("DIFFMIND_QUEUE_CAPACITY", 256), "maximum queued and running refresh jobs")
@@ -307,6 +312,12 @@ func cmdUIListener(args []string, listener net.Listener) {
 	}
 
 	srv := ui.New(st, mgr, config.DiffMindRunsDir(), *host, *port, log)
+	executable, executableErr := os.Executable()
+	if executableErr != nil {
+		fmt.Fprintln(os.Stderr, executableErr)
+		os.Exit(1)
+	}
+	srv.SetAnalyzerBinary(executable)
 	srv.SetVersion(version)
 	srv.SetAuthToken(*authToken)
 	srv.SetTrustedProxySecret(*trustedProxySecret)

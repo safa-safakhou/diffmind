@@ -17,13 +17,15 @@ import (
 	"time"
 
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/artifacts"
-	"github.com/mohammad-safakhou/diffmind/internal/workspace/config"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/model"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/orchestrator"
+	querysvc "github.com/mohammad-safakhou/diffmind/internal/workspace/query"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/store"
 )
 
 type workspaceResponse struct {
+	Readiness    *querysvc.Readiness                    `json:"readiness"`
+	Evidence     querysvc.EvidenceState                 `json:"evidence"`
 	Project      *store.Project                         `json:"project"`
 	Repos        []workspaceRepo                        `json:"repos"`
 	Teams        []workspaceTeam                        `json:"teams"`
@@ -102,7 +104,24 @@ func (s *Server) handleWorkspace(w http.ResponseWriter, r *http.Request) {
 		}
 		runs[wr.ID] = rr
 	}
-	writeJSON(w, http.StatusOK, workspaceResponse{
+	readiness, err := s.queryFor(r).Readiness(pid)
+	if err != nil {
+		s.writeStoreErr(w, err)
+		return
+	}
+	// Metadata and readiness must identify the same usable saved snapshot.
+	if latest == nil || latest.ID != readiness.SavedRunID {
+		latest = nil
+		graph = nil
+		if readiness.SavedRunID != "" {
+			latest, err = s.store.GetRun(pid, readiness.SavedRunID)
+			if err != nil {
+				s.writeStoreErr(w, err)
+				return
+			}
+		}
+	}
+	writeJSON(w, http.StatusOK, workspaceResponse{Readiness: readiness, Evidence: readiness.Evidence,
 		Project: project, Repos: repos, Teams: teams, CurrentRun: current, LatestRun: latest, Graph: graph,
 		LiveStatus: live, DiffMindRuns: runs, GeneratedAt: time.Now().UTC(),
 	})
@@ -163,41 +182,7 @@ func (s *Server) diffmindRunsForRepo(repoPath string) ([]artifacts.DiffMindRunIn
 }
 
 func diffmindFreshness(repo store.Repo, latest *artifacts.DiffMindRunInfo) string {
-	if latest == nil || latest.RepoGitSHA == "" {
-		return "unknown"
-	}
-	remote := firstNonEmpty(repo.RemoteHeadSHA, repo.HeadSHA)
-	if repo.SourceType == "local" || (repo.GitURL == "" && repo.Path != "") {
-		if head, dirty := localGitRevision(repo.Path); head != "" {
-			if dirty {
-				return "dirty"
-			}
-			remote = head
-		}
-	}
-	if remote == "" {
-		return "unknown"
-	}
-	if latest.RepoGitSHA == remote {
-		return "fresh"
-	}
-	return "stale"
-}
-
-func localGitRevision(path string) (string, bool) {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	out := gitOutput(ctx, path, "status", "--porcelain=v2", "--branch")
-	var head string
-	dirty := false
-	for _, line := range strings.Split(out, "\n") {
-		if strings.HasPrefix(line, "# branch.oid ") {
-			head = strings.TrimSpace(strings.TrimPrefix(line, "# branch.oid "))
-		} else if line != "" && !strings.HasPrefix(line, "# ") {
-			dirty = true
-		}
-	}
-	return head, dirty
+	return querysvc.RepositoryFreshness(repo, latest)
 }
 
 func (s *Server) latestWorkspaceGraph(pid string, repos []workspaceRepo) (*store.RunManifest, *ArchGraph) {
@@ -247,14 +232,17 @@ func (s *Server) persistedArchGraphForRun(pid, rid string) (*ArchGraph, error) {
 	if err != nil {
 		return nil, err
 	}
-	var graph ArchGraph
+	var graph *ArchGraph
 	if err := json.Unmarshal(data, &graph); err != nil {
 		return nil, err
 	}
+	if graph == nil || (graph.RunID != "" && graph.RunID != rid) {
+		return nil, fmt.Errorf("invalid saved graph for run %s", rid)
+	}
 	s.archGraphMu.Lock()
-	s.archGraphCache[cacheKey] = archGraphCacheEntry{graph: &graph, modTime: info.ModTime(), size: info.Size()}
+	s.archGraphCache[cacheKey] = archGraphCacheEntry{graph: graph, modTime: info.ModTime(), size: info.Size()}
 	s.archGraphMu.Unlock()
-	return &graph, nil
+	return graph, nil
 }
 
 func (s *Server) persistedArchGraphForRunFast(pid, rid string, r *http.Request) (*ArchGraph, error) {
@@ -390,7 +378,7 @@ func (s *Server) handleSyncRepo(w http.ResponseWriter, r *http.Request) {
 		s.writeStoreErr(w, err)
 		return
 	}
-	if repo.SourceType != "git" && repo.GitURL == "" {
+	if repo.SourceType == "local" || (repo.SourceType != "git" && repo.GitURL == "") {
 		info := inspectLocalGit(r.Context(), repo.Path, repo.DefaultBranch)
 		updated, err := s.store.UpdateRepo(pid, rid, func(rp *store.Repo) {
 			applyGitInfo(rp, info)
@@ -414,6 +402,9 @@ func (s *Server) handleSyncRepo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) syncGitRepo(ctx context.Context, pid string, repo store.Repo) (*store.Repo, error) {
+	if repo.SourceType == "local" {
+		return nil, fmt.Errorf("local source is analyzed in place; remote metadata does not authorize a managed checkout")
+	}
 	release, err := s.acquireRepository(ctx, pid)
 	if err != nil {
 		return nil, err
@@ -549,13 +540,28 @@ func githubAuthHost(gitURL string) string {
 }
 
 func githubToken(ctx context.Context, raw string) string {
+	return githubTokenForHost(ctx, githubTokenHost(raw))
+}
+
+func githubAPIToken(ctx context.Context, raw string) string {
+	u, err := url.Parse(firstNonEmpty(raw, "https://api.github.com"))
+	if err != nil {
+		return ""
+	}
+	host := u.Hostname()
+	if strings.EqualFold(host, "api.github.com") {
+		host = "github.com"
+	}
+	return githubTokenForHost(ctx, host)
+}
+
+func githubTokenForHost(ctx context.Context, host string) string {
 	if token := strings.TrimSpace(os.Getenv("GITHUB_TOKEN")); token != "" {
 		return token
 	}
 	if token := strings.TrimSpace(os.Getenv("GH_TOKEN")); token != "" {
 		return token
 	}
-	host := githubTokenHost(raw)
 	if host == "" {
 		host = "github.com"
 	}
@@ -654,7 +660,7 @@ func (s *Server) runDiffMindForRepoContext(ctx context.Context, pid, rid string,
 	if repoPath == "" {
 		repoPath = repo.ClonePath
 	}
-	if _, statErr := os.Stat(repoPath); statErr != nil && repo.GitURL != "" {
+	if _, statErr := os.Stat(repoPath); statErr != nil && repo.SourceType != "local" && repo.GitURL != "" {
 		if updated, syncErr := s.syncGitRepo(ctx, pid, repo); syncErr == nil && updated != nil {
 			repo = *updated
 			repoPath = repo.Path
@@ -667,7 +673,7 @@ func (s *Server) runDiffMindForRepoContext(ctx context.Context, pid, rid string,
 			return
 		}
 	}
-	binary := firstNonEmpty(os.Getenv("DIFFMIND_BINARY"), config.NewDefault().DiffMind.BinaryPath)
+	binary := s.analyzerExecutable()
 	release, acquireErr := s.acquireRepository(ctx, pid)
 	if acquireErr != nil {
 		_, _ = s.store.UpdateRepo(pid, rid, func(r *store.Repo) { r.SyncStatus = "diffmind_failed"; r.SyncError = acquireErr.Error() })
@@ -780,7 +786,7 @@ func (s *Server) cachedLiveStatusForRepos(repos []workspaceRepo) map[string]repo
 	s.liveStatusMu.Lock()
 	defer s.liveStatusMu.Unlock()
 	for _, repo := range repos {
-		key := repo.ID + "|" + repo.GitURL + "|" + repo.Path
+		key := repo.ID + "|" + repo.GitURL + "|" + repo.Path + "|" + repo.GitAPIBase
 		if cached, ok := s.liveStatusCache[key]; ok && now.Before(cached.expiresAt) {
 			out[repo.ID] = cached.value
 			continue
@@ -795,7 +801,7 @@ func (s *Server) cachedLiveStatusForRepos(repos []workspaceRepo) map[string]repo
 }
 
 func (s *Server) cachedLiveStatus(ctx context.Context, repo store.Repo) repoLive {
-	key := repo.ID + "|" + repo.GitURL + "|" + repo.Path
+	key := repo.ID + "|" + repo.GitURL + "|" + repo.Path + "|" + repo.GitAPIBase
 	now := time.Now().UTC()
 	s.liveStatusMu.Lock()
 	if cached, ok := s.liveStatusCache[key]; ok && now.Before(cached.expiresAt) {
@@ -813,17 +819,16 @@ func (s *Server) cachedLiveStatus(ctx context.Context, repo store.Repo) repoLive
 
 func githubLiveStatus(ctx context.Context, repo store.Repo) repoLive {
 	now := time.Now().UTC()
-	githubSource := githubSourceForRepo(ctx, repo)
-	owner, name, ok := githubOwnerRepo(githubSource)
-	if !ok {
-		return repoLive{Provider: firstNonEmpty(repo.GitProvider, "git"), Status: "unavailable", CheckedAt: now}
+	base, state, message := githubRepositoryEndpoint(ctx, repo)
+	if state != "ready" {
+		return repoLive{Provider: firstNonEmpty(repo.GitProvider, "git"), Status: state, Error: message, CheckedAt: now}
 	}
-	token := githubToken(ctx, githubSource)
-	client := &http.Client{Timeout: 8 * time.Second}
-	prs, prErr := githubCount(ctx, client, token, fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls?state=open&per_page=1", owner, name))
-	issues, issueErr := githubCount(ctx, client, token, fmt.Sprintf("https://api.github.com/repos/%s/%s/issues?state=open&per_page=1", owner, name))
+	token := githubAPIToken(ctx, base)
+	client := githubHTTPClient(8 * time.Second)
+	prs, prErr := githubCount(ctx, client, token, base+"/pulls?state=open&per_page=1")
+	issues, issueErr := githubCount(ctx, client, token, base+"/issues?state=open&per_page=1")
 	actions := "unknown"
-	if state, err := githubActionsState(ctx, client, token, owner, name); err == nil {
+	if state, err := githubActionsState(ctx, client, token, base); err == nil {
 		actions = state
 	}
 	status := "ok"
@@ -836,22 +841,8 @@ func githubLiveStatus(ctx context.Context, repo store.Repo) repoLive {
 }
 
 func githubOwnerRepo(raw string) (string, string, bool) {
-	raw = strings.TrimSuffix(strings.TrimSpace(raw), ".git")
-	raw = strings.TrimSuffix(raw, "/")
-	if strings.Contains(raw, "github.com:") {
-		parts := strings.Split(raw, "github.com:")
-		raw = "github.com/" + parts[len(parts)-1]
-	}
-	idx := strings.Index(strings.ToLower(raw), "github.com/")
-	if idx < 0 {
-		return "", "", false
-	}
-	rest := raw[idx+len("github.com/"):]
-	parts := strings.Split(rest, "/")
-	if len(parts) < 2 {
-		return "", "", false
-	}
-	return parts[0], parts[1], true
+	host, owner, name, ok := gitRepositoryLocation(raw)
+	return owner, name, ok && host == "github.com"
 }
 
 func githubCount(ctx context.Context, client *http.Client, token, url string) (int, error) {
@@ -862,7 +853,7 @@ func githubCount(ctx context.Context, client *http.Client, token, url string) (i
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return 0, err
+		return 0, githubConnectionError()
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
@@ -877,8 +868,8 @@ func githubCount(ctx context.Context, client *http.Client, token, url string) (i
 	return len(arr), nil
 }
 
-func githubActionsState(ctx context.Context, client *http.Client, token, owner, repo string) (string, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/actions/runs?per_page=1", owner, repo)
+func githubActionsState(ctx context.Context, client *http.Client, token, base string) (string, error) {
+	url := base + "/actions/runs?per_page=1"
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	req.Header.Set("Accept", "application/vnd.github+json")
 	if token != "" {
@@ -886,7 +877,7 @@ func githubActionsState(ctx context.Context, client *http.Client, token, owner, 
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", githubConnectionError()
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
@@ -937,4 +928,27 @@ func errorString(err error) string {
 		return ""
 	}
 	return err.Error()
+}
+
+// Match the query service's saved-run selection without parsing large graphs on
+// every readiness poll. The artifact cache revalidates file size and mtime.
+func (s *Server) readinessGraphRun(pid string) (*store.RunManifest, error) {
+	runs, err := s.store.ListRuns(pid)
+	if err != nil {
+		return nil, err
+	}
+	for _, run := range runs {
+		if run.Status != store.RunCompleted {
+			continue
+		}
+		_, err := s.persistedArchGraphForRun(pid, run.ID)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		return &run, nil
+	}
+	return nil, querysvc.ErrNoCompletedGraph
 }

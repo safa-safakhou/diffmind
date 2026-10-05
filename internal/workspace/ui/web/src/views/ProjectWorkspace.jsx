@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import { navigate } from '../lib/router.js'
 import { createRepo, createRun, deleteRepo, getDiffMindConfigurationYaml, getIngestion, getRunArchGraph, getRunArchGraphResource, getRunArchGraphService, getRunArchGraphTrace, getWorkspace, importRepos, putDiffMindConfigurationYaml, startDiffMindBatch, startIngestion, startRepoDiffMind, syncRepo } from '../lib/api.js'
 import { Modal, ConfirmDialog } from '../components/Modal.jsx'
@@ -10,13 +10,23 @@ import { cancelIngestion, resumeIngestion } from '../lib/api.js'
 import { ingestionCanResume, ingestionProgress } from '../lib/ingestion.js'
 import { useProjectCapabilities } from '../lib/access.js'
 import { enqueueRefresh } from '../lib/api.js'
+import { connectionReadiness, readinessMessage } from '../lib/readiness.js'
+import { AgentConnectionHelp } from '../components/AgentConnectionHelp.jsx'
 
 export function ProjectWorkspace({ pid }) {
-  const { data: caps, error: accessError } = useProjectCapabilities(pid)
+	const [agentHelp, setAgentHelp] = useState(false)
+  const { data: retainedCaps, error: accessError, unavailable: accessUnavailable } = useProjectCapabilities(pid)
   const [workspace, setWorkspace] = useState(null)
   const [ingestion, setIngestion] = useState(null)
   const [selected, setSelected] = useState(null)
   const [error, setError] = useState('')
+  const [connectionError, setConnectionError] = useState('')
+  const [connectionDenied, setConnectionDenied] = useState(false)
+  const caps = accessError || connectionError ? null : retainedCaps
+  const readiness = connectionReadiness(workspace?.readiness, { loading: !retainedCaps || !workspace, error: accessError || connectionError, denied: accessUnavailable || connectionDenied })
+  const currentProject = useRef(pid)
+  currentProject.current = pid
+  const refreshSequence = useRef(0)
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState('')
   const [pendingDiffMind, setPendingDiffMind] = useState({})
@@ -35,11 +45,14 @@ export function ProjectWorkspace({ pid }) {
   const [packsOpen, setPacksOpen] = useState(false)
 
   const refresh = async () => {
+    const sequence = ++refreshSequence.current
+    const isCurrent = () => currentProject.current === pid && refreshSequence.current === sequence
     try {
       const [next, nextIngestion] = await Promise.all([
         getWorkspace(pid, { graph: false }),
         getIngestion(pid),
       ])
+      if (!isCurrent()) return
       setWorkspace(next)
       setIngestion(nextIngestion)
       setSelected((cur) => {
@@ -69,14 +82,14 @@ export function ProjectWorkspace({ pid }) {
         if (cur && run?.id === cur.id) return null
         return null
       })
-      if (!(next.repos || []).some((repo) => repo.sync_status === 'diffmind_running') && !isGraphRunActive(next.current_run)) {
-        setNotice('')
+      if (nextIngestion?.status !== 'running') {
+        setNotice((message) => message.startsWith('Repository ingestion started.') ? '' : message)
       }
-      setError('')
+      setError(''); setConnectionError(''); setConnectionDenied(false)
     }
-    catch (e) { setError(e.message) }
+    catch (e) { if (isCurrent()) { setError(e.message); setConnectionError(e.message); setConnectionDenied([401, 403, 404].includes(e.status)) } }
   }
-  useEffect(() => { refresh() }, [pid])
+  useEffect(() => { setWorkspace(null); setIngestion(null); setSelected(null); setGraphData(null); setGraphRunID(''); setError(''); setConnectionError(''); setConnectionDenied(false); refresh(); return () => { refreshSequence.current++ } }, [pid])
   useEffect(() => {
     const run = workspace?.latest_run
     if (!run?.id || run.status !== 'completed') {
@@ -209,35 +222,36 @@ export function ProjectWorkspace({ pid }) {
     setNotice(`DiffMind deterministic run started for ${repo.name}. Status refreshes every 2 seconds while it is running.`)
     setDiffMindRepo(null)
     setTimeout(refresh, 500)
-  })
-  const doDelete = async (repo) => runAction('delete:' + repo.id, async () => { await deleteRepo(pid, repo.id); setDeleteTarget(null); await refresh() })
-  const doImport = async (body) => runAction('import', async () => {
-    const { run_pipeline: runPipeline, ...importRequest } = body
-    const res = runPipeline && !importRequest.dry_run
-      ? await startIngestion(pid, { import: importRequest, concurrency: importRequest.concurrency || 4 })
-      : await importRepos(pid, importRequest)
-    setImportOpen(false)
-    if (runPipeline && !importRequest.dry_run) {
-      setIngestion(res)
-      setNotice('Repository ingestion started. DiffMind will import, sync, analyze, and build the graph automatically.')
-    } else {
-      setNotice(`Repository import processed ${res.count || 0} repositories.`)
-    }
-    await refresh()
-  })
+  }, true)
+  const doDelete = async (repo) => runAction('delete:' + repo.id, async () => { await deleteRepo(pid, repo.id); setDeleteTarget(null); await refresh() }, true)
+  const doImport = async (body) => {
+    setBusy('import')
+    try {
+      const { run_pipeline: runPipeline, ...importRequest } = body
+      const res = runPipeline && !importRequest.dry_run
+        ? await startIngestion(pid, { import: importRequest, concurrency: importRequest.concurrency || 4 })
+        : await importRepos(pid, importRequest)
+      if (importRequest.dry_run) return res
+      setImportOpen(false)
+      if (runPipeline) setIngestion(res)
+      setNotice(runPipeline ? 'Repository ingestion started. Follow its progress here or in Operations.' : `Import processed ${res.count || 0} repositories. Review individual results before building context.`)
+      await refresh()
+      return res
+    } finally { setBusy('') }
+  }
   const doBatchDiffMind = async (body) => runAction('batch-diffmind', async () => {
     const res = await startDiffMindBatch(pid, body)
     setBatchOpen(false)
     setNotice(`Batch DiffMind started for ${res.count || 0} repositories with concurrency ${res.concurrency || body.concurrency || 4}.`)
     setTimeout(refresh, 500)
-  })
-  const runAction = async (key, fn) => {
+  }, true)
+  const runAction = async (key, fn, propagate = false) => {
     setBusy(key); setError('')
-    try { await fn() } catch (e) { setError(e.message) }
+    try { await fn() } catch (e) { if (propagate) throw e; setError(e.message) }
     finally { setBusy('') }
   }
 
-  if (accessError) return <div class="page"><button class="btn ghost" onClick={() => navigate('/')}>Projects</button><p class="banner error">{accessError}</p></div>
+  if (accessUnavailable || connectionDenied) return <div class="page"><button class="btn ghost" onClick={() => navigate('/')}>Projects</button><p class="banner error" role="alert">This workspace is unavailable or your access has changed. Ask an administrator to check your access, or return to Projects.</p></div>
   return (
     <div class="workspace">
       <header class="workspace-topbar">
@@ -247,6 +261,7 @@ export function ProjectWorkspace({ pid }) {
           {workspace?.latest_run && <StatusBadge status={workspace.latest_run.status} />}
         </div>
         <div class="workspace-actions">
+          <button class="btn ghost" aria-expanded={agentHelp} onClick={() => setAgentHelp(!agentHelp)}>Connect agent</button>
           <button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}/operations`)}>Operations</button>
           {caps?.can_manage_access && <button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}/access`)}>Project access</button>}
           <button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}/compare`)}>Compare graphs</button>
@@ -254,22 +269,31 @@ export function ProjectWorkspace({ pid }) {
           <button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}/pull-requests`)}>
             PR impact{sumOpenPRs(live) > 0 ? ` · ${sumOpenPRs(live)}` : ''}
           </button>
-          <button class="btn ghost" onClick={refresh}>Refresh</button>
+          <button class="btn ghost" onClick={refresh}>Reload view</button>
           {ingestionIsRunning && caps?.can_refresh && <button class="btn danger" disabled={busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { await cancelIngestion(pid); await refresh() })}>Cancel ingestion</button>}
-          {caps?.can_configure && ingestionCanResume(ingestion) && <button class="btn" disabled={busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { await resumeIngestion(pid); await refresh() })}>Resume / retry</button>}
-          <button class="btn ghost" disabled={!caps?.can_refresh || !repos.length || ingestionIsRunning || hasRunningDiffMind || graphIsRunning || busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { if (caps?.mode === 'scoped') { await enqueueRefresh(pid); await refresh(); setNotice('Refresh queued. Open Operations to follow it.') } else { await startIngestion(pid); await refresh() } })}>Update graph</button>
-          <button class="btn" disabled={!caps?.can_configure || ingestionIsRunning} onClick={() => setImportOpen(true)}>{ingestionIsRunning ? 'Importing & building...' : 'Import & build'}</button>
-          <button class="btn ghost" disabled={!caps?.can_configure || ingestionIsRunning} onClick={() => setAddOpen(true)}>Add repo</button>
-          <button class="btn ghost" disabled={!caps?.can_configure || !repos.length || hasRunningDiffMind || ingestionIsRunning || busy === 'batch-diffmind'} onClick={() => setBatchOpen(true)}>{busy === 'batch-diffmind' ? 'Starting batch...' : 'Run DiffMind all'}</button>
-          <button class="btn ghost" disabled={!caps?.can_configure || busy === 'graph' || graphIsRunning || ingestionIsRunning} onClick={graphRun}>{graphIsRunning ? 'Building graph...' : busy === 'graph' ? 'Starting...' : 'Build graph'}</button>
+          {caps?.can_configure && ingestionCanResume(ingestion) && <button class="btn" disabled={!readiness?.actions?.configure || busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { await resumeIngestion(pid); await refresh() })}>Resume / retry</button>}
+          {caps?.can_refresh && <button class="btn" disabled={!readiness?.actions?.refresh || !repos.length || ingestionIsRunning || hasRunningDiffMind || graphIsRunning || busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { if (caps?.mode === 'scoped') { await enqueueRefresh(pid); await refresh(); setNotice('Refresh queued. Open Operations to follow it.') } else { await startIngestion(pid); await refresh() } })}>Update context</button>}
+          {caps?.can_configure && <button class="btn ghost" disabled={!readiness?.actions?.configure || ingestionIsRunning} onClick={() => setImportOpen(true)}>{ingestionIsRunning ? 'Importing & building...' : 'Import repositories'}</button>}
+          {caps?.can_configure && <details><summary class="btn ghost">Advanced actions</summary>
+          <button class="btn ghost" disabled={!readiness?.actions?.configure || ingestionIsRunning} onClick={() => setAddOpen(true)}>Add repo</button>
+          <button class="btn ghost" disabled={!readiness?.actions?.configure || !caps?.can_configure || !repos.length || hasRunningDiffMind || ingestionIsRunning || busy === 'batch-diffmind'} onClick={() => setBatchOpen(true)}>{busy === 'batch-diffmind' ? 'Starting batch...' : 'Run DiffMind all'}</button>
+          <button class="btn ghost" disabled={!readiness?.actions?.configure || !caps?.can_configure || busy === 'graph' || graphIsRunning || ingestionIsRunning} onClick={graphRun}>{graphIsRunning ? 'Building graph...' : busy === 'graph' ? 'Starting...' : 'Build graph'}</button>
+          </details>}
         </div>
       </header>
+      {agentHelp && <AgentConnectionHelp pid={pid} role={caps?.role} endpoint={`${window.location.origin}/mcp`} />}
 
       <section class="workspace-alerts" aria-live="polite">
+        <ReadinessNotice readiness={readiness} />
+        {!workspace && !error && <p role="status">Loading workspace…</p>}
+        {!workspace && error && <button class="btn ghost" onClick={refresh}>Retry loading workspace</button>}
+        {workspace?.evidence && <p class="muted small">Repository analyses: {workspace.evidence.fresh} fresh, {workspace.evidence.stale} stale, {workspace.evidence.dirty} with local changes, {workspace.evidence.unknown} unknown. Static source evidence; coverage remains unverified.</p>}
+        {caps && !caps.can_refresh && <p class="muted small">You have read-only access. Ask a project editor to update context.</p>}
+        {accessError && !accessUnavailable && <div class="workspace-error banner" role="status">Unable to check workspace access. Showing the last loaded view; actions are paused until access can be checked.</div>}
         {error && <div class="workspace-error banner error">{error}</div>}
         {graphError && <div class="workspace-error banner error">Graph load failed: {graphError}</div>}
         {currentGraphRun?.status === 'failed' && currentGraphRun.error && <div class="workspace-error banner error">Graph build failed: {currentGraphRun.error}</div>}
-        {notice && <div class="workspace-notice banner ok">{notice}</div>}
+        {notice && <div class="workspace-notice banner ok">{notice} <button class="btn ghost tiny" aria-label="Dismiss notification" onClick={() => setNotice('')}>Dismiss</button></div>}
         {ingestion && !['running', 'not_started'].includes(ingestion.status) && <IngestionResult ingestion={ingestion} />}
         <GraphQualityBanner quality={(currentGraphRun?.graph_quality || workspace?.latest_run?.graph_quality)} />
         {(ingestionIsRunning || (!ingestionIsRunning && (hasRunningDiffMind || graphIsRunning))) && (
@@ -283,7 +307,7 @@ export function ProjectWorkspace({ pid }) {
       {packsOpen && (
         <Modal title="Knowledge packs" onClose={() => setPacksOpen(false)} wide>
           <p class="muted">Teach DiffMind your organization’s repository conventions with deterministic, versioned extraction rules.</p>
-          <PacksTab pid={pid} capabilities={caps} />
+          <PacksTab pid={pid} capabilities={caps && { ...caps, can_configure: caps.can_configure && readiness?.actions?.configure }} />
         </Modal>
       )}
       <aside class="workspace-left">
@@ -318,11 +342,11 @@ export function ProjectWorkspace({ pid }) {
           onYaml={selectedRepo ? () => setYamlRepo(selectedRepo) : null}
           onDelete={selectedRepo && caps?.can_delete ? () => setDeleteTarget(selectedRepo) : null}
           busy={busy}
-          locked={ingestionIsRunning || !caps?.can_configure}
+          locked={!readiness?.actions?.configure || ingestionIsRunning || !caps?.can_configure}
         />
       </aside>
 
-      <footer class="workspace-status">
+      <footer class="workspace-status" tabIndex={0} aria-label="Workspace status">
         <span>{repos.length} repos</span>
         <span>{(workspace?.teams || []).length} teams</span>
         <span>{graph ? `${(graph.services || []).length} services` : 'no graph yet'}</span>
@@ -334,7 +358,7 @@ export function ProjectWorkspace({ pid }) {
       </footer>
 
       {addOpen && <AddRepoModal pid={pid} onClose={() => setAddOpen(false)} onDone={() => { setAddOpen(false); refresh() }} />}
-      {importOpen && <ImportOrgModal busy={busy === 'import'} onClose={() => setImportOpen(false)} onImport={doImport} />}
+      {caps?.can_configure && <ImportOrgModal projectName={workspace?.project?.name || pid} key={pid} open={importOpen} busy={busy === 'import'} onClose={() => setImportOpen(false)} onImport={doImport} />}
       {batchOpen && <BatchDiffMindModal repoCount={repos.length} busy={busy === 'batch-diffmind'} onClose={() => setBatchOpen(false)} onRun={doBatchDiffMind} />}
       {yamlRepo && <YamlModal pid={pid} repo={yamlRepo} onClose={() => setYamlRepo(null)} onSaved={() => { setYamlRepo(null); refresh() }} />}
       {diffmindRepo && <DiffMindRunModal repo={diffmindRepo} busy={busy === 'diffmind:' + diffmindRepo.id} onClose={() => setDiffMindRepo(null)} onRun={(options) => doDiffMind(diffmindRepo, options)} />}
@@ -349,6 +373,10 @@ export function ProjectWorkspace({ pid }) {
       )}
     </div>
   )
+}
+
+export function ReadinessNotice({ readiness }) {
+  return <p role="status" aria-label="Workspace readiness">{readinessMessage(readiness)}{readiness?.graph === 'queryable' && <span> {readiness.saved_at ? `Saved at ${readiness.saved_at}.` : 'Saved time unknown.'}</span>}</p>
 }
 
 function GraphQualityBanner({ quality }) {
@@ -602,13 +630,13 @@ function AddRepoModal({ pid, onClose, onDone }) {
         : <div class="field"><label>Path</label><input value={path} onInput={(e) => setPath(e.target.value)} placeholder="/abs/path/to/repo" /></div>}
       <div class="field"><label>Name</label><input value={name} onInput={(e) => setName(e.target.value)} placeholder="optional" /></div>
       <div class="field"><label>Team</label><input value={team} onInput={(e) => setTeam(e.target.value)} /></div>
-      {error && <div class="banner error">{error}</div>}
+      {error && <div class="banner error" role="alert">{error}</div>}
       <div class="actions"><button class="btn" onClick={submit}>Add</button><button class="btn ghost" onClick={onClose}>Cancel</button></div>
     </Modal>
   )
 }
 
-function ImportOrgModal({ busy, onClose, onImport }) {
+export function ImportOrgModal({ open = true, busy, onClose, onImport, projectName }) {
   const [provider, setProvider] = useState('github')
   const [org, setOrg] = useState('')
   const [root, setRoot] = useState('')
@@ -616,23 +644,32 @@ function ImportOrgModal({ busy, onClose, onImport }) {
   const [include, setInclude] = useState('')
   const [exclude, setExclude] = useState('')
   const [team, setTeam] = useState('default')
+  const [defaultBranch, setDefaultBranch] = useState('')
   const [limit, setLimit] = useState('')
   const [clone, setClone] = useState(true)
   const [cloneTransport, setCloneTransport] = useState('auto')
   const [concurrency, setConcurrency] = useState('4')
   const [recursive, setRecursive] = useState(false)
   const [maxDepth, setMaxDepth] = useState('2')
-  const [dryRun, setDryRun] = useState(false)
   const [runPipeline, setRunPipeline] = useState(true)
   const [error, setError] = useState('')
-  const submit = async () => {
+  const [preview, setPreview] = useState(null)
+  const draftKey = JSON.stringify([provider, org, root, apiBase, include, exclude, team, defaultBranch, limit, clone, cloneTransport, concurrency, recursive, maxDepth, runPipeline])
+  const reviewed = preview?.key === draftKey
+  const errorField = error.startsWith('Root directory:') ? 'root' : /^invalid (include|exclude) regex/.exec(error)?.[1]
+  const fieldError = (name) => errorField === name ? { invalid: true, describedBy: 'import-error' } : {}
+  const submit = async (dryRun = true) => {
+    if (busy || (!dryRun && !reviewed)) return
     setError('')
+    const requestKey = draftKey
+    if (dryRun) setPreview(null)
     try {
-      await onImport({
+      const result = await onImport({
         provider,
         org,
         root,
         api_base: apiBase,
+        default_branch: defaultBranch,
         include,
         exclude,
         team,
@@ -643,12 +680,16 @@ function ImportOrgModal({ busy, onClose, onImport }) {
         recursive,
         max_depth: maxDepth === '' ? 2 : Number(maxDepth),
         dry_run: dryRun,
+        preview_digest: dryRun ? undefined : preview?.result?.preview_digest,
         run_pipeline: runPipeline,
       })
-    } catch (e) { setError(e.message) }
+      if (dryRun) setPreview({ key: requestKey, result })
+      else setPreview(null)
+    } catch (e) { setError(e.message); if (e.status === 409) setPreview(null) }
   }
+  if (!open) return null
   return (
-    <Modal title="Import repositories" onClose={onClose} wide>
+    <Modal title="Import repositories" onClose={() => { if (!busy) onClose() }} wide>
       <div class="mode-toggle">
         <button class={provider === 'github' ? 'active' : ''} onClick={() => setProvider('github')}>GitHub org</button>
         <button class={provider === 'local' ? 'active' : ''} onClick={() => setProvider('local')}>Local directory</button>
@@ -657,35 +698,35 @@ function ImportOrgModal({ busy, onClose, onImport }) {
         <div class="option-grid">
           <TextField label="GitHub org" value={org} onInput={setOrg} placeholder="company" />
           <TextField label="API base" value={apiBase} onInput={setAPIBase} placeholder="https://api.github.com" />
+          <TextField label="Branch override" value={defaultBranch} onInput={setDefaultBranch} placeholder="Each repository default branch" />
           <TextField label="Team" value={team} onInput={setTeam} />
         </div>
       ) : (
         <div class="option-grid">
-          <TextField label="Root directory" value={root} onInput={setRoot} placeholder="/path/to/repos" />
+          <TextField {...fieldError('root')} label="Root directory" value={root} onInput={setRoot} placeholder="/path/to/repos" />
           <TextField label="Team" value={team} onInput={setTeam} />
           <NumberField label="Max depth" value={maxDepth} onInput={setMaxDepth} min="1" max="8" />
         </div>
       )}
       <div class="option-grid">
-        <TextField label="Include regex" value={include} onInput={setInclude} placeholder=".*-api$" />
-        <TextField label="Exclude regex" value={exclude} onInput={setExclude} placeholder="archive|template" />
+        <TextField {...fieldError('include')} label="Include regex" value={include} onInput={setInclude} placeholder=".*-api$" />
+        <TextField {...fieldError('exclude')} label="Exclude regex" value={exclude} onInput={setExclude} placeholder="archive|template" />
         <NumberField label="Limit" value={limit} onInput={setLimit} placeholder="0 = all" min="0" />
       </div>
       <div class="check-grid">
-        {provider === 'github' && <Check label="Clone repositories" checked={runPipeline && !dryRun ? true : clone} disabled={runPipeline && !dryRun} onInput={setClone} />}
+        {provider === 'github' && <Check label="Clone repositories" checked={runPipeline ? true : clone} disabled={runPipeline} onInput={setClone} />}
         {provider === 'local' && <Check label="Recursive scan" checked={recursive} onInput={setRecursive} />}
-        <Check label="Dry run only" checked={dryRun} onInput={setDryRun} />
-        <Check label="Sync, analyze, and build graph" checked={runPipeline && !dryRun} disabled={dryRun} onInput={setRunPipeline} />
+        <Check label="Sync, analyze, and build graph" checked={runPipeline} onInput={setRunPipeline} />
       </div>
       {provider === 'github' && (
         <div class="option-grid">
           <div class="field">
-            <label>Clone transport</label>
+            <label>Clone transport
             <select value={cloneTransport} onInput={(e) => setCloneTransport(e.currentTarget.value)}>
               <option value="auto">Auto</option>
               <option value="https">HTTPS</option>
               <option value="ssh">SSH</option>
-            </select>
+            </select></label>
           </div>
           <NumberField label="Clone concurrency" value={concurrency} onInput={setConcurrency} min="1" max="16" />
         </div>
@@ -695,9 +736,23 @@ function ImportOrgModal({ busy, onClose, onImport }) {
           ? <>Uses <code>GITHUB_TOKEN</code>, <code>GH_TOKEN</code>, or <code>gh auth token</code>. Auto prefers HTTPS when a token is available and SSH otherwise.</>
           : <>Scans for directories containing <code>.git</code>. Imported repos keep their existing local paths; no clone is performed.</>}
       </p>
-      {error && <div class="banner error">{error}</div>}
+      {error && <div id="import-error" class="banner error" role="alert">{error}</div>}
+      {preview && <section aria-label="Import preview" aria-live="polite">
+        <h3>{preview.result.count || 0} repositories found</h3>
+        {projectName && <p>Workspace: {projectName}</p>}
+        <p>Repository filters: include {include || 'all'}, exclude {exclude || 'none'}. Limit: {limit || 'all'}.</p>
+        <p class="muted small">Analysis also excludes unsupported file types, tests and generated/build directories. Listed path rules are additional repository configuration boundaries.</p>
+        {!reviewed && <p class="banner">Settings changed. Preview again before importing.</p>}
+        <p class="muted small">Preview does not clone, register or analyze repositories. If the repository list or import settings change, preview again before importing.</p>
+        <ul>{(preview.result.results || []).map((repo) => <li key={repo.path || repo.git_url || repo.name}><strong>{repo.name}</strong> · {repo.path || repo.git_url} · {repo.error || repo.status}
+          <div>{repo.source_type === 'local' ? 'Analyze in place; no Git pull' : 'Managed Git source'}{repo.default_branch && ` · Branch: ${repo.default_branch}`}</div>
+          {!repo.analysis_paths && repo.source_type === 'git' && <div>Analysis path configuration is unknown until checkout.</div>}
+          {repo.analysis_paths && <div>Analysis paths: include {(repo.analysis_paths.include || []).join(', ') || 'all supported sources'}; exclude {(repo.analysis_paths.exclude || []).join(', ') || 'no additional exclusions'}</div>}
+          </li>)}</ul>
+      </section>}
       <div class="actions">
-        <button class="btn" disabled={busy || (provider === 'github' ? !org.trim() : !root.trim())} onClick={submit}>{busy ? 'Starting...' : dryRun ? 'Preview import' : runPipeline ? 'Import and build graph' : 'Import repositories'}</button>
+        <button class="btn ghost" disabled={busy || (provider === 'github' ? !org.trim() : !root.trim())} onClick={() => submit(true)}>{busy ? 'Working…' : 'Preview repositories'}</button>
+        <button class="btn" disabled={busy || !reviewed || !(preview?.result?.count > 0)} onClick={() => submit(false)}>{runPipeline ? 'Import and build graph' : 'Import repositories'}</button>
         <button class="btn ghost" disabled={busy} onClick={onClose}>Cancel</button>
       </div>
     </Modal>
@@ -752,7 +807,7 @@ function BatchDiffMindModal({ repoCount, busy, onClose, onRun }) {
           <pre class="command-preview">{`diffmind run --repo <each selected repo>\nbatch concurrency: ${concurrency || 4}`}</pre>
         </section>
       </div>
-      {error && <div class="banner error">{error}</div>}
+      {error && <div class="banner error" role="alert">{error}</div>}
       <div class="actions">
         <button class="btn" disabled={busy} onClick={run}>{busy ? 'Starting...' : 'Start batch'}</button>
         <button class="btn ghost" disabled={busy} onClick={onClose}>Cancel</button>
@@ -796,7 +851,7 @@ function DiffMindRunModal({ repo, busy, onClose, onRun }) {
           <pre class="command-preview">{command}</pre>
         </section>
       </div>
-      {error && <div class="banner error">{error}</div>}
+      {error && <div class="banner error" role="alert">{error}</div>}
       <div class="actions">
         <button class="btn" disabled={busy} onClick={run}>{busy ? 'Starting...' : 'Start run'}</button>
         <button class="btn ghost" disabled={busy} onClick={onClose}>Cancel</button>
@@ -805,11 +860,11 @@ function DiffMindRunModal({ repo, busy, onClose, onRun }) {
   )
 }
 
-function TextField({ label, value, onInput, placeholder, type = 'text', disabled, min, max, step }) {
+function TextField({ label, value, onInput, placeholder, type = 'text', disabled, min, max, step, invalid, describedBy }) {
   return (
     <div class="field">
-      <label>{label}</label>
-      <input type={type} value={value} disabled={disabled} min={min} max={max} step={step} placeholder={placeholder || ''} onInput={(e) => onInput(e.target.value)} />
+      <label>{label}
+      <input aria-invalid={invalid || undefined} aria-describedby={describedBy} type={type} value={value} disabled={disabled} min={min} max={max} step={step} placeholder={placeholder || ''} onInput={(e) => onInput(e.target.value)} /></label>
     </div>
   )
 }
@@ -875,7 +930,7 @@ function YamlModal({ pid, repo, onClose, onSaved }) {
   return (
     <Modal title={`diffmind-configuration.yaml · ${repo.name}`} onClose={onClose} wide>
       <textarea class="code-editor" rows="24" value={body} onInput={(e) => setBody(e.target.value)} spellcheck={false} />
-      {error && <div class="banner error">{error}</div>}
+      {error && <div class="banner error" role="alert">{error}</div>}
       <div class="actions"><button class="btn" onClick={save}>Save</button><button class="btn ghost" onClick={onClose}>Cancel</button></div>
     </Modal>
   )

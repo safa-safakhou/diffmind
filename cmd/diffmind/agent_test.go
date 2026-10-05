@@ -74,6 +74,16 @@ func TestAgentAcceptance(t *testing.T) {
 		return session
 	}
 	session := connect()
+	// A second host initialization must fail promptly instead of creating a
+	// duplicate owner or schedule, and provide a safe supported connection route.
+	secondary := exec.CommandContext(ctx, binary, "agent")
+	secondary.Env = env
+	secondary.Dir = tmp
+	if output, err := secondary.CombinedOutput(); err == nil ||
+		!strings.Contains(string(output), "scoped project token") ||
+		!strings.Contains(string(output), "never forward") {
+		t.Fatalf("secondary controller ownership guidance: %v %s", err, output)
+	}
 	defer func() {
 		if session != nil {
 			session.Close()
@@ -117,8 +127,8 @@ func TestAgentAcceptance(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if len(listed.Tools) != 18 {
-		t.Fatalf("tools=%d want 18", len(listed.Tools))
+	if len(listed.Tools) != 19 {
+		t.Fatalf("tools=%d want 19", len(listed.Tools))
 	}
 	for _, tool := range listed.Tools {
 		if tool.Name == "manage_workspace" && tool.Annotations.ReadOnlyHint {

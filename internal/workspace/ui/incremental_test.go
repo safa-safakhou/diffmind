@@ -49,6 +49,11 @@ func TestAnalysisFingerprintInvalidation(t *testing.T) {
 		{"untracked", func(t *testing.T, s *Server, pid string, r *store.Repo, o *orchestrator.DiffMindRunOptions) {
 			writeTestFile(t, filepath.Join(r.Path, "other.go"), "package main")
 		}, true},
+		{"inherited scope", func(t *testing.T, s *Server, pid string, r *store.Repo, o *orchestrator.DiffMindRunOptions) {
+			policy := filepath.Join(t.TempDir(), "company.yaml")
+			writeTestFile(t, policy, "paths:\n  include: [main.go]\n")
+			t.Setenv("DIFFMIND_CONFIGURATION_PATHS", policy)
+		}, false},
 		{"central config", func(t *testing.T, s *Server, pid string, r *store.Repo, o *orchestrator.DiffMindRunOptions) {
 			writeTestFile(t, filepath.Join(s.store.HomeDir(), "config.json"), `{"quality":{"min_confidence":0.8}}`)
 		}, false},

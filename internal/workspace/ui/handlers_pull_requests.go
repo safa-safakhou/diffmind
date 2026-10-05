@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"math"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -31,6 +31,7 @@ type pullRequestSummary struct {
 	URL       string    `json:"url"`
 	Draft     bool      `json:"draft"`
 	Author    string    `json:"author"`
+	HeadSHA   string    `json:"head_sha,omitempty"`
 	Head      string    `json:"head"`
 	Base      string    `json:"base"`
 	CreatedAt time.Time `json:"created_at"`
@@ -47,6 +48,7 @@ type pullRequestRepo struct {
 	Team         string               `json:"team,omitempty"`
 	Provider     string               `json:"provider"`
 	Status       string               `json:"status"`
+	Message      string               `json:"message,omitempty"`
 	Error        string               `json:"error,omitempty"`
 	OpenCount    int                  `json:"open_count"`
 	Truncated    bool                 `json:"truncated,omitempty"`
@@ -54,11 +56,13 @@ type pullRequestRepo struct {
 }
 
 type pullRequestsResponse struct {
-	TotalOpen    int               `json:"total_open"`
-	RepoCount    int               `json:"repo_count"`
-	ErrorCount   int               `json:"error_count"`
-	GeneratedAt  time.Time         `json:"generated_at"`
-	Repositories []pullRequestRepo `json:"repositories"`
+	CheckedCount     int               `json:"checked_count"`
+	UnavailableCount int               `json:"unavailable_count"`
+	TotalOpen        int               `json:"total_open"`
+	RepoCount        int               `json:"repo_count"`
+	ErrorCount       int               `json:"error_count"`
+	GeneratedAt      time.Time         `json:"generated_at"`
+	Repositories     []pullRequestRepo `json:"repositories"`
 }
 
 type githubPull struct {
@@ -189,15 +193,19 @@ type companyImpact struct {
 	GraphRevision          graphRevision          `json:"graph_revision,omitempty"`
 	ScoreEligible          bool                   `json:"score_eligible"`
 	Notes                  []string               `json:"notes,omitempty"`
+	NextAction             string                 `json:"next_action"`
+	Limitations            []string               `json:"limitations"`
 }
 
 type pullRequestImpactResponse struct {
-	PullRequest pullRequestSummary `json:"pull_request"`
-	Codebase    codebaseImpact     `json:"codebase"`
-	Company     companyImpact      `json:"company"`
-	RiskScore   int                `json:"risk_score"`
-	RiskLevel   string             `json:"risk_level"`
-	GeneratedAt time.Time          `json:"generated_at"`
+	PullRequest  pullRequestSummary `json:"pull_request"`
+	Codebase     codebaseImpact     `json:"codebase"`
+	Company      companyImpact      `json:"company"`
+	RiskScore    int                `json:"risk_score"`
+	RiskLevel    string             `json:"risk_level"`
+	GeneratedAt  time.Time          `json:"generated_at"`
+	ScoreMeaning string             `json:"score_meaning"`
+	Delivery     string             `json:"delivery"`
 }
 
 func (s *Server) handlePullRequests(w http.ResponseWriter, r *http.Request) {
@@ -230,6 +238,11 @@ func (s *Server) handlePullRequests(w http.ResponseWriter, r *http.Request) {
 	response := pullRequestsResponse{RepoCount: len(results), GeneratedAt: time.Now().UTC(), Repositories: results}
 	for _, result := range results {
 		response.TotalOpen += result.OpenCount
+		if result.Status == "ok" {
+			response.CheckedCount++
+		} else if result.Status != "error" {
+			response.UnavailableCount++
+		}
 		if result.Status == "error" {
 			response.ErrorCount++
 		}
@@ -243,16 +256,17 @@ func githubOpenPullRequests(ctx context.Context, repo workspaceRepo) pullRequest
 		Provider: firstNonEmpty(repo.GitProvider, repo.SourceType, "git"), Status: "unavailable",
 		PullRequests: []pullRequestSummary{},
 	}
-	githubSource := githubSourceForRepo(ctx, repo.Repo)
-	owner, name, ok := githubOwnerRepo(githubSource)
-	if !ok {
+	base, state, message := githubRepositoryEndpoint(ctx, repo.Repo)
+	if state != "ready" {
+		result.Status = state
+		result.Message = message
 		return result
 	}
 	result.Provider = "github"
-	client := &http.Client{Timeout: 20 * time.Second}
-	token := githubToken(ctx, githubSource)
+	client := githubHTTPClient(20 * time.Second)
+	token := githubAPIToken(ctx, base)
 	for page := 1; page <= 10; page++ {
-		endpoint := fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls?state=open&per_page=100&page=%d&sort=updated&direction=desc", owner, name, page)
+		endpoint := fmt.Sprintf("%s/pulls?state=open&per_page=100&page=%d&sort=updated&direction=desc", base, page)
 		var pulls []githubPull
 		if err := githubJSON(ctx, client, token, endpoint, &pulls); err != nil {
 			result.Status = "error"
@@ -288,15 +302,14 @@ func (s *Server) handlePullRequestImpact(w http.ResponseWriter, r *http.Request)
 		s.writeStoreErr(w, err)
 		return
 	}
-	githubSource := githubSourceForRepo(r.Context(), *repo)
-	owner, name, ok := githubOwnerRepo(githubSource)
-	if !ok {
-		writeErr(w, http.StatusBadRequest, errors.New("repository is not connected to GitHub"))
+	endpoint, state, message := githubRepositoryEndpoint(r.Context(), *repo)
+	if state != "ready" {
+		writeErr(w, http.StatusBadRequest, errors.New(message))
 		return
 	}
-	client := &http.Client{Timeout: 30 * time.Second}
-	token := githubToken(r.Context(), githubSource)
-	base := fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls/%d", owner, name, number)
+	client := githubHTTPClient(30 * time.Second)
+	token := githubAPIToken(r.Context(), endpoint)
+	base := fmt.Sprintf("%s/pulls/%d", endpoint, number)
 	var pull githubPull
 	if err := githubJSON(r.Context(), client, token, base, &pull); err != nil {
 		writeErr(w, http.StatusBadGateway, err)
@@ -317,6 +330,8 @@ func (s *Server) handlePullRequestImpact(w http.ResponseWriter, r *http.Request)
 	writeJSON(w, http.StatusOK, pullRequestImpactResponse{
 		PullRequest: pullSummary(pull, *repo), Codebase: codebase, Company: company,
 		RiskScore: overall, RiskLevel: riskLevel(overall), GeneratedAt: time.Now().UTC(),
+		ScoreMeaning: "Uncalibrated attention heuristic from file categories and eligible changed-surface evidence; not a probability, merge recommendation or proof of safety. Ineligible company context is excluded.",
+		Delivery:     "On-demand inspection only. No automatic code-host comments, checks or merge decisions are delivered.",
 	})
 }
 
@@ -348,16 +363,11 @@ func githubJSON(ctx context.Context, client *http.Client, token, endpoint string
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return githubConnectionError()
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		var ghErr githubErrorResponse
-		if json.Unmarshal(body, &ghErr) == nil && ghErr.Message != "" {
-			return fmt.Errorf("github returned %s: %s", resp.Status, ghErr.Message)
-		}
-		return fmt.Errorf("github returned %s", resp.Status)
+		return githubResponseError(resp.StatusCode)
 	}
 	return json.NewDecoder(resp.Body).Decode(dst)
 }
@@ -385,7 +395,7 @@ func pullSummary(p githubPull, repo store.Repo) pullRequestSummary {
 	sort.Strings(labels)
 	return pullRequestSummary{
 		Number: p.Number, Title: p.Title, URL: p.HTMLURL, Draft: p.Draft, Author: p.User.Login,
-		Head: p.Head.Ref, Base: p.Base.Ref, CreatedAt: p.CreatedAt, UpdatedAt: p.UpdatedAt,
+		Head: p.Head.Ref, HeadSHA: p.Head.SHA, Base: p.Base.Ref, CreatedAt: p.CreatedAt, UpdatedAt: p.UpdatedAt,
 		Labels: labels, RepoID: repo.ID, RepoName: repo.Name, Team: repo.Team,
 	}
 }
@@ -622,7 +632,11 @@ func signalLabel(kind string) (string, string) {
 }
 
 func (s *Server) pullRequestCompanyImpact(pid, requestedRun string, repo store.Repo, pull githubPull, files []githubPullFile) companyImpact {
-	result := companyImpact{Confidence: "unavailable", Freshness: "unknown", Notes: []string{}}
+	result := companyImpact{Confidence: "unavailable", Freshness: "unknown", Notes: []string{}, NextAction: "Inspect available PR files; select saved evidence from a matching clean PR-head revision for exact caller checks.", Limitations: []string{
+		"Removed entrypoints may be absent from the head graph. No matching merge-base evidence is used here, so deleted-surface callers remain unproven.",
+		"Internal, transitive and configuration changes may affect unchanged routes without intersecting their source locations; file-scope matches are candidates only.",
+		"No exact matches is incomplete evidence, not proof that a PR is safe to merge. Extracted request-field compatibility is a separate saved-snapshot comparison.",
+	}}
 	runID := strings.TrimSpace(requestedRun)
 	if runID == "" {
 		if run := s.latestCompletedWorkspaceRun(pid); run != nil {
@@ -690,7 +704,8 @@ func (s *Server) pullRequestCompanyImpact(pid, requestedRun string, repo store.R
 	switch {
 	case result.Freshness != "fresh":
 		result.Confidence = "stale_graph_estimate"
-		result.Notes = append(result.Notes, fmt.Sprintf("graph snapshot is %s relative to PR head; refresh the repository analysis before treating graph results as current", result.Freshness))
+		result.Notes = append(result.Notes, fmt.Sprintf("graph snapshot is %s relative to PR head; updating the same default branch does not guarantee a PR-head match", result.Freshness))
+		result.NextAction = "With explicit authority, analyze the PR-head revision in a separate temporary checkout and select its saved graph. Keep the user's active branch unchanged; use clean matching baseline evidence separately for deletions. No checkout or capture is performed by this query."
 	case len(result.Services) > 0:
 		result.Confidence = "changed_surface_evidence"
 	default:
@@ -774,7 +789,8 @@ func changedEntrypoints(service *archgraph.ServiceNode, files []githubPullFile, 
 			// older revision (including the base branch) cannot use those lines.
 			// GitHub's PR diff starts at the merge base, which need not be Base.SHA.
 			revision := entityGraphRevision(entity)
-			atHead := pullRequestGraphFreshness(revision, headSHA) == "fresh"
+			atHead := pullRequestGraphFreshness(revision, headSHA) == "fresh" && archgraph.DescribeRelationship("", entity).Class == "source_extracted"
+			var best *changedEntrypoint
 			for _, location := range entitySourceLocations(entity) {
 				lines, changed := byPath[filepath.ToSlash(location.File)]
 				if !changed {
@@ -787,8 +803,16 @@ func changedEntrypoints(service *archgraph.ServiceNode, files []githubPullFile, 
 					}
 					match = "changed_line"
 				}
-				result = append(result, changedEntrypoint{ID: entity.ID, Kind: entity.Kind, Name: entity.Name, File: location.File, Match: match})
-				break
+				entry := changedEntrypoint{ID: entity.ID, Kind: entity.Kind, Name: entity.Name, File: location.File, Match: match}
+				if best == nil || match == "changed_line" {
+					best = &entry
+				}
+				if match == "changed_line" {
+					break
+				}
+			}
+			if best != nil {
+				result = append(result, *best)
 			}
 		}
 	}
@@ -833,11 +857,19 @@ func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changed
 		if entrypoint.Match != "changed_line" {
 			continue
 		}
-		if key := normalizedOperation(entrypoint.Name); key != "" {
-			operations[key] = entrypoint.Name
+		// Names and IDs are not proof across protocols. Unknown surface kinds
+		// remain candidates instead of borrowing another protocol's identity.
+		protocol := exactSurfaceProtocol(entrypoint.Kind)
+		if protocol == "" {
+			continue
+		}
+		if protocol == "http" {
+			if key := normalizedOperation(entrypoint.Name); key != "" {
+				operations[key] = entrypoint.Name
+			}
 		}
 		if entrypoint.ID != "" {
-			ids[entrypoint.ID] = entrypoint.Name
+			ids[protocol+"\x00"+entrypoint.ID] = entrypoint.Name
 		}
 	}
 	result := map[string][]string{}
@@ -845,10 +877,21 @@ func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changed
 		if edge == nil || edge.To != root || graphService(graph, edge.From) == nil {
 			continue
 		}
+		caller := graphService(graph, edge.From)
+		status := caller.AnalysisStatus
+		if status == nil || status.Dirty || status.State != "analyzed_clean" || status.AnalyzedRevision == "" {
+			continue
+		}
 		for _, detail := range edge.Details {
-			matched := ids[detail.ID]
-			if matched == "" {
-				matched = operations[normalizedOperation(detail.Name)]
+			if archgraph.DescribeRelationship(graph.RunID, detail).Class != "source_extracted" || pullRequestGraphFreshness(entityGraphRevision(detail), status.AnalyzedRevision) != "fresh" {
+				continue
+			}
+			matched := ""
+			if detail.ID != "" {
+				matched = ids[edge.Type+"\x00"+detail.ID]
+			}
+			if matched == "" && edge.Type == "http" {
+				matched = operations[httpCallerOperation(detail)]
 			}
 			if matched != "" {
 				result[edge.From] = appendUnique(result[edge.From], matched)
@@ -856,6 +899,67 @@ func exactChangedSurfaceCallers(graph *ArchGraph, root string, changed []changed
 		}
 	}
 	return result
+}
+
+// Display names may contain a service prefix and a full URL. Use the
+// source fact's HTTP fields after the graph has resolved its destination.
+func httpCallerOperation(detail archgraph.EntitySummary) string {
+	fields := detail.Details
+	method, _ := fields["method"].(string)
+	address, _ := fields["path"].(string)
+	if address == "" {
+		address, _ = fields["url_template"].(string)
+	}
+	if method == "" && address == "" {
+		metadata, _ := fields["metadata"].(map[string]any)
+		nested, _ := metadata["details"].(map[string]any)
+		method, _ = nested["method"].(string)
+		address, _ = nested["path"].(string)
+		if address == "" {
+			address, _ = nested["url_template"].(string)
+		}
+	}
+	if method == "" && address == "" {
+		return normalizedOperation(detail.Name)
+	}
+	if method == "" || address == "" || len(strings.Fields(method)) != 1 || strings.ContainsAny(address, " \t\r\n") {
+		return ""
+	}
+	parsed, err := url.Parse(address)
+	if err != nil {
+		return ""
+	}
+	if parsed.IsAbs() {
+		if (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
+			return ""
+		}
+	} else if !strings.HasPrefix(address, "/") || strings.HasPrefix(address, "//") {
+		return ""
+	}
+	route := parsed.EscapedPath()
+	if route == "" {
+		route = "/"
+	}
+	// Preserve literal escaping/case/trailing slash; normalize only the existing
+	// recognized route-parameter notation.
+	if !strings.Contains(address, "%") {
+		route = parsed.Path
+		if route == "" {
+			route = "/"
+		}
+	}
+	return normalizedOperation(method + " " + route)
+}
+
+func exactSurfaceProtocol(kind string) string {
+	switch kind {
+	case "http_route", "http_endpoint", "webhook":
+		return "http"
+	case "rpc_endpoint":
+		return "rpc"
+	default:
+		return ""
+	}
 }
 
 func normalizedOperation(value string) string {

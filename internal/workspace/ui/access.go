@@ -61,15 +61,15 @@ func (s *Server) projectRole(identity Identity, pid string) (Role, error) {
 
 func (s *Server) queryFor(r *http.Request) *query.Service {
 	identity := identityFromContext(r.Context())
-	if !s.projectAccessScoped || identity.Role == RoleAdmin {
-		return s.query
-	}
 	return query.NewWithAccess(s.store, func(pid string) error {
 		_, err := s.projectRole(identity, pid)
 		if err != nil && !errors.Is(err, store.ErrNotFound) {
 			return errProjectAccessUnavailable
 		}
 		return err
+	}).WithRunsDir(s.diffmindRunsDir).WithReadinessGraphLoader(s.readinessGraphRun).WithReadinessPermissions(func(pid string) (query.ReadinessActions, error) {
+		role, err := s.projectRole(identity, pid)
+		return query.ReadinessActions{Refresh: role == RoleAdmin || role == RoleEditor, Configure: role == RoleAdmin || (!s.projectAccessScoped && role == RoleEditor)}, err
 	})
 }
 
@@ -136,7 +136,11 @@ func (s *Server) scopeControlled(next http.Handler) http.Handler {
 					return
 				}
 				if !readMethod(r.Method) && (role != RoleEditor || !editorOperation(r.Pattern)) {
-					writeErr(w, 403, errors.New("project operation requires an administrator or editor refresh access"))
+					message := "project operation requires an administrator or editor refresh access"
+					if role == RoleEditor {
+						message = "this operation requires an administrator; scoped editors refresh existing repositories with enqueue_refresh (POST /api/v1/projects/{pid}/refresh-jobs), then inspect list_jobs and get_ingestion"
+					}
+					writeErr(w, 403, errors.New(message))
 					return
 				}
 			}

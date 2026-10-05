@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'preact/hooks'
+import { useEffect, useMemo, useState, useRef } from 'preact/hooks'
 import { getPullRequestImpact, getPullRequests } from '../lib/api.js'
 import { navigate } from '../lib/router.js'
 import { FlowRibbon } from './FlowRibbon.jsx'
@@ -44,6 +44,7 @@ const CATEGORY_HELP = {
 
 export function PullRequestsView({ pid }) {
   const [data, setData] = useState(null)
+  const generation = useRef(0)
   const [selected, setSelected] = useState(null)
   const [impact, setImpact] = useState(null)
   const [repoFilter, setRepoFilter] = useState('')
@@ -57,23 +58,30 @@ export function PullRequestsView({ pid }) {
   const [impactError, setImpactError] = useState('')
 
   const refresh = async () => {
+    const request = ++generation.current
     setLoading(true)
     setError('')
     try {
       const next = await getPullRequests(pid)
+      if (request !== generation.current) return
       setData(next)
       const all = flattenPulls(next)
       setSelected((current) => all.find((pr) => samePR(pr, current)) || all[0] || null)
     } catch (e) {
-      setError(e.message)
+      if (request === generation.current) setError(e.message)
     } finally {
-      setLoading(false)
+      if (request === generation.current) setLoading(false)
     }
   }
 
-  useEffect(() => { refresh() }, [pid])
+  useEffect(() => {
+    setData(null); setSelected(null); setImpact(null); setRepoFilter(''); setTeamFilter(''); setRepoSearch(''); setQuery('')
+    refresh()
+    return () => { generation.current++ }
+  }, [pid])
   useEffect(() => {
     if (!selected) {
+      setImpactError(''); setImpactLoading(false)
       setImpact(null)
       return
     }
@@ -86,7 +94,7 @@ export function PullRequestsView({ pid }) {
       .catch((e) => { if (!cancelled) setImpactError(e.message) })
       .finally(() => { if (!cancelled) setImpactLoading(false) })
     return () => { cancelled = true }
-  }, [pid, selected?.repo_id, selected?.number])
+  }, [pid, selected?.repo_id, selected?.number, selected?.head_sha, selected?.updated_at])
 
   const repositories = data?.repositories || []
   const teams = useMemo(() => Array.from(new Set(repositories.map((repo) => repo.team || 'default'))).sort(), [data])
@@ -94,7 +102,7 @@ export function PullRequestsView({ pid }) {
     const q = repoSearch.trim().toLowerCase()
     return repositories.filter((repo) => {
       if (teamFilter && (repo.team || 'default') !== teamFilter) return false
-      if (openOnly && repo.open_count === 0) return false
+      if (openOnly && repo.status === 'ok' && repo.open_count === 0) return false
       if (q && !`${repo.repo_name} ${repo.team || 'default'}`.toLowerCase().includes(q)) return false
       return true
     })
@@ -121,8 +129,13 @@ export function PullRequestsView({ pid }) {
     setSelected((current) => pulls.find((pr) => samePR(pr, current)) || pulls[0])
   }, [repoFilter, teamFilter, repoSearch, openOnly, query, data])
 
+  const checkedCount = data?.checked_count ?? repositories.filter((repo) => repo.status === 'ok').length
+  const unavailable = scopedRepos.filter((repo) => repo.status !== 'ok')
+  const emptyMessage = error ? 'Pull requests could not be loaded. Retry the provider query.' : unavailable.length ? 'Some repository providers are unavailable. Review their status before interpreting this view.' : checkedCount === 0 ? 'No repository provider has been queried successfully yet.' : 'No open pull requests match this view.'
   const activeRepos = scopedRepos.filter((repo) => repo.open_count > 0)
+  const onlyUnavailable = scopedRepos.length > 0 && scopedRepos.every((repo) => repo.status !== 'ok')
   const scopedOpen = scopedRepos.reduce((sum, repo) => sum + repo.open_count, 0)
+  const observedCount = data && checkedCount > 0 && !onlyUnavailable ? scopedOpen : '—'
   const visibleRepos = scopedRepos.slice(0, 100)
   const visiblePulls = pulls.slice(0, 100)
   const impacted = impact?.company?.services || []
@@ -139,17 +152,17 @@ export function PullRequestsView({ pid }) {
           </div>
         </div>
         <div class="pr-top-actions">
-          <span class="pr-estimate-badge">Estimated impact</span>
+          <span class="pr-estimate-badge">On-demand evidence</span>
           <button class="btn ghost" disabled={loading} onClick={refresh}>{loading ? 'Refreshing…' : 'Refresh GitHub'}</button>
         </div>
       </header>
 
-      {error && <div class="banner error pr-banner">{error}</div>}
+      {error && <div class="banner error pr-banner" role="alert">{error}</div>}
       <section class="pr-kpis">
-        <Metric value={data ? scopedOpen : '—'} label="Open PRs in scope" tone="blue" />
-        <Metric value={activeRepos.length} label="Repos with PRs in scope" tone="cyan" />
-        <Metric value={data?.repo_count ?? '—'} label="Repositories checked" />
-        <Metric value={impact ? `${impact.risk_score}/100` : '—'} label="Selected risk" tone={impact?.risk_level} />
+        <Metric value={observedCount} label="Observed open PRs in scope" tone="blue" />
+        <Metric value={observedCount === '—' ? '—' : activeRepos.length} label="Observed repos with PRs in scope" tone="cyan" />
+        <Metric value={data ? checkedCount : '—'} label="Repositories checked" />
+        <Metric value={impact?.codebase?.changed_files ?? '—'} label="Selected changed files" />
         <Metric value={impact?.company?.available ? companyCount : '—'} label="Exact caller matches" tone={companyCount > 3 ? 'high' : 'green'} />
       </section>
 
@@ -174,18 +187,19 @@ export function PullRequestsView({ pid }) {
             </label>
             {(teamFilter || repoSearch || !openOnly) && <button class="pr-clear-scope" onClick={() => { setTeamFilter(''); setRepoSearch(''); setOpenOnly(true); setRepoFilter('') }}>Reset scope</button>}
           </div>
-          <div class="pr-section-head pr-repo-results"><h2>Repositories</h2><span>{scopedOpen} PRs</span></div>
+          <div class="pr-section-head pr-repo-results"><h2>Repositories</h2><span>{observedCount === '—' ? 'Unknown' : `${scopedOpen} observed PRs`}</span></div>
           <button class={'pr-repo-row ' + (!repoFilter ? 'active' : '')} onClick={() => setRepoFilter('')}>
-            <span>All repositories in scope</span><strong>{scopedOpen}</strong>
+            <span>All repositories in scope</span><strong>{observedCount}</strong>
           </button>
           {visibleRepos.map((repo) => (
             <button key={repo.repo_id} class={'pr-repo-row ' + (repoFilter === repo.repo_id ? 'active' : '')} onClick={() => setRepoFilter(repo.repo_id)}>
-              <span><b>{repo.repo_name}</b><small>{repo.team || 'default'} · {repo.status}</small></span>
-              <strong>{repo.open_count}</strong>
+              <span><b>{repo.repo_name}</b><small>{repo.team || 'default'} · {repo.status === 'ok' ? 'Provider queried' : repo.status.replaceAll('_', ' ')}</small></span>
+              <strong>{repo.status === 'ok' ? repo.open_count : '—'}</strong>
             </button>
           ))}
           {scopedRepos.length > visibleRepos.length && <div class="pr-limit-note">Showing the first {visibleRepos.length} of {scopedRepos.length} repositories. Choose a team or search by repository name to narrow the list.</div>}
           {!loading && scopedRepos.length === 0 && <div class="pr-provider-note">No repositories match this team and repository scope.</div>}
+          {unavailable.map((repo) => <div class="pr-provider-note" key={repo.repo_id}><strong>{repo.repo_name}</strong>: {repo.message || repo.error || 'Provider query unavailable.'}</div>)}
           {(data?.error_count || 0) > 0 && <div class="pr-provider-note">{data.error_count} repositories could not be read. Check GitHub authentication and repository URLs.</div>}
         </aside>
 
@@ -196,7 +210,7 @@ export function PullRequestsView({ pid }) {
           </div>
           <div class="pr-list">
             {loading && <LoadingBlock label="Loading open pull requests from GitHub…" />}
-            {!loading && pulls.length === 0 && <EmptyBlock label="No open pull requests match this view." />}
+            {!loading && pulls.length === 0 && <EmptyBlock label={emptyMessage} />}
             {visiblePulls.map((pr) => (
               <button key={`${pr.repo_id}/${pr.number}`} class={'pr-card ' + (samePR(pr, selected) ? 'active' : '')} onClick={() => setSelected(pr)}>
                 <div class="pr-card-top"><span>{pr.repo_name} <b>#{pr.number}</b></span>{pr.draft && <em>Draft</em>}</div>
@@ -220,7 +234,7 @@ export function PullRequestsView({ pid }) {
   )
 }
 
-function ImpactDetail({ impact }) {
+export function ImpactDetail({ impact }) {
   const pr = impact.pull_request
   const code = impact.codebase
   const company = impact.company
@@ -234,9 +248,6 @@ function ImpactDetail({ impact }) {
           <div class="pr-impact-eyebrow">{pr.repo_name} · #{pr.number}</div>
           <h2>{pr.title}</h2>
           <div class="pr-branch"><code>{pr.head}</code><span>→</span><code>{pr.base}</code></div>
-        </div>
-        <div class={'pr-risk ' + impact.risk_level}>
-          <strong>{impact.risk_score}</strong><span>{impact.risk_level} risk</span>
         </div>
       </header>
       <div class="pr-impact-actions">
@@ -274,10 +285,6 @@ function ImpactDetail({ impact }) {
             {(code.signals || []).map((signal) => <div class={'pr-signal ' + signal.severity} key={signal.kind}><b>{signal.label}</b><span>{signal.files.length} file{signal.files.length === 1 ? '' : 's'}</span></div>)}
           </div>
         )}
-        <div class="pr-reasons">
-          <h3>Why this score</h3>
-          <ul>{(code.risk_reasons || []).map((reason) => <li key={reason}>{reason}</li>)}</ul>
-        </div>
         <details class="pr-files" open>
           <summary>{selectedCategory ? selectedCategory.label : 'All changed files'} <span>{visibleFiles.length}</span></summary>
           <div class="pr-file-list">
@@ -295,6 +302,7 @@ function ImpactDetail({ impact }) {
 
       <section class="pr-impact-section company">
         <SectionTitle title="Company impact" subtitle="PR-correlated callers, separated from repository-wide dependency candidates" />
+        <div class="pr-provider-note"><strong>Evidence eligibility and next step</strong><p>Saved graph: {company.run_id || 'unavailable'} · analyzed revision: {company.graph_revision?.commit || 'unknown'} · PR head: {pr.head_sha || 'unknown'} · eligibility: {company.freshness || 'unknown'}.</p><p>{company.next_action || 'Exact caller checks require saved evidence from a matching clean PR-head revision.'}</p><ul>{(company.limitations || ['Missing matches do not establish merge safety. Deleted surfaces, indirect changes and unsupported patterns may be unproven.']).map((note) => <li key={note}>{note}</li>)}</ul></div>
         {!company.available ? (
           <div class="pr-company-empty"><strong>Company impact unavailable</strong><p>{(company.notes || []).join(' ')}</p></div>
         ) : (
@@ -347,6 +355,14 @@ function ImpactDetail({ impact }) {
             <p class="pr-confidence">Confidence: {company.confidence}. {(company.notes || []).join(' ')}</p>
           </>
         )}
+      </section>
+      <section class="pr-impact-section" aria-label="Attention heuristic">
+        <details><summary>Attention heuristic: {impact.risk_score}/100 · {impact.risk_level}</summary>
+          <p>{impact.score_meaning || 'Uncalibrated attention heuristic, not a probability, merge recommendation or proof of safety. Ineligible company context is excluded.'}</p>
+          <h3>Heuristic reasons</h3><ul>{(code.risk_reasons || []).map((reason) => <li key={reason}>{reason}</li>)}</ul>
+          <p>Company evidence included: {company.score_eligible ? 'eligible changed-surface matches' : 'no; context is ineligible or lacks exact matches'}.</p>
+        </details>
+        <p>{impact.delivery || 'On-demand inspection only. No automatic code-host comments or checks are delivered.'}</p>
       </section>
     </div>
   )

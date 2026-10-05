@@ -2,18 +2,21 @@
 // `validation` payloads) and parses JSON. Every API call goes through here.
 
 export class ApiError extends Error {
-  constructor(message, status, validation) {
+  constructor(message, status, validation, recovery) {
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.validation = validation
+    this.recovery = recovery
   }
 }
 
 async function api(path, opts = {}) {
   const headers = { ...(opts.headers || {}) }
   if (opts.body && !(opts.rawBody)) headers['Content-Type'] = 'application/json'
-  const r = await fetch(path, { ...opts, headers })
+  let r
+  try { r = await fetch(path, { ...opts, headers }) }
+  catch { throw new ApiError('Connection unavailable. Inspect persisted work before submitting a mutation again.', 0, null, { category: 'environment_or_provider', retryable: false, next_action: 'Inspect persisted work before submitting a mutation again.' }) }
   const text = await r.text()
   let body = null
   if (text) {
@@ -21,7 +24,8 @@ async function api(path, opts = {}) {
   }
   if (!r.ok) {
     const msg = (body && body.error) || `HTTP ${r.status}`
-    throw new ApiError(msg, r.status, body && body.validation)
+    const recovery = body && body.recovery || { category: 'operation_failed', retryable: false, next_action: 'Review the current state and input before submitting again.' }
+    throw new ApiError(recovery?.next_action ? `${msg} ${recovery.next_action}` : msg, r.status, body && body.validation, recovery)
   }
   return body
 }
@@ -152,3 +156,7 @@ export const putProjectAccess = (pid, body) => api(`/api/v1/projects/${encodeURI
 export const listProjectTokens = (pid) => api(`/api/v1/projects/${encodeURIComponent(pid)}/tokens`, { cache: 'no-store' })
 export const issueProjectToken = (pid, body) => api(`/api/v1/projects/${encodeURIComponent(pid)}/tokens`, { method: 'POST', body: j(body) })
 export const revokeProjectToken = (pid, tid) => api(`/api/v1/projects/${encodeURIComponent(pid)}/tokens/${encodeURIComponent(tid)}/revoke`, { method: 'POST' })
+
+export function compareContracts(pid, from, to) {
+  return api(`/api/v1/projects/${encodeURIComponent(pid)}/contracts/compare?${new URLSearchParams({ from, to })}`)
+}

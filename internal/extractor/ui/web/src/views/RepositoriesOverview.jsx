@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect, useState, useId } from 'preact/hooks'
 import { listRepos, upsertRepo, getConfig } from '../lib/api.js'
 import { navigate } from '../lib/router.js'
 import { Button, Card, Badge, StatusBadge, Modal, EmptyState, useToast } from '../components/ui/index.js'
@@ -6,6 +6,7 @@ import { RunForm } from '../components/RunForm.jsx'
 
 export function RepositoriesOverview() {
   const toast = useToast()
+  const pathID = useId()
   const [repos, setRepos] = useState(null)
   const [adding, setAdding] = useState(false)
   const [newPath, setNewPath] = useState('')
@@ -82,8 +83,8 @@ export function RepositoriesOverview() {
         <Modal title="Add repository" onClose={() => setAdding(false)}>
           <div class="form">
             <div class="field">
-              <label>Repository absolute path</label>
-              <input value={newPath} onInput={(e) => setNewPath(e.target.value)} placeholder="/abs/path/to/repo" />
+              <label htmlFor={pathID}>Repository absolute path</label>
+              <input id={pathID} value={newPath} onInput={(e) => setNewPath(e.target.value)} placeholder="/abs/path/to/repo" />
             </div>
             <div class="actions">
               <Button onClick={addRepo}>Add</Button>
