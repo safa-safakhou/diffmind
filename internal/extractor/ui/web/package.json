@@ -10,14 +10,14 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@preact/signals": "2.11.2",
+    "@preact/signals": "2.11.3",
     "cytoscape": "3.34.3",
     "d3": "^7.9.0",
-    "preact": "10.29.8"
+    "preact": "11.0.0"
   },
   "devDependencies": {
     "@preact/preset-vite": "2.10.6",
-    "vite": "8.3.1",
-    "vitest": "5.0.2"
+    "vite": "8.3.2",
+    "vitest": "5.0.3"
   }
 }
