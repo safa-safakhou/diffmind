@@ -179,3 +179,75 @@ func TestExtractMinPythonVersion(t *testing.T) {
 		}
 	}
 }
+
+func TestBonialToolPinsAreCompleteAndSeparateFromConstraints(t *testing.T) {
+	root := t.TempDir()
+	os.WriteFile(filepath.Join(root, ".tool-versions"), []byte("java corretto-25.0.1\nmaven 3.9.12\nnodejs 24.12.0\npnpm 10.28.0\npython 3.14.5\nuv 0.11.19\nruby 3.3.4\n"), 0644)
+	os.WriteFile(filepath.Join(root, "package.json"), []byte(`{"engines":{"node":">=24.10.0"},"packageManager":"pnpm@10.28.0","devDependencies":{"typescript":"^5.9.3"}}`), 0644)
+	facts, err := Inspect(context.Background(), root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	byLang := map[Language]Fact{}
+	for _, f := range facts {
+		byLang[f.Language] = f
+	}
+	for _, tc := range []struct {
+		lang                       Language
+		version, tool, toolVersion string
+	}{{LangJava, "corretto-25.0.1", "maven", "3.9.12"}, {LangTypeScript, "24.12.0", "pnpm", "10.28.0"}, {LangPython, "3.14.5", "uv", "0.11.19"}, {LangRuby, "3.3.4", "", ""}} {
+		f := byLang[tc.lang]
+		if f.Version != tc.version || f.BuildTool != tc.tool || f.BuildToolVersion != tc.toolVersion {
+			t.Errorf("%s: %+v", tc.lang, f)
+		}
+	}
+	ts := byLang[LangTypeScript]
+	if ts.VersionConstraint != ">=24.10.0" || len(ts.Declarations) != 2 {
+		t.Fatalf("Node pin/constraint evidence lost: %+v", ts)
+	}
+}
+
+func TestPoetryVersionAndJavaGradleKotlinDSL(t *testing.T) {
+	root := t.TempDir()
+	os.WriteFile(filepath.Join(root, "pyproject.toml"), []byte("[tool.poetry]\nname='app'\n[tool.poetry.dependencies]\npython='^3.14'\n"), 0644)
+	os.WriteFile(filepath.Join(root, "build.gradle.kts"), []byte("plugins { java }\nsourceCompatibility = JavaVersion.VERSION_21\n"), 0644)
+	os.MkdirAll(filepath.Join(root, "gradle/wrapper"), 0755)
+	os.WriteFile(filepath.Join(root, "gradle/wrapper/gradle-wrapper.properties"), []byte("distributionUrl=https://services.gradle.org/distributions/gradle-8.14.3-bin.zip\n"), 0644)
+	facts, err := Inspect(context.Background(), root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	byLang := map[Language]Fact{}
+	for _, f := range facts {
+		byLang[f.Language] = f
+	}
+	if _, ok := byLang[LangKotlin]; ok {
+		t.Fatal("Kotlin build DSL invented Kotlin application")
+	}
+	if f := byLang[LangJava]; f.Version != "21" || f.BuildToolVersion != "8.14.3" {
+		t.Fatalf("Gradle JVM/tool version: %+v", f)
+	}
+	if f := byLang[LangPython]; f.Version != "3.14" || f.VersionConstraint != "^3.14" {
+		t.Fatalf("Poetry version: %+v", f)
+	}
+}
+
+func TestUpperBoundNodeConstraintIsNotAnInstalledVersion(t *testing.T) {
+	f := detectPackageJSON("package.json", []byte(`{"engines":{"node":"<22"}}`))
+	if f.Version != "" || f.VersionConstraint != "<22" {
+		t.Fatalf("upper bound fabricated runtime: %+v", f)
+	}
+}
+
+func TestConflictingRuntimeDeclarationsRemainVisible(t *testing.T) {
+	root := t.TempDir()
+	os.WriteFile(filepath.Join(root, ".tool-versions"), []byte("java corretto-21.0.6\n"), 0644)
+	os.WriteFile(filepath.Join(root, "pom.xml"), []byte("<project><properties><java.version>25</java.version></properties></project>"), 0644)
+	facts, err := Inspect(context.Background(), root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(facts) != 1 || !facts[0].VersionConflict || len(facts[0].Declarations) != 2 {
+		t.Fatalf("conflicting pin/compiler declaration lost: %+v", facts)
+	}
+}

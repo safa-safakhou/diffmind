@@ -36,6 +36,7 @@ function ServiceDetail({ s, pid, rid }) {
         ['Repo', s.repo_path || '-'],
         ['Freshness', s.diffmind_freshness || 'unknown'],
       ]} />
+      {pid && rid && <button class="btn ghost tiny" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}/runs/${encodeURIComponent(rid)}/trace?${new URLSearchParams({ service: s.name })}`)}>Browse service flows →</button>}
       {list('HTTP inbound', s.http_routes)}
       {list('RPC inbound', s.rpc_endpoints)}
       {list('Queue consumers', s.queue_consumers)}

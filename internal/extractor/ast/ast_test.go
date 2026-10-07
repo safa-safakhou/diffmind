@@ -500,18 +500,21 @@ func TestKotlinCallableReferencesCaptured(t *testing.T) {
     fun processAll(messages: List<Message>) {
         messages.forEach(handler::handle)
         messages.map(MessageMapper::toEvent)
+        messages.forEach(::localHandle)
     }
+    fun localHandle(message: Message) { handler.handle(message) }
 }
 `
 	fa := parseInline(t, src, "kotlin", ".kt")
 	assertCallExists(t, fa, "handle")
 	assertCallExists(t, fa, "toEvent")
+	assertCallExists(t, fa, "localHandle")
 }
 
 // TestMethodRefArgCallsNotDuplicated verifies that a method reference
 // appearing as a direct @method_ref capture AND as an argument is NOT
 // emitted twice in the call list.
-func TestMethodRefArgCallsSynthesized(t *testing.T) {
+func TestMethodRefArgCallsNotDuplicated(t *testing.T) {
 	src := `
 public class Foo {
     Bar bar;
@@ -523,12 +526,12 @@ public class Foo {
 	fa := parseInline(t, src, "java", ".java")
 	count := 0
 	for _, c := range fa.Calls {
-		if c.CalleeRaw == "doWork" {
+		if c.CalleeRaw == "bar.doWork" {
 			count++
 		}
 	}
-	if count == 0 {
-		t.Error("expected doWork from method reference to be captured as a call")
+	if count != 1 {
+		t.Errorf("expected one receiver-qualified method reference, got %d", count)
 	}
 }
 

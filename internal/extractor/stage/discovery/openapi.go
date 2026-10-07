@@ -38,6 +38,9 @@ func EnrichHTTPContractsFromOpenAPI(repoPath string, exposures []model.Exposure)
 		}
 		version := stringFromMap(doc, "openapi")
 		if !strings.HasPrefix(version, "3.0.") {
+			if version != "" {
+				warnings = append(warnings, fmt.Sprintf("OpenAPI %s uses unsupported version %s; request-contract extraction supports 3.0.x", filepath.Base(path), version))
+			}
 			continue
 		}
 		source, err := filepath.Rel(repoPath, path)
@@ -116,6 +119,19 @@ func openAPIFiles(root string) ([]string, []string) {
 		}
 		return nil
 	})
+	for _, spec := range serviceconfig.SpringOpenAPISpecs(root) {
+		if len(files) < 20 {
+			found := false
+			for _, path := range files {
+				if path == spec.Path {
+					found = true
+				}
+			}
+			if !found {
+				files = append(files, spec.Path)
+			}
+		}
+	}
 	sort.Strings(files)
 	return files, warnings
 }

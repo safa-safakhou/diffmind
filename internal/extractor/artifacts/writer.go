@@ -2,7 +2,10 @@ package artifacts
 
 import (
 	"bufio"
+	"bytes"
+	"context"
 	"encoding/json"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/langdetect"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/dependencies"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/extraction"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/model"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/provenance"
@@ -88,19 +93,21 @@ func ignoredDeterministicDirtyPath(statusLine string) bool {
 }
 
 type WriteInput struct {
-	RunID         string
-	BaseDir       string
-	RepoPath      string
-	MinConfidence float64
-	Exposures     []model.Exposure
-	Dependencies  []model.Dependency
-	Connections   []model.Connection
-	Unresolved    []model.UnresolvedItem
-	Warnings      []string
-	Pipeline      string
-	StartedAt     time.Time
-	FinishedAt    time.Time
-	RepoFacts     *extraction.RepoFacts
+	RunID               string
+	BaseDir             string
+	RepoPath            string
+	MinConfidence       float64
+	Exposures           []model.Exposure
+	Dependencies        []model.Dependency
+	Connections         []model.Connection
+	Unresolved          []model.UnresolvedItem
+	Warnings            []string
+	Pipeline            string
+	StartedAt           time.Time
+	FinishedAt          time.Time
+	RepoFacts           *extraction.RepoFacts
+	DependencyInventory *dependencies.Inventory
+	DetectorCoverage    []detectors.Coverage
 }
 
 func Write(in WriteInput) (string, error) {
@@ -139,10 +146,15 @@ func Write(in WriteInput) (string, error) {
 			"connections":  len(in.Connections),
 			"unresolved":   len(in.Unresolved),
 		},
-		RepoMetrics:   CollectRepoMetrics(in.RepoPath, in.RepoFacts),
+		RepoMetrics:   collectRepoMetrics(in.RepoPath, in.RepoFacts, in.DependencyInventory),
 		Warnings:      in.Warnings,
 		StageFailures: stageFailures(in.Unresolved),
 	}
+	if in.DependencyInventory != nil {
+		manifest.RepoMetrics.DependencyInventory = in.DependencyInventory
+	}
+	manifest.RepoMetrics.DetectorCoverage = in.DetectorCoverage
+	manifest.RepoMetrics.DetectorRevision = detectors.Revision
 	if err := writeJSON(filepath.Join(runDir, "run_manifest.json"), manifest); err != nil {
 		return "", err
 	}
@@ -250,7 +262,35 @@ func normalizeBackstageOwner(owner string) string {
 }
 
 func CollectRepoMetrics(repoPath string, facts *extraction.RepoFacts) *model.RepoMetrics {
+	return collectRepoMetrics(repoPath, facts, nil)
+}
+
+func collectRepoMetrics(repoPath string, facts *extraction.RepoFacts, inventory *dependencies.Inventory) *model.RepoMetrics {
 	m := &model.RepoMetrics{}
+	opts := dependencies.DefaultOptions()
+	if cfg, err := serviceconfig.Load(repoPath); err == nil {
+		opts.Include = cfg.Paths.Include
+		opts.Exclude = cfg.Paths.Exclude
+	}
+	if inventory != nil {
+		m.DependencyInventory = inventory
+	} else if detected, err := dependencies.Inspect(context.Background(), repoPath, opts); err == nil {
+		m.DependencyInventory = &detected
+	}
+	m.Toolchain, _ = langdetect.Inspect(context.Background(), repoPath)
+	for i := range m.Toolchain {
+		for j, source := range m.Toolchain[i].Sources {
+			if rel, err := filepath.Rel(repoPath, source); err == nil {
+				m.Toolchain[i].Sources[j] = filepath.ToSlash(rel)
+			}
+		}
+		for j, declaration := range m.Toolchain[i].Declarations {
+			if rel, err := filepath.Rel(repoPath, declaration.Source); err == nil {
+				m.Toolchain[i].Declarations[j].Source = filepath.ToSlash(rel)
+			}
+		}
+	}
+
 	byLang := map[string]*model.LanguageMetric{}
 	cfg, err := serviceconfig.Load(repoPath)
 	if err != nil {
@@ -381,12 +421,14 @@ func languageForPath(path string) string {
 }
 
 func countLOC(path string) int {
-	f, err := os.Open(path)
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return -1
 	}
-	defer f.Close()
-	sc := bufio.NewScanner(f)
+	if sourcefilter.SkipFileContent(b) {
+		return -1
+	}
+	sc := bufio.NewScanner(bytes.NewReader(b))
 	buf := make([]byte, 0, 64*1024)
 	sc.Buffer(buf, 1024*1024)
 	lines := 0

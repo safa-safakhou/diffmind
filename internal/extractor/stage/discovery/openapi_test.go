@@ -96,3 +96,13 @@ func TestOpenAPIFilesHonorScopeBeforeBudget(t *testing.T) {
 		t.Fatalf("invalid scope must fail closed: %v %v", files, warnings)
 	}
 }
+
+func TestOpenAPIUnsupportedVersionReportsCoverageGap(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "openapi.yaml"), []byte("openapi: 3.1.0\npaths: {}\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if warnings := EnrichHTTPContractsFromOpenAPI(root, nil); len(warnings) != 1 {
+		t.Fatalf("unsupported contract version silently accepted: %v", warnings)
+	}
+}

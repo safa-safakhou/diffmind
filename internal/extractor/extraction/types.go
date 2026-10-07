@@ -5,6 +5,8 @@ package extraction
 import (
 	"time"
 
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/dependencies"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/model"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/objectives"
 )
@@ -89,15 +91,17 @@ type Request struct {
 }
 
 type Result struct {
-	Exposures    []model.Exposure
-	Dependencies []model.Dependency
-	Connections  []model.Connection
-	Clients      []model.ConnectionClient
-	Unresolved   []model.UnresolvedItem
-	Warnings     []string
-	Failure      *Failure
-	SourceRoot   string
-	Intermediate IntermediateState
+	DependencyInventory dependencies.Inventory
+	DetectorCoverage    []detectors.Coverage
+	Exposures           []model.Exposure
+	Dependencies        []model.Dependency
+	Connections         []model.Connection
+	Clients             []model.ConnectionClient
+	Unresolved          []model.UnresolvedItem
+	Warnings            []string
+	Failure             *Failure
+	SourceRoot          string
+	Intermediate        IntermediateState
 }
 
 type Failure struct {

@@ -1,3 +1,4 @@
+import { LoadingState } from '../components/LoadingState.jsx'
 import { useEffect, useState } from 'preact/hooks'
 import { listJobs, enqueueRefresh, cancelJob, retryJob, ingestionHistory, getCapabilities } from '../lib/api.js'
 import { jobCanCancel, jobCanRetry, jobStatus } from '../lib/operations.js'
@@ -50,7 +51,7 @@ export function Operations({ pid }) {
     {error && <p class="banner error" role="alert">Could not load operations: {error}</p>}
     {actionError && <p class="banner error" role="alert">{actionError}</p>}
     {notice && <p class="banner ok" role="status">{notice}</p>}
-    {!data && !error && <p role="status">Loading operations…</p>}
+    {!data && !error && <LoadingState label="Loading operations…" />}
     <ProjectLimits key={pid} pid={pid} canManage={role === 'admin'} />
     {data && <>
       <p class="operations-limits">{data.workers} project workers · {data.repository_workers} global repository slots · queue capacity {data.capacity} · scheduler {data.healthy ? 'healthy' : 'stopped — check server logs'}</p>

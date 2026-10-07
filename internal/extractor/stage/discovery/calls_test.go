@@ -1421,3 +1421,10 @@ func (cc MetadataClient) GetMetadata(ctx any) {
 		t.Fatalf("unexpected grpc details: %+v", got[0].Details)
 	}
 }
+
+func TestTypeScriptHTTPServiceClientIsNotGoGRPC(t *testing.T) {
+	idx := &astpkg.ProjectIndex{Files: map[string]*astpkg.FileAST{"client.ts": {Language: "typescript", Calls: []astpkg.CallSite{{File: "client.ts", ReceiverRaw: "automatedTrafficServiceClient", CalleeRaw: "getCampaignItemsList"}}}}}
+	if got := DeterministicOutboundRPC(idx); len(got) != 0 {
+		t.Fatalf("HTTP service client fabricated RPC: %+v", got)
+	}
+}

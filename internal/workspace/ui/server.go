@@ -27,6 +27,8 @@ import (
 
 // Server hosts the DiffMind dashboard API + SPA.
 type Server struct {
+	prPreparationMu     sync.Mutex
+	prPreparing         map[string]bool
 	operationsMu        sync.Mutex
 	operationsConfig    OperationsConfig
 	operationsStarted   bool
@@ -206,6 +208,8 @@ func (s *Server) routes(raw *http.ServeMux) {
 	mux.HandleFunc("PATCH /api/v1/projects/{pid}/improvement-gaps/{gid}", s.handleTransitionGap)
 	mux.HandleFunc("GET /api/projects/{pid}/pull-requests", s.handlePullRequests)
 	mux.HandleFunc("GET /api/projects/{pid}/pull-requests/{repo_id}/{number}/impact", s.handlePullRequestImpact)
+	mux.HandleFunc("GET /api/projects/{pid}/pull-requests/{repo_id}/{number}/flows", s.handlePullRequestFlows)
+	mux.HandleFunc("POST /api/projects/{pid}/pull-requests/{repo_id}/{number}/flows/prepare", s.handlePullRequestFlows)
 
 	// Stable, read-only query API for integrations and company-wide clients.
 	mux.HandleFunc("GET /api/v1/projects", s.handleV1Projects)
@@ -229,6 +233,7 @@ func (s *Server) routes(raw *http.ServeMux) {
 	mux.HandleFunc("GET /api/v1/projects/{pid}/graph/summary", s.handleV1GraphSummary)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/graph/runs", s.handleV1GraphRuns)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/graph/compare", s.handleV1GraphCompare)
+	mux.HandleFunc("GET /api/v1/projects/{pid}/graph/flows", s.handleV1FlowCompare)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/graph/path", s.handleV1GraphPath)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/graph/trace", s.handleV1ObjectTrace)
 	mux.HandleFunc("GET /api/v1/projects/{pid}/services", s.handleV1Services)

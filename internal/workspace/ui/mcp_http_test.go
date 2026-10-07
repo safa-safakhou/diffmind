@@ -62,7 +62,7 @@ func TestRemoteMCPProtocolRequiresAuthAndListsTools(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(listed.Tools) != 14 {
-		t.Fatalf("tool count=%d, want 14", len(listed.Tools))
+	if len(listed.Tools) != 15 {
+		t.Fatalf("tool count=%d, want 15", len(listed.Tools))
 	}
 }

@@ -4,6 +4,7 @@ import { Project } from './views/Project.jsx'
 import { RunView } from './views/RunView.jsx'
 import { TraceView } from './views/TraceView.jsx'
 import { PullRequestsView } from './views/PullRequestsView.jsx'
+import { PullRequestFlowPage } from './views/FlowReview.jsx'
 import { GraphCompare } from './views/GraphCompare.jsx'
 import { Operations } from './views/Operations.jsx'
 import { ProjectAccess } from './views/ProjectAccess.jsx'
@@ -18,6 +19,8 @@ export function App() {
       return <Operations pid={route.pid} key={route.pid + '/operations'} />
     case 'compare':
       return <GraphCompare pid={route.pid} params={route.params} key={route.pid + '/compare'} />
+    case 'pr-flows':
+      return <PullRequestFlowPage pid={route.pid} repo={route.repo} number={route.number} key={route.pid + '/' + route.repo + '/' + route.number} />
     case 'pull-requests':
       return <PullRequestsView pid={route.pid} params={route.params} key={route.pid + '/pull-requests'} />
     case 'trace':

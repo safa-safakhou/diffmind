@@ -150,3 +150,17 @@ func flowHasCycle(view *FlowView) bool {
 	}
 	return false
 }
+
+func TestEntryFlowEdgesDoNotMatchGenericKindsOrUnrelatedOperations(t *testing.T) {
+	g := &ArchGraph{Edges: []*GraphEdge{
+		{From: "orders", To: "billing", Type: "http", Details: []EntitySummary{{ID: "wanted", Name: "Charge order", Kind: "http_call"}, {ID: "other", Name: "Refund order", Kind: "http_call"}}},
+		{From: "orders", To: "search", Type: "http", Details: []EntitySummary{{ID: "search", Name: "Search products", Kind: "http_call"}}},
+	}}
+	edges := entryFlowRelatedEdges(g, "orders", []ConnectionSummary{{ToID: "wanted", ToName: "Charge order", Kind: "http"}})
+	if len(edges) != 1 || edges[0].To != "billing" || len(edges[0].Details) != 1 || edges[0].Details[0].ID != "wanted" {
+		t.Fatalf("unrelated operations included: %+v", edges)
+	}
+	if len(g.Edges[0].Details) != 2 {
+		t.Fatal("original graph mutated")
+	}
+}

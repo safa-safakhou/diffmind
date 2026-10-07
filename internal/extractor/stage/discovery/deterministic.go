@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	astpkg "github.com/mohammad-safakhou/diffmind/internal/extractor/ast"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/dependencies"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/extraction"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/model"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/objectives"
@@ -38,9 +40,11 @@ func (DeterministicRunner) Run(input DeterministicInput) DeterministicOutput {
 		return DeterministicOutput{}
 	}
 	report := DeterministicFrameworkReport{
-		Accepted:      append([]astpkg.FrameworkBinding{}, input.Index.Frameworks...),
-		Rejected:      append([]astpkg.FrameworkBinding{}, input.Index.RejectedFrameworks...),
-		RouteManifest: RouteHandlerManifest(input.Index.Frameworks),
+		Accepted:            append([]astpkg.FrameworkBinding{}, input.Index.Frameworks...),
+		Rejected:            append([]astpkg.FrameworkBinding{}, input.Index.RejectedFrameworks...),
+		RouteManifest:       RouteHandlerManifest(input.Index.Frameworks),
+		DependencyInventory: input.Index.DependencyInventory,
+		DetectorCoverage:    input.Index.DetectorCoverage,
 	}
 	byObjective := supportedDeterministicObjectives(input.Objectives)
 	outMap := map[string][]extraction.Candidate{}
@@ -141,6 +145,8 @@ func (DeterministicRunner) Run(input DeterministicInput) DeterministicOutput {
 		total += len(items)
 		results = append(results, extraction.DiscoveryResult{Objective: obj, Items: items})
 	}
+	input.Index.DetectorCoverage = detectors.SummarizeCoverage(input.Index.DetectorCoverage)
+	report.DetectorCoverage = input.Index.DetectorCoverage
 	return DeterministicOutput{Results: results, Report: report, Items: total}
 }
 
@@ -241,9 +247,8 @@ func DeterministicDBOperations(idx *astpkg.ProjectIndex) []candidate {
 	}
 	type agg struct {
 		table, opKind string
-		loc           candidateLocation
+		locations     map[candidateLocation]bool
 		owner         string
-		hits          int
 	}
 	seen := map[string]*agg{}
 	var order []string
@@ -275,15 +280,18 @@ func DeterministicDBOperations(idx *astpkg.ProjectIndex) []candidate {
 		a, ok := seen[key]
 		if !ok {
 			a = &agg{
-				table:  table,
-				opKind: opKind,
-				owner:  owner,
-				loc:    candidateLocation{File: cs.File, StartLine: int(cs.Range.StartLine) + 1, EndLine: int(cs.Range.EndLine) + 1},
+				table:     table,
+				opKind:    opKind,
+				owner:     owner,
+				locations: map[candidateLocation]bool{},
 			}
 			seen[key] = a
 			order = append(order, key)
 		}
-		a.hits++
+		a.locations[candidateLocation{File: cs.File, StartLine: int(cs.Range.StartLine) + 1, EndLine: int(cs.Range.EndLine) + 1}] = true
+		if owner < a.owner {
+			a.owner = owner
+		}
 	}
 
 	for _, sites := range idx.CallGraph {
@@ -302,12 +310,32 @@ func DeterministicDBOperations(idx *astpkg.ProjectIndex) []candidate {
 		}
 	}
 
+	sort.Strings(order)
 	out := make([]candidate, 0, len(order))
 	for _, key := range order {
 		a := seen[key]
-		loc := a.loc
-		if loc.File == "" {
+		locations := make([]candidateLocation, 0, len(a.locations))
+		for loc := range a.locations {
+			if loc.File != "" {
+				locations = append(locations, loc)
+			}
+		}
+		sort.Slice(locations, func(i, j int) bool {
+			a, b := locations[i], locations[j]
+			if a.File != b.File {
+				return a.File < b.File
+			}
+			if a.StartLine != b.StartLine {
+				return a.StartLine < b.StartLine
+			}
+			return a.EndLine < b.EndLine
+		})
+		if len(locations) == 0 {
 			continue
+		}
+		evidence := make([]candidateEvidence, 0, len(locations))
+		for _, loc := range locations {
+			evidence = append(evidence, candidateEvidence{File: loc.File, StartLine: loc.StartLine, EndLine: loc.EndLine, Snippet: fmt.Sprintf("repository %s call resolved to %s table", a.owner, a.table), Source: "deterministic_ast_repository"})
 		}
 		name := a.opKind + " " + a.table
 		out = append(out, candidate{
@@ -322,14 +350,8 @@ func DeterministicDBOperations(idx *astpkg.ProjectIndex) []candidate {
 				"repository":    a.owner,
 				"discovered_by": "ast_repository_call",
 			},
-			Locations: []candidateLocation{loc},
-			Evidence: []candidateEvidence{{
-				File:      loc.File,
-				StartLine: loc.StartLine,
-				EndLine:   loc.EndLine,
-				Snippet:   fmt.Sprintf("repository %s call resolved to %s table", a.owner, a.table),
-				Source:    "deterministic_ast_repository",
-			}},
+			Locations: locations,
+			Evidence:  evidence,
 		})
 	}
 	return out
@@ -427,7 +449,15 @@ func EntityFromFrameworkBinding(idx *astpkg.ProjectIndex, obj objectives.Objecti
 		Locations: []candidateLocation{loc},
 		Evidence:  []candidateEvidence{ev},
 	}
+	if len(b.VersionCoverage) > 0 {
+		e.Details["detector_coverage"] = b.VersionCoverage
+	}
 
+	if b.ContractFile != "" && b.ContractLine > 0 {
+		e.Locations = append(e.Locations, candidateLocation{File: b.ContractFile, StartLine: b.ContractLine, EndLine: b.ContractLine})
+		e.Evidence = append(e.Evidence, candidateEvidence{File: b.ContractFile, StartLine: b.ContractLine, EndLine: b.ContractLine, Snippet: b.TriggerSource, Source: "deterministic_openapi_generator"})
+		e.Details["contract_file"] = b.ContractFile
+	}
 	switch obj.Type {
 	case "http_route":
 		method, path := parseHTTPTrigger(trigger)
@@ -863,9 +893,11 @@ func DeterministicByObjective(results []discoveryResult) map[string][]candidate 
 }
 
 type DeterministicFrameworkReport struct {
-	Accepted      []astpkg.FrameworkBinding `json:"accepted"`
-	Rejected      []astpkg.FrameworkBinding `json:"rejected"`
-	RouteManifest []RouteManifestEntry      `json:"route_manifest"`
+	DependencyInventory dependencies.Inventory    `json:"dependency_inventory"`
+	DetectorCoverage    []detectors.Coverage      `json:"detector_coverage"`
+	Accepted            []astpkg.FrameworkBinding `json:"accepted"`
+	Rejected            []astpkg.FrameworkBinding `json:"rejected"`
+	RouteManifest       []RouteManifestEntry      `json:"route_manifest"`
 }
 
 type RouteManifestEntry struct {

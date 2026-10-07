@@ -163,6 +163,7 @@ func (o *orchestrator) runDeterministicOnly(
 	o.persistStageState("entities_dependencies.json", state.Dependencies)
 
 	if o.astIndex != nil {
+		warnings = append(warnings, o.astIndex.InputWarnings...)
 		dependencies = connectionstage.AugmentDependencies(o.astIndex, exposures, dependencies, o.cfg.Quality.MinConfidence)
 		discoverystage.StampInferredDBPlatform(o.astIndex, dependencies)
 		discoverystage.HarvestPhysicalTables(o.astIndex, dependencies)
@@ -217,6 +218,10 @@ func (o *orchestrator) assembleResult(ctx context.Context, start time.Time, expo
 		Clients:      o.clients,
 		Unresolved:   reconcile.DedupeUnresolved(unresolved),
 		Warnings:     reconcile.DedupeWarnings(warnings),
+	}
+	if o.astIndex != nil {
+		result.DependencyInventory = o.astIndex.DependencyInventory
+		result.DetectorCoverage = o.astIndex.DetectorCoverage
 	}
 	util.Info("agents.orchestrator", "pipeline completed", map[string]any{
 		"exposures":    len(result.Exposures),

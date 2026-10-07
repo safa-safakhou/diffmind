@@ -160,3 +160,8 @@ export const revokeProjectToken = (pid, tid) => api(`/api/v1/projects/${encodeUR
 export function compareContracts(pid, from, to) {
   return api(`/api/v1/projects/${encodeURIComponent(pid)}/contracts/compare?${new URLSearchParams({ from, to })}`)
 }
+
+export const compareFlows = (pid, from, to, service, offset = 0) => api(`/api/v1/projects/${encodeURIComponent(pid)}/graph/flows?${new URLSearchParams({ from, to, service, offset, limit: 10 })}`)
+export const getPullRequestFlows = (pid, repoID, number, opts = {}) => api(`/api/projects/${encodeURIComponent(pid)}/pull-requests/${encodeURIComponent(repoID)}/${number}/flows?${new URLSearchParams(opts)}`)
+
+export const preparePullRequestFlows = (pid, repoID, number) => api(`/api/projects/${encodeURIComponent(pid)}/pull-requests/${encodeURIComponent(repoID)}/${number}/flows/prepare`, { method: 'POST' })

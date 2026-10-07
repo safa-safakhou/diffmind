@@ -34,6 +34,7 @@ func (d *detector) Detect(idx *ast.ProjectIndex) []ast.FrameworkBinding {
 			}
 		}
 	}
+	out = append(out, generatedSpringBindings(idx, out)...)
 	// @Cacheable/@CachePut/@CacheEvict only count as external cache_operations
 	// when the repo configures an external cache backing (Redis/Hazelcast/…).
 	// Without that signal the annotation may be an in-memory cache, so we drop

@@ -73,6 +73,7 @@ func TestGraphHistoryHTTPAndMCPAsViewer(t *testing.T) {
 		{"list_graph_runs", "runs?limit=1", map[string]any{"limit": 1}, map[string]any{"total": float64(2), "next_offset": float64(1)}},
 		{"compare_graphs", "compare?from=" + old + "&to=" + newID + "&limit=1", map[string]any{"from": old, "to": newID, "limit": 1}, map[string]any{"total": float64(2), "next_offset": float64(1)}},
 		{"compare_graphs", "compare?from=" + old + "&to=" + newID + "&offset=1&limit=1", map[string]any{"from": old, "to": newID, "offset": 1, "limit": 1}, map[string]any{"total": float64(2)}},
+		{"compare_flows", "flows?from=" + old + "&to=" + newID + "&service=gateway", map[string]any{"from": old, "to": newID, "service": "gateway"}, map[string]any{"total": float64(1)}},
 		{"find_dependency_path", "path?from=gateway&to=catalog&run=" + old, map[string]any{"from": "gateway", "to": "catalog", "run": old}, map[string]any{"status": "found", "run_id": old}},
 		{"find_dependency_path", "path?from=gateway&to=catalog&run=" + newID, map[string]any{"from": "gateway", "to": "catalog", "run": newID}, map[string]any{"status": "not_found", "run_id": newID}},
 		{"get_object_trace", "trace?service=gateway&object_id=entry&run=" + old, map[string]any{"service": "gateway", "object_id": "entry", "run": old}, map[string]any{"connection_count": float64(1), "edge_count": float64(1), "run_id": old}},
@@ -124,6 +125,7 @@ func TestGraphHistoryHTTPAndMCPAsViewer(t *testing.T) {
 		{"runs?offset=nope", 400}, {"runs?offset=-1", 400}, {"runs?limit=501", 400},
 		{"compare?from=" + old, 400}, {"compare?from=" + old + "&to=" + newID + "&limit=NaN", 400},
 		{"compare?from=" + old + "&to=unknown", 404}, {"compare?from=" + url.QueryEscape("../escape") + "&to=" + newID, 404},
+		{"flows?from=" + old + "&to=" + newID + "&service=gateway&limit=51", 400}, {"flows?from=" + old + "&to=" + newID + "&service=missing", 404}, {"flows?from=" + old + "&service=gateway", 400},
 		{"path?from=gateway&to=catalog&depth=1.5", 400}, {"path?from=gateway&to=catalog&depth=21", 400},
 		{"path?from=missing&to=catalog", 404}, {"trace?service=gateway&object_id=missing", 404}, {"trace?service=gateway", 400},
 	} {

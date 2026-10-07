@@ -1,3 +1,4 @@
+import { LoadingState } from '../components/LoadingState.jsx'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { getRun, getRunArchGraph, cancelRun, runEventsURL } from '../lib/api.js'
 import { navigate } from '../lib/router.js'
@@ -15,20 +16,30 @@ export function RunView({ pid, rid }) {
   const [events, setEvents] = useState([])
   const [graph, setGraph] = useState(null)
   const [error, setError] = useState('')
+  const [runLoading, setRunLoading] = useState(true)
+  const [graphLoading, setGraphLoading] = useState(false)
+  const [graphError, setGraphError] = useState('')
+  const alive = useRef(true)
   const [showProgress, setShowProgress] = useState(false)
   const [sel, setSel] = useState(null)
   const esRef = useRef(null)
 
   const loadRun = async () => {
-    try { const r = await getRun(pid, rid); setRun(r.run); return r.run }
-    catch (e) { setError(e.message); return null }
+    setRunLoading(true)
+    try { const r = await getRun(pid, rid); if (alive.current) { setRun(r.run); setError('') }; return r.run }
+    catch (e) { if (alive.current) setError(e.message); return null }
+    finally { if (alive.current) setRunLoading(false) }
   }
   const loadGraph = async () => {
-    try { setGraph(await getRunArchGraph(pid, rid)) } catch { /* not ready */ }
+    setGraphLoading(true); setGraphError('')
+    try { const data = await getRunArchGraph(pid, rid); if (alive.current) setGraph(data) }
+    catch (e) { if (alive.current) setGraphError(e.message) }
+    finally { if (alive.current) setGraphLoading(false) }
   }
 
   useEffect(() => {
-    loadRun().then((r) => { if (r && r.status === 'completed') loadGraph() })
+    alive.current = true
+    loadRun().then((r) => { if (alive.current && r && r.status === 'completed') loadGraph() })
 
     const es = new EventSource(runEventsURL(pid, rid))
     esRef.current = es
@@ -38,9 +49,9 @@ export function RunView({ pid, rid }) {
     for (const t of ['run_started', 'phase_started', 'phase_completed', 'phase_failed', 'log', 'run_completed', 'run_failed', 'run_cancelled']) {
       es.addEventListener(t, onEv)
     }
-    es.addEventListener('eof', () => { es.close(); loadRun().then((r) => { if (r && r.status === 'completed') loadGraph() }) })
+    es.addEventListener('eof', () => { es.close(); loadRun().then((r) => { if (alive.current && r && r.status === 'completed') loadGraph() }) })
     es.onerror = () => { /* EventSource auto-reconnects; final state comes from loadRun on eof */ }
-    return () => { try { es.close() } catch {} }
+    return () => { alive.current = false; try { es.close() } catch {} }
   }, [pid, rid])
 
   useEffect(() => { if (accessError) esRef.current?.close() }, [accessError])
@@ -65,12 +76,14 @@ export function RunView({ pid, rid }) {
         </div>
       </header>
 
-      {error && <div class="banner error">{error}</div>}
+      {error && <div class="banner error" role="alert">{error} <button class="btn ghost tiny" onClick={() => loadRun().then((r) => { if (r?.status === 'completed') loadGraph() })}>Retry</button></div>}
+      {graphError && <div class="banner error" role="alert">Could not load graph: {graphError} <button class="btn ghost tiny" onClick={loadGraph}>Retry loading graph</button></div>}
       {run && run.error && <div class="banner error">{run.error}</div>}
       <GraphQualityBanner quality={run?.graph_quality} />
 
-      <div class="run-stage">
-        {!graph && <div class="graph-empty muted">{active ? 'Graph will appear when the run completes…' : 'No graph available.'}</div>}
+      <div class="run-stage" aria-busy={runLoading || graphLoading}>
+        {(runLoading || graphLoading) && <LoadingState overlay label={graphLoading ? 'Loading graph…' : 'Loading run…'} detail="Preparing the saved graph and run details." />}
+        {!graph && !runLoading && !graphLoading && !error && !graphError && <div class="graph-empty muted">{active ? 'Graph will appear when the run completes…' : 'No graph available.'}</div>}
         {graph && <GraphCanvas graph={graph} onSelect={setSel} />}
         {graph && <Legend />}
 

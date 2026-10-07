@@ -43,6 +43,7 @@ config: {}
 conventions: {}
 detectors: {}
 patterns: []
+dependency_versions: []
 ```
 
 ## service
@@ -278,6 +279,59 @@ patterns:
 ```
 
 Regex must compile. Keep patterns narrow and evidence-backed.
+
+Patterns match parsed call expressions or function/method annotations, not raw
+whole-file text, comments or arbitrary strings. A resolved executable owner and
+trigger are required. Supported kinds are `http_endpoint`, `http_route`,
+`http_handler`, `http_client`/`outbound_http`, `queue_consumer`, and
+`scheduler`/`scheduled_job`. HTTP entrypoints need `method` and a literal `path`;
+outbound HTTP needs `url`, consumers need `queue` or `trigger`, and schedulers
+need `schedule`. An optional `handler` must resolve uniquely. Unsupported kinds
+remain rejected evidence rather than inventing graph relationships.
+
+Version requirements let a company evolve its own conventions independently:
+
+```yaml
+patterns:
+  - id: company-router-v2
+    kind: http_endpoint
+    language: go
+    regex: 'RegisterWebhook\("(?P<path>[^"]+)",\s*(?P<handler>[A-Za-z0-9_.]+)\)'
+    requires:
+      - ecosystem: go
+        name: example.com/platform/router
+        versions: ">=2 <3"
+    fields:
+      method: POST
+      path: "$path"
+      handler: "$handler"
+```
+
+All requirements must have established matching versions in the owning module.
+Unknown, conflicting or out-of-range versions reject that custom interpretation
+and record why. Configured rules are marked unverified, not fixture validated.
+Disable a configured rule with `detectors.disabled: [custom:company-router-v2]`.
+
+## dependency_versions
+
+For a private framework whose version cannot be resolved from a supported
+manifest or lockfile, supply an explicit company declaration:
+
+```yaml
+dependency_versions:
+  - ecosystem: maven
+    name: example.platform:company-web
+    module: api
+    version: "2.4.1"
+```
+
+`module` is repository-relative; omission means the root. Versions must be exact
+semantic versions. These are labeled `configured` and do not replace a known
+manifest/lock pin. Do not copy a parent-POM version into a framework declaration:
+they describe different packages. Supported ecosystem names include `maven`,
+`npm`, `pypi`, `go`, and `gem`; custom ecosystem/name pairs are permitted too.
+Version requirements use semantic version ranges; non-semver package schemes
+remain unresolved unless an explicit supported semantic mapping is declared.
 
 ## Good Configuration Style
 

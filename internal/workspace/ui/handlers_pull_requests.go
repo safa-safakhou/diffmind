@@ -78,6 +78,7 @@ type githubPull struct {
 		SHA string `json:"sha"`
 	} `json:"head"`
 	Base struct {
+		SHA string `json:"sha"`
 		Ref string `json:"ref"`
 	} `json:"base"`
 	CreatedAt time.Time `json:"created_at"`
@@ -561,6 +562,16 @@ func classifyChangedFile(path string) string {
 	if ext == ".md" || ext == ".rst" || contains("/docs/") {
 		return "documentation"
 	}
+	switch base {
+	case ".gitleaksignore", ".gitleaks.toml", "gitleaks.toml":
+		return "configuration"
+	case "go.mod", "go.sum", "package.json", "package-lock.json", "pnpm-lock.yaml", "yarn.lock", "pom.xml", "build.gradle", "build.gradle.kts", "requirements.txt", "pyproject.toml", "poetry.lock", "uv.lock", "pipfile", "pipfile.lock", "cargo.toml", "cargo.lock", ".tool-versions", ".python-version", ".node-version", ".nvmrc", "gradle-wrapper.properties", "maven-wrapper.properties":
+		return "dependencies"
+	}
+	// Deployment settings for a migration component are configuration, not SQL changes.
+	if base == "configuration.yaml" || base == "configuration.yml" {
+		return "configuration"
+	}
 	if contains("migration", "schema.sql", "liquibase", "flyway", "prisma/schema", "db/schema") {
 		return "data"
 	}
@@ -572,9 +583,6 @@ func classifyChangedFile(path string) string {
 	}
 	if ext == ".tf" || contains("terraform", "helm/", "charts/", "k8s/", "kubernetes", "dockerfile", "docker-compose", ".github/workflows") {
 		return "infrastructure"
-	}
-	if base == "go.mod" || base == "go.sum" || base == "package.json" || base == "package-lock.json" || base == "pnpm-lock.yaml" || base == "yarn.lock" || base == "pom.xml" || base == "build.gradle" || base == "requirements.txt" || base == "poetry.lock" || base == "cargo.toml" || base == "cargo.lock" {
-		return "dependencies"
 	}
 	if ext == ".yaml" || ext == ".yml" || ext == ".json" || ext == ".toml" || ext == ".ini" || ext == ".conf" || ext == ".properties" || strings.HasPrefix(base, ".env") {
 		return "configuration"
@@ -625,7 +633,7 @@ func signalLabel(kind string) (string, string) {
 	case "deployment_change":
 		return "Deployment or infrastructure changed", "medium"
 	case "dependency_change":
-		return "Dependency graph changed", "medium"
+		return "Dependency or tool version inputs changed", "medium"
 	default:
 		return kind, "low"
 	}
@@ -637,6 +645,12 @@ func (s *Server) pullRequestCompanyImpact(pid, requestedRun string, repo store.R
 		"Internal, transitive and configuration changes may affect unchanged routes without intersecting their source locations; file-scope matches are candidates only.",
 		"No exact matches is incomplete evidence, not proof that a PR is safe to merge. Extracted request-field compatibility is a separate saved-snapshot comparison.",
 	}}
+	for _, file := range files {
+		if classifyChangedFile(file.Filename) == "dependencies" {
+			result.Limitations = append(result.Limitations, "Dependency or tool versions changed. Unchanged extracted flows do not verify framework compatibility, serialization, or runtime behavior; inherited and transitive versions may be unresolved.")
+			break
+		}
+	}
 	runID := strings.TrimSpace(requestedRun)
 	if runID == "" {
 		if run := s.latestCompletedWorkspaceRun(pid); run != nil {
@@ -651,6 +665,14 @@ func (s *Server) pullRequestCompanyImpact(pid, requestedRun string, repo store.R
 	if err != nil {
 		result.Notes = append(result.Notes, "company graph is unavailable: "+err.Error())
 		return result
+	}
+
+	if requestedRun == "" {
+		if capture, _, headGraph, captureErr := s.loadPRCapture(pid, repo.ID, "", pull.Head.SHA); captureErr == nil {
+			graph = headGraph
+			runID = capture.After.ID
+			result.Notes = append(result.Notes, "PR-head evidence comes from an isolated prepared snapshot; company context is held at "+capture.ContextRun)
+		}
 	}
 	root := graphServiceForRepo(graph, repo)
 	if root == "" {
@@ -705,7 +727,7 @@ func (s *Server) pullRequestCompanyImpact(pid, requestedRun string, repo store.R
 	case result.Freshness != "fresh":
 		result.Confidence = "stale_graph_estimate"
 		result.Notes = append(result.Notes, fmt.Sprintf("graph snapshot is %s relative to PR head; updating the same default branch does not guarantee a PR-head match", result.Freshness))
-		result.NextAction = "With explicit authority, analyze the PR-head revision in a separate temporary checkout and select its saved graph. Keep the user's active branch unchanged; use clean matching baseline evidence separately for deletions. No checkout or capture is performed by this query."
+		result.NextAction = "Prepare PR flows above to analyze the exact PR revisions in isolated checkouts, then refresh impact evidence."
 	case len(result.Services) > 0:
 		result.Confidence = "changed_surface_evidence"
 	default:
@@ -1015,6 +1037,14 @@ func serviceGraphRevision(service *archgraph.ServiceNode) graphRevision {
 	}
 	collections := [][]archgraph.EntitySummary{service.HTTPRoutes, service.RPCEndpoints, service.QueueConsumers, service.ScheduledJobs, service.Webhooks, service.CLICommands, service.Dependencies}
 	var result graphRevision
+	if status := service.AnalysisStatus; status != nil {
+		if status.Dirty || status.State == "analyzed_dirty" {
+			return graphRevision{Dirty: true}
+		}
+		if status.State == "analyzed_clean" {
+			result = graphRevision{Commit: status.AnalyzedRevision, Branch: status.Branch}
+		}
+	}
 	for _, collection := range collections {
 		for _, entity := range collection {
 			revision := entityGraphRevision(entity)

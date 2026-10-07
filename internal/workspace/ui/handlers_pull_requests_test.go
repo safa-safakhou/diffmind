@@ -77,6 +77,9 @@ func TestGraphServiceForRepoUsesStableIdentityThenPathThenName(t *testing.T) {
 
 func TestClassifyChangedFile(t *testing.T) {
 	cases := map[string]string{
+		".gitleaksignore":                         "configuration",
+		".gitleaks.toml":                          "configuration",
+		"config/gitleaks.toml":                    "configuration",
 		"proto/orders.proto":                      "api",
 		"db/migrations/001_orders.sql":            "data",
 		"deploy/terraform/main.tf":                "infrastructure",
@@ -376,5 +379,41 @@ func TestExactPRCallerUsesStructuredHTTPAddress(t *testing.T) {
 				t.Fatalf("exact callers=%+v; want %d", got, tc.want)
 			}
 		})
+	}
+}
+
+func TestDeploymentConfigDoesNotClaimDatabaseMigration(t *testing.T) {
+	impact := analyzeCodebaseImpact(githubPull{}, []githubPullFile{{Filename: "components/traffic-estimation-liquibase/configuration.yaml", Status: "modified", Additions: 1, Deletions: 1, Patch: "@@ -1 +1 @@\n-branch: main\n+branch: feature"}}, false)
+	if len(impact.Categories) != 1 || impact.Categories[0].ID != "configuration" {
+		t.Fatalf("categories %+v", impact.Categories)
+	}
+	for _, signal := range impact.Signals {
+		if signal.Kind == "data_migration" {
+			t.Fatal("deployment settings are not migration source")
+		}
+	}
+	for _, reason := range impact.RiskReasons {
+		if reason == "production code changed without test-file changes" {
+			t.Fatal("configuration-only PR must not claim missing code tests")
+		}
+	}
+}
+
+func TestServiceRevisionWithoutEntrypoints(t *testing.T) {
+	service := &archgraph.ServiceNode{AnalysisStatus: &archgraph.RepositoryAnalysisStatus{State: "analyzed_clean", AnalyzedRevision: "head"}}
+	if got := pullRequestGraphFreshness(serviceGraphRevision(service), "head"); got != "fresh" {
+		t.Fatalf("clean configuration snapshot freshness = %s", got)
+	}
+	service.HTTPRoutes = []archgraph.EntitySummary{{Details: map[string]any{"repository_revision": map[string]any{"commit": "older"}}}}
+	if got := pullRequestGraphFreshness(serviceGraphRevision(service), "head"); got != "unknown" {
+		t.Fatalf("conflicting fact freshness = %s", got)
+	}
+}
+
+func TestDependencyManifestsPrecedeDirectoryHeuristics(t *testing.T) {
+	for _, path := range []string{"libs/api/package.json", "auth/pyproject.toml", "schema/pom.xml", ".tool-versions", "uv.lock", "build.gradle.kts", "gradle/wrapper/gradle-wrapper.properties"} {
+		if got := classifyChangedFile(path); got != "dependencies" {
+			t.Errorf("%s classified %s", path, got)
+		}
 	}
 }

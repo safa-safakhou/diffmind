@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/dependencies"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter"
@@ -128,6 +129,7 @@ func Build(ctx context.Context, repoRoot, primaryLanguage string, workers int) (
 	for r := range resultCh {
 		if r.err != nil {
 			util.Warn("ast.index", "parse error", map[string]any{"file": r.path, "error": r.err.Error()})
+			idx.InputWarnings = append(idx.InputWarnings, r.err.Error())
 			continue
 		}
 		if r.fa == nil {
@@ -151,7 +153,13 @@ func Build(ctx context.Context, repoRoot, primaryLanguage string, workers int) (
 	}
 
 	// Step 4: build global symbol table
-	for _, fa := range idx.Files {
+	fileNames := make([]string, 0, len(idx.Files))
+	for name := range idx.Files {
+		fileNames = append(fileNames, name)
+	}
+	sort.Strings(fileNames)
+	for _, name := range fileNames {
+		fa := idx.Files[name]
 		for _, sym := range fa.Symbols {
 			idx.Symbols[sym.Qualified] = append(idx.Symbols[sym.Qualified], sym)
 		}
@@ -163,15 +171,6 @@ func Build(ctx context.Context, repoRoot, primaryLanguage string, workers int) (
 		}
 		for iface, impls := range fa.Implements {
 			idx.Implements[iface] = append(idx.Implements[iface], impls...)
-		}
-	}
-
-	// Step 5: build call graph
-	for _, fa := range idx.Files {
-		for _, call := range fa.Calls {
-			if call.Caller != "" {
-				idx.CallGraph[call.Caller] = append(idx.CallGraph[call.Caller], call)
-			}
 		}
 	}
 
@@ -189,11 +188,24 @@ func Build(ctx context.Context, repoRoot, primaryLanguage string, workers int) (
 		idx.Languages = []string{primaryLanguage}
 	}
 
+	// Resolve dependency versions in the same repository snapshot as source.
+	opts := dependencies.DefaultOptions()
+	opts.Include = cfg.Paths.Include
+	opts.Exclude = cfg.Paths.Exclude
+	idx.DependencyInventory, err = dependencies.Inspect(ctx, repoRoot, opts)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range cfg.DependencyVersions {
+		idx.DependencyInventory.Dependencies = append(idx.DependencyInventory.Dependencies, dependencies.Fact{Ecosystem: v.Ecosystem, Name: v.Name, Module: defaultModule(v.Module), Version: v.Version, Resolution: "configured", Scope: "custom", Sources: []string{serviceconfig.FileName}})
+	}
 	// Step 8: detect framework bindings
 	idx.Frameworks, idx.RejectedFrameworks, err = detectFrameworks(idx)
 	if err != nil {
 		return nil, err
 	}
+	idx.DetectorCoverage = detectors.SummarizeCoverage(idx.DetectorCoverage)
+	sort.Strings(idx.InputWarnings)
 
 	util.Info("ast.index", "project index built", map[string]any{
 		"files":               len(idx.Files),
@@ -214,7 +226,16 @@ func Build(ctx context.Context, repoRoot, primaryLanguage string, workers int) (
 //  2. File-local imports to expand partial names.
 //  3. Receiver type inference for method calls.
 func resolveCallees(idx *ProjectIndex) {
-	for _, fa := range idx.Files {
+	// Rebuild from resolved sites. Implicit callbacks share source ranges with
+	// their surrounding invocation; matching only a range overwrites that call.
+	idx.CallGraph = make(map[string][]CallSite)
+	files := make([]string, 0, len(idx.Files))
+	for name := range idx.Files {
+		files = append(files, name)
+	}
+	sort.Strings(files)
+	for _, name := range files {
+		fa := idx.Files[name]
 		// Build a local import alias → resolved qualified prefix map.
 		importMap := buildImportMap(fa, idx)
 
@@ -222,15 +243,8 @@ func resolveCallees(idx *ProjectIndex) {
 			call := &fa.Calls[i]
 			resolved := resolveCallee(call, importMap, idx, fa)
 			call.CalleeResolved = resolved
-			// Update the call graph entry.
 			if call.Caller != "" {
-				entries := idx.CallGraph[call.Caller]
-				for j := range entries {
-					if entries[j].File == call.File &&
-						entries[j].Range.StartByte == call.Range.StartByte {
-						idx.CallGraph[call.Caller][j].CalleeResolved = resolved
-					}
-				}
+				idx.CallGraph[call.Caller] = append(idx.CallGraph[call.Caller], *call)
 			}
 		}
 	}
@@ -262,6 +276,12 @@ func resolveCallee(call *CallSite, importMap map[string]string, idx *ProjectInde
 	// 2. Strip receiver prefix: "repo.findById" → try "findById" in all
 	//    types and try the receiver type from the import map.
 	parts := splitQualified(raw)
+	if len(parts) == 1 && strings.Contains(call.Caller, ".") {
+		owner := call.Caller[:strings.LastIndex(call.Caller, ".")]
+		if candidates := symbolsWithTypeAndMethod(idx, owner, raw); len(candidates) > 0 {
+			return candidates
+		}
+	}
 	if len(parts) == 2 {
 		receiver, method := parts[0], parts[1]
 		if typ := receiverTypeForCall(call, receiver, idx); typ != "" {
@@ -310,6 +330,9 @@ func receiverTypeForCall(call *CallSite, receiver string, idx *ProjectIndex) str
 	className := call.Caller
 	if dot := strings.LastIndex(className, "."); dot > 0 {
 		className = className[:dot]
+	}
+	if receiver == "this" || receiver == "self" {
+		return className
 	}
 	if field := selectorField(receiver); field != "" && field != receiver {
 		if typ := idx.FieldTypes[className+"."+field]; typ != "" {
@@ -487,6 +510,11 @@ func detectFrameworks(idx *ProjectIndex) ([]FrameworkBinding, []FrameworkBinding
 	for _, detector := range registeredDetectors {
 		for _, binding := range detector.Detect(idx) {
 			binding.DetectorIDs = detectors.IDsForFrameworkBinding(binding.Framework, binding.Kind, binding.Trigger, binding.ConfidenceReason)
+			for _, id := range binding.DetectorIDs {
+				coverage := detectors.Evaluate(id, binding.File, idx.DependencyInventory, detectors.VersionRules(id))
+				binding.VersionCoverage = append(binding.VersionCoverage, coverage)
+				idx.DetectorCoverage = append(idx.DetectorCoverage, coverage)
+			}
 			if !detectors.AllowFrameworkBinding(binding.DetectorIDs, cfg.Detectors.Enabled, cfg.Detectors.Disabled) {
 				binding.RejectionReason = "disabled by diffmind-configuration.yaml detector settings"
 			}
@@ -494,6 +522,17 @@ func detectFrameworks(idx *ProjectIndex) ([]FrameworkBinding, []FrameworkBinding
 				rejected = append(rejected, binding)
 				continue
 			}
+			accepted = append(accepted, binding)
+		}
+	}
+	for _, binding := range customBindings(idx, cfg.Patterns) {
+		if !detectors.AllowFrameworkBinding(binding.DetectorIDs, nil, cfg.Detectors.Disabled) {
+			binding.RejectionReason = "disabled by diffmind-configuration.yaml detector settings"
+		}
+		idx.DetectorCoverage = append(idx.DetectorCoverage, binding.VersionCoverage...)
+		if binding.RejectionReason != "" {
+			rejected = append(rejected, binding)
+		} else {
 			accepted = append(accepted, binding)
 		}
 	}
@@ -564,5 +603,6 @@ func unique(in []string) []string {
 			out = append(out, s)
 		}
 	}
+	sort.Strings(out)
 	return out
 }

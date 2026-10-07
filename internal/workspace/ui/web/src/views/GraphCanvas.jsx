@@ -53,7 +53,7 @@ const EXPANDED_ROW_LIMIT = 5
 const FLOW_TRACE_LIMIT = 4
 const COMPACT_SERVICE_W = 300
 const COMPACT_SERVICE_H = 116
-const LARGE_GRAPH_SERVICE_THRESHOLD = 70
+const LARGE_GRAPH_SERVICE_THRESHOLD = 20
 const TEAM_GRID_COLS = 3
 const TEAM_BLOCK_GAP_X = 520
 const TEAM_BLOCK_GAP_Y = 360
@@ -994,19 +994,11 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
       if (top.hasNode(e.from) && top.hasNode(e.to)) top.setEdge(e.from, e.to, { type: e.type, data: e }, `e${i}`)
     })
 
-    const persistedLayout = layoutPositionMap(graph)
-    if (clusteredGraph) {
-      applyLargeGraphLayout(top, services, displayEdges, serviceNames)
-    } else if (hasCompleteLayout(top, persistedLayout)) {
-      applyPersistedLayout(top, persistedLayout)
-    } else {
-      dagre.layout(top)
-    }
-    if (mode === 'detail') {
-      applyFullDetailServiceLayout(top, serviceModels, serviceNames)
-    }
+    layoutGraph(top, services, displayEdges, serviceModels, {
+      clustered: clusteredGraph, mode, positions: layoutPositionMap(graph),
+    })
 
-    const viewKey = `${layoutKey}|${clusteredGraph ? 'clustered' : 'dagre'}|${teamFilter}|${teamScope}`
+    const viewKey = `${layoutKey}|${clusteredGraph ? 'clustered' : 'dagre'}|${teamFilter}|${teamScope}|${mode}`
     const previousLayoutKey = graphLayoutKeyRef.current
     const previousViewKey = graphViewKeyRef.current
     const preserveUserView = previousLayoutKey === layoutKey && previousViewKey === viewKey
@@ -1213,8 +1205,13 @@ export function GraphCanvas({ graph, onSelect, detailLoaded = true, onRequestFul
 		// remain navigable through focus, search and keyboard panning.
 		const minScale = 0.75
       const scale = Math.min(Math.max(fitScale, minScale), 1.05)
-      const tx = (W - graphW * scale) / 2
-      const ty = overlayTopPad + (H - overlayTopPad - graphH * scale) / 2
+      const boxes = top.nodes().map((id) => nodeBox(top.node(id)))
+      const minX = boxes.length ? Math.min(...boxes.map((box) => box.left)) : 0
+      const minY = boxes.length ? Math.min(...boxes.map((box) => box.top)) : 0
+      // When readability requires panning, start at the top-left of the map
+      // instead of cropping its first rows behind the toolbar.
+      const tx = Math.max((W - graphW * scale) / 2, pad - minX * scale)
+      const ty = Math.max(overlayTopPad + (H - overlayTopPad - graphH * scale) / 2, overlayTopPad + pad - minY * scale)
       transformRef.current = d3.zoomIdentity.translate(tx, ty).scale(scale)
       fitTransformRef.current = transformRef.current
       userMovedRef.current = false
@@ -1395,15 +1392,36 @@ function layoutPositionMap(graph) {
   return out
 }
 
+// Size nodes before arranging them; overview coordinates cannot accommodate
+// arbitrary full-detail card heights through a capped global scale.
+export function layoutGraph(top, services, edges, serviceModels, { clustered = services.length >= LARGE_GRAPH_SERVICE_THRESHOLD, mode = 'overview', positions = new Map() } = {}) {
+  const serviceNames = new Set(services.map((service) => service.name))
+  if (mode === 'detail') {
+    serviceNames.forEach((id) => {
+      const node = top.node(id)
+      const model = serviceModels.get(id)
+      if (!node || !model) return
+      Object.assign(node, { width: model.width, height: model.height, model, expanded: true })
+    })
+  }
+  if (clustered) applyLargeGraphLayout(top, services, edges, serviceNames)
+  else if (hasCompleteLayout(top, positions)) applyPersistedLayout(top, positions)
+  else dagre.layout(top)
+}
+
 function hasCompleteLayout(top, positions) {
   if (!positions || positions.size === 0) return false
+  const boxes = []
   return top.nodes().every((id) => {
     const node = top.node(id)
     const pos = positions.get(id)
-    if (!node || !pos) return false
+    if (!node || !pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return false
     const staleWidth = Math.abs((Number(pos.width) || node.width) - node.width) > Math.max(80, node.width * 0.6)
     const staleHeight = Math.abs((Number(pos.height) || node.height) - node.height) > Math.max(60, node.height * 0.6)
-    return !staleWidth && !staleHeight
+    const box = nodeBox({ ...node, x: pos.x, y: pos.y }, 18)
+    if (staleWidth || staleHeight || boxes.some((candidate) => boxesOverlap(box, candidate))) return false
+    boxes.push(box)
+    return true
   })
 }
 
@@ -1515,6 +1533,14 @@ function applyLargeGraphLayout(top, services, edges, serviceNames) {
       col = 0
     }
     placeTeamLayoutBlock(top, block, cursorX, cursorY)
+    // Attachments can extend left or above the nominal block origin.
+    // Align actual bounds so adjacent teams cannot overlap those attachments.
+    const before = teamBlockBounds(top, block, 110)
+    const ids = new Set([...(block.expandedIDs || []), ...block.compactIDs, ...block.resourceIDs])
+    ids.forEach((id) => {
+      const node = top.node(id)
+      if (node) { node.x += cursorX - before.left; node.y += cursorY - before.top }
+    })
     const actual = teamBlockBounds(top, block, 110)
     maxX = Math.max(maxX, actual.right)
     maxY = Math.max(maxY, actual.bottom)
@@ -1788,7 +1814,7 @@ function resolveTeamCollisions(top, block) {
     const node = top.node(id)
     if (!node) return
     let guard = 0
-    while (guard < 80) {
+    while (guard <= placed.length) {
       const box = nodeBox(node, 18)
       const hit = placed.find((candidate) => boxesOverlap(box, candidate))
       if (!hit) break
@@ -1796,54 +1822,6 @@ function resolveTeamCollisions(top, block) {
       guard += 1
     }
     placed.push(nodeBox(node, 18))
-  })
-}
-
-function applyFullDetailServiceLayout(top, serviceModels, serviceNames) {
-  const overviewBounds = graphFullBounds(top)
-  let widthRatio = 1
-  let heightRatio = 1
-  serviceNames.forEach((id) => {
-    const node = top.node(id)
-    const model = serviceModels.get(id)
-    if (!node || !model) return
-    node.width = model.width
-    node.height = model.height
-    node.model = model
-    node.expanded = true
-    widthRatio = Math.max(widthRatio, model.width / COMPACT_SERVICE_W)
-    heightRatio = Math.max(heightRatio, model.height / COMPACT_SERVICE_H)
-  })
-
-  const scaleX = clamp(widthRatio + 0.45, 1, 10)
-  const scaleY = clamp(heightRatio + 0.45, 1, 10)
-  scaleGraphAroundOverviewOrigin(top, scaleX, scaleY, overviewBounds)
-  updateGraphBoundsFromNodes(top)
-}
-
-function scaleGraphAroundOverviewOrigin(top, scaleX, scaleY, overviewBounds) {
-  if (scaleX === 1 && scaleY === 1) return
-  const bounds = overviewBounds || graphFullBounds(top)
-  const originX = Number.isFinite(bounds.minX) ? bounds.minX : 0
-  const originY = Number.isFinite(bounds.minY) ? bounds.minY : 0
-  top.nodes().forEach((id) => {
-    const node = top.node(id)
-    if (!node) return
-    node.x = originX + (node.x - originX) * scaleX
-    node.y = originY + (node.y - originY) * scaleY
-  })
-}
-
-function updateGraphBoundsFromNodes(top) {
-  const bounds = graphFullBounds(top)
-  if (!Number.isFinite(bounds.minX)) {
-    top.setGraph({ ...top.graph(), width: 1000, height: 700 })
-    return
-  }
-  top.setGraph({
-    ...top.graph(),
-    width: Math.max(1000, bounds.maxX + 240),
-    height: Math.max(700, bounds.maxY + 220),
   })
 }
 
@@ -1867,20 +1845,6 @@ function graphNodeBounds(top) {
     if (!node) return
     bounds.maxX = Math.max(bounds.maxX, node.x + node.width / 2)
     bounds.maxY = Math.max(bounds.maxY, node.y + node.height / 2)
-  })
-  return bounds
-}
-
-function graphFullBounds(top) {
-  const bounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }
-  top.nodes().forEach((id) => {
-    const node = top.node(id)
-    if (!node) return
-    const box = nodeBox(node, 0)
-    bounds.minX = Math.min(bounds.minX, box.left)
-    bounds.minY = Math.min(bounds.minY, box.top)
-    bounds.maxX = Math.max(bounds.maxX, box.right)
-    bounds.maxY = Math.max(bounds.maxY, box.bottom)
   })
   return bounds
 }

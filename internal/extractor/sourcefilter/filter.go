@@ -4,10 +4,16 @@
 package sourcefilter
 
 import (
+	"bytes"
 	"io/fs"
 	"path/filepath"
 	"strings"
+	"unicode/utf8"
 )
+
+// Extensions alone are insufficient: .ts can also be an MPEG transport stream.
+// Tree-sitter accepts bytes, so reject binary/non-UTF-8 inputs before parsing.
+func SkipFileContent(data []byte) bool { return bytes.IndexByte(data, 0) >= 0 || !utf8.Valid(data) }
 
 var skippedDirs = map[string]struct{}{
 	".git": {}, ".hg": {}, ".svn": {}, ".idea": {}, ".vscode": {}, ".vs": {},

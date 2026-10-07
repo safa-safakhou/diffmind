@@ -79,7 +79,7 @@ func withoutProvenance(value any) any {
 		out := map[string]any{}
 		for key, child := range v {
 			switch key {
-			case "evidence", "source_locations", "locations", "repository_revision", "plugin_source", "evidence_origin", "detection_confidence", "resolution_confidence", "confidence":
+			case "legacy_id", "evidence", "source_locations", "locations", "repository_revision", "plugin_source", "evidence_origin", "detection_confidence", "resolution_confidence", "confidence", "detector_coverage", "detector_revision", "dependency_inventory":
 				continue
 			}
 			out[key] = withoutProvenance(child)

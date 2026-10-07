@@ -1,6 +1,11 @@
 package model
 
-import "time"
+import (
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/dependencies"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/langdetect"
+	"time"
+)
 
 type EntityKind string
 
@@ -197,12 +202,16 @@ type RunManifest struct {
 }
 
 type RepoMetrics struct {
-	TotalLOC            int              `json:"total_loc"`
-	FileCount           int              `json:"file_count"`
-	Languages           []LanguageMetric `json:"languages,omitempty"`
-	Frameworks          []string         `json:"frameworks,omitempty"`
-	BuildTools          []string         `json:"build_tools,omitempty"`
-	DetectedServiceName string           `json:"detected_service_name,omitempty"`
+	DependencyInventory *dependencies.Inventory `json:"dependency_inventory,omitempty"`
+	DetectorCoverage    []detectors.Coverage    `json:"detector_coverage,omitempty"`
+	DetectorRevision    string                  `json:"detector_revision,omitempty"`
+	Toolchain           []langdetect.Fact       `json:"toolchain,omitempty"`
+	TotalLOC            int                     `json:"total_loc"`
+	FileCount           int                     `json:"file_count"`
+	Languages           []LanguageMetric        `json:"languages,omitempty"`
+	Frameworks          []string                `json:"frameworks,omitempty"`
+	BuildTools          []string                `json:"build_tools,omitempty"`
+	DetectedServiceName string                  `json:"detected_service_name,omitempty"`
 }
 
 type LanguageMetric struct {
