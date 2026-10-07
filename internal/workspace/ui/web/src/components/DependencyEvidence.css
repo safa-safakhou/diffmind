@@ -1,0 +1,10 @@
+.dependency-evidence { margin-top: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.dependency-evidence > details { margin-top: 12px; }
+.dependency-evidence summary { cursor: pointer; }
+.dependency-evidence label { display: block; }
+.dependency-evidence input { display: block; width: 100%; margin: 6px 0; }
+.dependency-evidence .managed-versions { display: flex; align-items: flex-start; gap: 6px; font-size: 12px; }
+.dependency-evidence .managed-versions input { width: auto; margin: 4px 0; }
+.dependency-evidence ul { padding-left: 20px; }
+.dependency-evidence li { margin: 10px 0; }
+.dependency-evidence li details { font-size: 12px; }

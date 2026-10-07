@@ -250,6 +250,8 @@ func TestProjectTokenMCPAllToolsIsolationIdentitySwitchAndRevocation(t *testing.
 			args["query"] = "private"
 		case "get_impact":
 			args["target"] = "private-service"
+		case "compare_flows":
+			args["from"], args["to"], args["service"] = "before", "after", "private-service"
 		case "compare_graphs", "compare_contracts", "find_dependency_path":
 			args["from"], args["to"] = "before", "after"
 		case "get_object_trace":

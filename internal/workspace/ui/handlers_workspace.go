@@ -3,6 +3,7 @@ package ui
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -512,7 +513,7 @@ func gitOutput(ctx context.Context, dir string, args ...string) string {
 func gitCommand(ctx context.Context, dir, gitURL string, args ...string) error {
 	token := githubToken(ctx, gitURL)
 	if host := githubAuthHost(gitURL); token != "" && host != "" {
-		args = append([]string{"-c", "http.https://" + host + "/.extraheader=AUTHORIZATION: bearer " + token}, args...)
+		args = append([]string{"-c", "http.https://" + host + "/.extraheader=AUTHORIZATION: Basic " + base64.StdEncoding.EncodeToString([]byte("x-access-token:"+token))}, args...)
 	}
 	cmd := exec.CommandContext(ctx, "git", args...)
 	if dir != "" {

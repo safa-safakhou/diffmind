@@ -3,7 +3,9 @@ module github.com/mohammad-safakhou/diffmind
 go 1.26.6
 
 require (
+	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/modelcontextprotocol/go-sdk v1.6.1
+	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/scip-code/scip/bindings/go/scip v0.7.1
 	github.com/smacker/go-tree-sitter v0.0.0-20240827094217-dd81d9e9be82
 	golang.org/x/sys v0.47.0

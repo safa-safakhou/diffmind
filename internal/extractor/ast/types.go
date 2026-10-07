@@ -17,7 +17,11 @@
 //  4. Register it in grammar.go's languageRegistry.
 package ast
 
-import "strings"
+import (
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/dependencies"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors"
+	"strings"
+)
 
 // Core data types
 
@@ -74,7 +78,10 @@ type ProjectIndex struct {
 	// so a polyglot repo lists every language it contains). There is no single
 	// "primary" language: the index and framework detectors
 	// operate across all detected languages.
-	Languages []string
+	Languages           []string
+	DependencyInventory dependencies.Inventory
+	DetectorCoverage    []detectors.Coverage
+	InputWarnings       []string
 }
 
 // FileAST is the tree-sitter analysis of one source file.
@@ -170,6 +177,8 @@ type Annotation struct {
 
 // FrameworkBinding captures an implicit invocation triggered by a framework.
 type FrameworkBinding struct {
+	ContractFile     string
+	ContractLine     int
 	Framework        string
 	Kind             string
 	Direction        string
@@ -179,6 +188,7 @@ type FrameworkBinding struct {
 	File             string
 	Range            Range
 	DetectorIDs      []string
+	VersionCoverage  []detectors.Coverage
 	ConfidenceReason string
 	RejectionReason  string
 }

@@ -245,9 +245,12 @@ func (b *flowBuilder) walk(queue []flowVisit) {
 				})
 			}
 		}
-		related := traceRelatedEdges(b.graph, svc.Name, matches)
-		if len(matches) == 0 && v.objectID == "" {
-			related = outboundEdges(b.graph, svc.Name)
+		related := entryFlowRelatedEdges(b.graph, svc.Name, matches)
+		if len(matches) == 0 {
+			related = nil
+			if v.objectID == "" {
+				related = outboundEdges(b.graph, svc.Name)
+			}
 		}
 		for _, edge := range related {
 			if edge.From != svc.Name {
@@ -741,4 +744,37 @@ func detailString(details map[string]any, key string) string {
 		return strings.TrimSpace(s)
 	}
 	return ""
+}
+
+// Follow only graph operations named by this local path. Generic relationship
+// kinds (e.g. http or database) cannot establish entrypoint reachability.
+func entryFlowRelatedEdges(g *ArchGraph, service string, matches []ConnectionSummary) []*GraphEdge {
+	ids, names := map[string]bool{}, map[string]bool{}
+	for _, c := range matches {
+		if c.ToID != "" {
+			ids[c.ToID] = true
+		}
+		if c.ToName != "" {
+			names[c.ToName] = true
+		}
+	}
+	out := []*GraphEdge{}
+	for _, edge := range g.Edges {
+		if edge == nil || edge.From != service {
+			continue
+		}
+		selected := []EntitySummary{}
+		for _, d := range edge.Details {
+			if ids[d.ID] || names[d.Name] {
+				selected = append(selected, d)
+			}
+		}
+		if len(selected) == 0 {
+			continue
+		}
+		copy := *edge
+		copy.Details = selected
+		out = append(out, &copy)
+	}
+	return sortedEdges(out)
 }

@@ -1,3 +1,4 @@
+import { LoadingState } from './LoadingState.jsx'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { getRunArchGraphEntrypoints } from '../lib/api.js'
 
@@ -15,19 +16,22 @@ const KIND_LABELS = {
 export function TracePicker({ pid, rid, initialQuery = '', onPick }) {
   const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const timer = useRef(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
+    let alive = true
+    setLoading(true); setError('')
     if (timer.current) clearTimeout(timer.current)
     timer.current = setTimeout(() => {
       setLoading(true)
       getRunArchGraphEntrypoints(pid, rid, query, 60)
-        .then((refs) => setResults(refs))
-        .catch(() => setResults([]))
-        .finally(() => setLoading(false))
+        .then((refs) => { if (alive) setResults(refs) })
+        .catch((e) => { if (alive) { setResults(null); setError(e.message) } })
+        .finally(() => { if (alive) setLoading(false) })
     }, 200)
-    return () => timer.current && clearTimeout(timer.current)
+    return () => { alive = false; if (timer.current) clearTimeout(timer.current) }
   }, [pid, rid, query])
 
   const groups = new Map()
@@ -47,7 +51,8 @@ export function TracePicker({ pid, rid, initialQuery = '', onPick }) {
         onInput={(e) => setQuery(e.target.value)}
         autoFocus
       />
-      {loading && <div class="muted small">Searching…</div>}
+      {loading && <LoadingState compact label="Searching entry points…" />}
+      {error && <p class="banner error" role="alert">Could not search entry points: {error}</p>}
       {results && results.length === 0 && !loading && <div class="muted">No entry points match “{query}”.</div>}
       {[...groups.entries()].map(([kind, refs]) => (
         <div class="trace-picker-group" key={kind}>

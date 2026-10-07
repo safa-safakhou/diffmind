@@ -127,8 +127,20 @@ func TestAgentAcceptance(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if len(listed.Tools) != 19 {
-		t.Fatalf("tools=%d want 19", len(listed.Tools))
+	names := map[string]bool{}
+	for _, tool := range listed.Tools {
+		if names[tool.Name] {
+			t.Fatalf("duplicate tool %s", tool.Name)
+		}
+		names[tool.Name] = true
+		if tool.Name == "compare_flows" && !tool.Annotations.ReadOnlyHint {
+			t.Fatal("flow comparison must remain read-only")
+		}
+	}
+	for _, name := range []string{"list_projects", "get_readiness", "compare_flows", "inspect_workspace", "manage_workspace", "agent_runtime"} {
+		if !names[name] {
+			t.Fatalf("required tool missing: %s", name)
+		}
 	}
 	for _, tool := range listed.Tools {
 		if tool.Name == "manage_workspace" && tool.Annotations.ReadOnlyHint {

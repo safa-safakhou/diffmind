@@ -453,7 +453,10 @@ func DeterministicOutboundRPC(idx *astpkg.ProjectIndex) []candidate {
 	forEachCall(idx, func(cs astpkg.CallSite) {
 		service, method, ok := MatchGRPCStubCall(cs)
 		if !ok {
-			service, method, ok = matchGoGRPCClientCall(cs)
+			fa := idx.Files[cs.File]
+			if fa != nil && fa.Language == "go" {
+				service, method, ok = matchGoGRPCClientCall(cs)
+			}
 		}
 		if !ok {
 			return

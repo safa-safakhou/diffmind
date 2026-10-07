@@ -29,6 +29,22 @@ Before opening a pull request:
 Use synthetic names and data in fixtures. New detectors should prefer precise,
 source-backed facts over guesses.
 
+When adding support for a framework, ORM or private convention version:
+
+1. Review its upstream migration/API changes and record the bounded supported pattern.
+2. Add exact-version positive and negative extraction fixtures, including the
+   previous version, unresolved version and a future out-of-range version.
+3. Update applicability and `tested_versions` in the detector version registry;
+   only fixture-backed exact versions may be called validated.
+4. Bump the detector revision when semantics or its fixture matrix changes so
+   cached analyses are invalidated, even if extraction code stays the same.
+5. Re-run corpus validation and compare changed relationships against reviewed
+   expectations. Update the support matrix and release DiffMind.
+
+Private convention configuration uses the same version-evidence policy. Never
+infer a framework's version from a similarly numbered parent, build tool or
+company library, and keep coverage/provenance out of structural flow diffs.
+
 The workspace dashboard's `npm test` runs both helper tests and JSX component
 tests through the real fetch wrapper with an in-memory API stub. The component
 runner uses [LinkeDOM](https://github.com/WebReflection/linkedom) for DOM state,

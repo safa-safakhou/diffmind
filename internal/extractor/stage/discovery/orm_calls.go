@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	astpkg "github.com/mohammad-safakhou/diffmind/internal/extractor/ast"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/serviceconfig"
 )
 
 // orm_calls.go derives db_operation facts from ORM call sites: the repository
@@ -47,6 +49,12 @@ type ormCallFact struct {
 func DeterministicORMOperations(idx *astpkg.ProjectIndex) []candidate {
 	if idx == nil {
 		return nil
+	}
+	var disabled []string
+	if idx.RepoRoot != "" {
+		if cfg, e := serviceconfig.Load(idx.RepoRoot); e == nil {
+			disabled = cfg.Detectors.Disabled
+		}
 	}
 	langOf := func(file string) string {
 		if fa := idx.Files[file]; fa != nil {
@@ -112,6 +120,12 @@ func DeterministicORMOperations(idx *astpkg.ProjectIndex) []candidate {
 	out := make([]candidate, 0, len(order))
 	for _, key := range order {
 		a := seen[key]
+		id := map[string]string{"gorm": "golang.db.gorm", "bun": "golang.db.bun", "django-orm": "python.db.django", "prisma": "javascript.db.prisma", "sequelize": "javascript.db.sequelize", "activerecord": "ruby.db.activerecord"}[a.fact.orm]
+		if !detectors.AllowFrameworkBinding([]string{id}, nil, disabled) {
+			continue
+		}
+		coverage := detectors.Evaluate(id, a.loc.File, idx.DependencyInventory, detectors.VersionRules(id))
+		idx.DetectorCoverage = append(idx.DetectorCoverage, coverage)
 		out = append(out, candidate{
 			Type:       "db_operation",
 			Name:       a.fact.opKind + " " + a.fact.table,
@@ -119,10 +133,11 @@ func DeterministicORMOperations(idx *astpkg.ProjectIndex) []candidate {
 			Confidence: 1.0,
 			Tags:       []string{"deterministic", "orm:" + a.fact.orm},
 			Details: map[string]any{
-				"table":         a.fact.table,
-				"operation":     a.fact.opKind,
-				"orm":           a.fact.orm,
-				"discovered_by": "ast_orm_call",
+				"table":             a.fact.table,
+				"operation":         a.fact.opKind,
+				"orm":               a.fact.orm,
+				"discovered_by":     "ast_orm_call",
+				"detector_coverage": []detectors.Coverage{coverage},
 			},
 			Locations: []candidateLocation{a.loc},
 			Evidence:  []candidateEvidence{callEvidence(a.fact.cs)},

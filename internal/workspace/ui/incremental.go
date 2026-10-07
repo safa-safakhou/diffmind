@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors"
 	"io"
 	"io/fs"
 	"os"
@@ -62,7 +63,8 @@ func (s *Server) analysisFingerprint(ctx context.Context, pid string, repo store
 		return "", err
 	}
 	inputs := map[string]any{"effective_service_config": effectiveConfig, "schema": 1, "head": head, "path": root, "analyzer": analyzer, "version": s.version,
-		"options": opts, "name": repo.Name, "kind": repo.Kind, "packs": repo.PackIDs, "instruction": repo.Instruction, "project_instruction": project.Instruction}
+		"detector_revision": detectors.Revision,
+		"options":           opts, "name": repo.Name, "kind": repo.Kind, "packs": repo.PackIDs, "instruction": repo.Instruction, "project_instruction": project.Instruction}
 	// Static analysis reads useful files regardless of Git ignore rules. Include
 	// those bytes too (e.g. ignored application configuration), not only HEAD.
 	inputs["source_digest"], err = sourceInputDigest(ctx, root)

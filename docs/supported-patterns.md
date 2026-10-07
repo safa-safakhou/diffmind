@@ -22,6 +22,78 @@ HTTP and MCP. Pack graph acceptance separately verifies installation/integrity,
 the graph job, query transport, disabling packs and immutable historical graphs.
 Neither substitutes for validating your company's known architecture.
 
+## Version evidence and detector releases
+
+Each analysis records dependency declarations, effective versions where they can
+be established, module scope, source files and resolution limitations. Supported
+inputs include npm/pnpm/Yarn locks, requirements and pyproject with uv/Poetry
+locks, Maven POM inheritance and cached pinned parents/BOMs, literal Gradle
+coordinates, Go module requirements, and Gemfile declarations/locks. These
+inputs are static evidence; they do not prove the deployed environment.
+
+Maven resolution uses matching local parents or exact pinned cache artifacts; it
+does not fetch or choose the newest cached parent. Gradle variables/catalogs,
+Maven profiles, conditional Python environments, non-semver versions and Go
+replacements can remain unresolved. Module-specific versions are selected before
+root declarations. Unknown/future versions still receive built-in source-backed
+analysis, with explicit coverage limits.
+
+The UI service inspector and saved JSON metrics expose the same coverage states:
+
+| State | Meaning |
+| --- | --- |
+| `validated` | Exact version has a registered static extraction fixture. |
+| `compatible_unverified` | Version matches applicability, but has no exact fixture. |
+| `unknown_version` | Version or environment condition could not be established. |
+| `unsupported_version` | Version is outside the declared rule range; source fallback used. |
+| `ambiguous_version` | Multiple effective versions conflict in this module. |
+| `unversioned` | Detector has no version-specific coverage declaration. |
+
+The initial exact fixture matrix covers Express 4.21.2/5.1.0, Spring Web
+6.2.0/7.0.0, FastAPI 0.115.0 and Flask 3.1.0. This validates the bounded patterns
+in the fixtures, not all framework behavior. Express 5 removed path syntax is
+rejected when version 5 is established. ORM detectors have applicability and
+version evidence too; applicability alone does not make them validated.
+
+Detector revision, applied rule and coverage are retained independently of the
+DiffMind application version. A new framework/library release requires upstream
+review and fixtures, followed by a DiffMind release updating that matrix—even
+when the extraction implementation is unchanged. There is no automatic claim
+that the latest upstream release is supported. Company libraries can use
+[version-gated custom configuration](extractor/docs/CONFIGURATION.md#patterns).
+
+Flow review reports dependency/runtime/build-tool version changes separately.
+Changing version provenance or detector metadata does not fabricate a changed
+execution flow. A dependency-only PR can therefore have version changes and no
+structurally changed flows; source analysis cannot establish runtime compatibility.
+
+Relevant upstream specifications:
+[npm locks](https://docs.npmjs.com/cli/v11/configuring-npm/package-lock-json/),
+[Maven dependency management](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html),
+[uv project layout](https://docs.astral.sh/uv/concepts/projects/layout/), and
+[Express 5 migration](https://expressjs.com/en/guide/migrating-5/).
+
+## Full repository corpus validation
+
+Use `scripts/validation/corpus-audit.py` with a private JSONL inventory containing
+`repository`, `commit`, `path`, `archived` and `status` (`downloaded` or `empty`)
+for pinned local snapshots:
+
+```sh
+go build -o /tmp/diffmind-audit ./cmd/diffmind
+python3 scripts/validation/corpus-audit.py \
+  --inventory /private/audit/snapshots.jsonl --binary /tmp/diffmind-audit \
+  --out /private/audit/results --workers 2
+```
+
+Every non-empty repository runs extraction and Protocol validation. Results
+retain commit IDs, errors, evidence counts, coverage and version-resolution
+limits; active and archived repositories are counted separately. The script
+does not build/install the repository's dependencies or execute its code. Keep
+company sources and reports outside this repository. A successful run proves
+extraction/schema validity, not recall or correctness of every relationship;
+promote reviewed misses into synthetic positive and negative fixtures.
+
 ## Teaching a missing convention
 
 1. Reduce it to a **synthetic** repository/configuration example.

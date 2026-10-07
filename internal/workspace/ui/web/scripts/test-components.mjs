@@ -10,7 +10,7 @@ import { join } from 'node:path'
 const root = fileURLToPath(new URL('../', import.meta.url))
 const temp = await mkdtemp(join(root, 'node_modules', '.diffmind-component-tests-'))
 try {
-  const names = ['ProjectTokens', 'ProjectLimits', 'Journeys']
+  const names = ['ProjectTokens', 'ProjectLimits', 'Journeys', 'GraphCanvas', 'FlowReview', 'LoadingViews', 'DependencyEvidence']
   await build({
     entryPoints: names.map((name) => join(root, `src/views/${name}.test.jsx`)), outdir: temp, outExtension: { '.js': '.mjs' },
     bundle: true, platform: 'node', format: 'esm', packages: 'external',

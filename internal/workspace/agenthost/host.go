@@ -287,7 +287,13 @@ func (h *Host) Invoke(ctx context.Context, _ *mcp.CallToolRequest, req *http.Req
 	}
 	req = req.Clone(ctx)
 	req.URL = u
-	res, err := h.client.Do(req)
+	client := h.client
+	if req.Method == http.MethodPost && strings.HasSuffix(req.URL.Path, "/flows/prepare") {
+		longer := *client
+		longer.Timeout = 6 * time.Minute
+		client = &longer
+	}
+	res, err := client.Do(req)
 	if err != nil {
 		return agentapi.Result{}, fmt.Errorf("backend request failed; inspect state before retrying a mutation: %w", err)
 	}

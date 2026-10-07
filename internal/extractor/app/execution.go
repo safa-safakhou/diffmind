@@ -67,19 +67,21 @@ func execute(ctx context.Context, in executionInput) (RunOutput, error) {
 		_ = os.Remove(filepath.Join(in.RunDir, "run_failure.md"))
 	}
 	writtenRunDir, err := artifacts.Write(artifacts.WriteInput{
-		RunID:         in.RunID,
-		BaseDir:       in.BaseDir,
-		RepoPath:      in.RepoPath,
-		MinConfidence: in.Config.Quality.MinConfidence,
-		Exposures:     result.Exposures,
-		Dependencies:  result.Dependencies,
-		Connections:   result.Connections,
-		Unresolved:    result.Unresolved,
-		Warnings:      result.Warnings,
-		Pipeline:      in.Config.Pipeline(),
-		StartedAt:     in.StartedAt,
-		FinishedAt:    time.Now().UTC(),
-		RepoFacts:     result.Intermediate.RepoFacts,
+		RunID:               in.RunID,
+		BaseDir:             in.BaseDir,
+		RepoPath:            in.RepoPath,
+		MinConfidence:       in.Config.Quality.MinConfidence,
+		Exposures:           result.Exposures,
+		Dependencies:        result.Dependencies,
+		Connections:         result.Connections,
+		Unresolved:          result.Unresolved,
+		Warnings:            result.Warnings,
+		Pipeline:            in.Config.Pipeline(),
+		StartedAt:           in.StartedAt,
+		FinishedAt:          time.Now().UTC(),
+		RepoFacts:           result.Intermediate.RepoFacts,
+		DependencyInventory: &result.DependencyInventory,
+		DetectorCoverage:    result.DetectorCoverage,
 	})
 	if err != nil {
 		util.Error(in.Component, "artifact write failed", map[string]any{"error": err})

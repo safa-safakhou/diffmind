@@ -33,10 +33,11 @@ const (
 )
 
 type Descriptor struct {
-	ID          string
-	Language    Language
-	Category    Category
-	Tool        string
-	ObjectTypes []string
-	Description string
+	ID           string
+	Language     Language
+	Category     Category
+	Tool         string
+	ObjectTypes  []string
+	Description  string
+	VersionRules []VersionRule `json:"version_rules,omitempty"`
 }

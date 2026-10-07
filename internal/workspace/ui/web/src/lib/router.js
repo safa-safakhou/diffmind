@@ -41,6 +41,8 @@ export function parseRoute(path) {
   if (m) return { name: 'trace', pid: decodeURIComponent(m[1]), rid: decodeURIComponent(m[2]), params }
   m = pathname.match(/^\/projects\/([^/]+)\/runs\/([^/]+)$/)
   if (m) return { name: 'run', pid: decodeURIComponent(m[1]), rid: decodeURIComponent(m[2]) }
+  m = pathname.match(/^\/projects\/([^/]+)\/pull-requests\/([^/]+)\/(\d+)\/flows$/)
+  if (m) return { name: 'pr-flows', pid: decodeURIComponent(m[1]), repo: decodeURIComponent(m[2]), number: Number(m[3]) }
   m = pathname.match(/^\/projects\/([^/]+)\/pull-requests$/)
   if (m) return { name: 'pull-requests', pid: decodeURIComponent(m[1]), params }
   m = pathname.match(/^\/projects\/([^/]+)\/compare$/)

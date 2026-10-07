@@ -62,6 +62,11 @@ func TestDeterministicORMOperationsDjango(t *testing.T) {
 	if len(got) != 2 || got[0] != want[0] || got[1] != want[1] {
 		t.Errorf("want %v, got %v", want, got)
 	}
+	for _, coverage := range idx.DetectorCoverage {
+		if coverage.DetectorID != "python.db.django" || coverage.Status != "unknown_version" {
+			t.Fatalf("Django ORM bypassed its version rule: %+v", coverage)
+		}
+	}
 }
 
 func TestDeterministicORMOperationsPrismaAndSequelize(t *testing.T) {

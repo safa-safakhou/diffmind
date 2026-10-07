@@ -575,17 +575,54 @@ func (b *protocolBuilder) addFlow(conn model.Connection) {
 	nodes := []protocol.FlowNode{{ID: "n1", Ref: from, Role: "entrypoint"}}
 	edges := []protocol.FlowEdge{}
 	next := 2
-	last := "n1"
-	for _, step := range conn.Paths[0].Steps {
-		nodeID := fmt.Sprintf("n%d", next)
-		next++
-		nodes = append(nodes, protocol.FlowNode{ID: nodeID, Symbol: step.To, Role: "call"})
-		edges = append(edges, protocol.FlowEdge{From: last, To: nodeID, Reachability: reachability(step.Condition), Condition: condition(step.Condition)})
-		last = nodeID
+	// Keep every extracted path, sharing only identical prefixes. Selecting
+	// Paths[0] drops real branches and makes diagrams depend on traversal order.
+	type keyedPath struct {
+		key  string
+		path model.ConnectionPath
 	}
-	targetNode := fmt.Sprintf("n%d", next)
-	nodes = append(nodes, protocol.FlowNode{ID: targetNode, Ref: to, Role: "action"})
-	edges = append(edges, protocol.FlowEdge{From: last, To: targetNode, Reachability: protocol.ReachabilityMust})
+	paths := make([]keyedPath, 0, len(conn.Paths))
+	for _, path := range conn.Paths {
+		var keys []string
+		for _, step := range path.Steps {
+			data, _ := json.Marshal([]any{step.To, reachability(step.Condition), condition(step.Condition)})
+			keys = append(keys, string(data))
+		}
+		data, _ := json.Marshal(keys)
+		paths = append(paths, keyedPath{key: string(data), path: path})
+	}
+	sort.Slice(paths, func(i, j int) bool { return paths[i].key < paths[j].key })
+	flow.Reachability = reachability(paths[0].path.Condition)
+	flow.Condition = condition(paths[0].path.Condition)
+	prefixes := map[string]string{}
+	for _, p := range paths {
+		last := "n1"
+		for _, step := range p.path.Steps {
+			data, _ := json.Marshal([]any{last, step.To, reachability(step.Condition), condition(step.Condition)})
+			key := string(data)
+			nodeID := prefixes[key]
+			if nodeID == "" {
+				nodeID = fmt.Sprintf("n%d", next)
+				next++
+				prefixes[key] = nodeID
+				nodes = append(nodes, protocol.FlowNode{ID: nodeID, Symbol: step.To, Role: "call"})
+				edges = append(edges, protocol.FlowEdge{From: last, To: nodeID, Reachability: reachability(step.Condition), Condition: condition(step.Condition)})
+			}
+			last = nodeID
+		}
+		key := last + "\x00action"
+		if prefixes[key] == "" {
+			targetNode := fmt.Sprintf("n%d", next)
+			next++
+			prefixes[key] = targetNode
+			nodes = append(nodes, protocol.FlowNode{ID: targetNode, Ref: to, Role: "action"})
+			edges = append(edges, protocol.FlowEdge{From: last, To: targetNode, Reachability: protocol.ReachabilityMust})
+		}
+		if reachability(p.path.Condition) == protocol.ReachabilityMust {
+			flow.Reachability = protocol.ReachabilityMust
+			flow.Condition = condition(p.path.Condition)
+		}
+	}
 	flow.Nodes = nodes
 	flow.Edges = edges
 	flow.From = ""

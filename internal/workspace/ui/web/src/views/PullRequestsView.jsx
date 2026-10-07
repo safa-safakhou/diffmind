@@ -1,7 +1,9 @@
+import { LoadingState } from '../components/LoadingState.jsx'
 import { useEffect, useMemo, useState, useRef } from 'preact/hooks'
 import { getPullRequestImpact, getPullRequests } from '../lib/api.js'
 import { navigate } from '../lib/router.js'
 import { FlowRibbon } from './FlowRibbon.jsx'
+import { FlowReview } from './FlowReview.jsx'
 
 const CATEGORY_HELP = {
   security: {
@@ -227,14 +229,14 @@ export function PullRequestsView({ pid }) {
           {!selected && <EmptyBlock label="Select a pull request to calculate its impact." />}
           {selected && impactLoading && <LoadingBlock label="Reading changed files and walking the company graph…" />}
           {impactError && <div class="banner error">{impactError}</div>}
-          {selected && impact && <ImpactDetail impact={impact} key={`${selected.repo_id}/${selected.number}`} />}
+          {selected && impact && <ImpactDetail pid={pid} impact={impact} onPrepared={() => setSelected((value) => ({ ...value, updated_at: new Date().toISOString() }))} key={`${selected.repo_id}/${selected.number}`} />}
         </main>
       </div>
     </div>
   )
 }
 
-export function ImpactDetail({ impact }) {
+export function ImpactDetail({ impact, pid, onPrepared }) {
   const pr = impact.pull_request
   const code = impact.codebase
   const company = impact.company
@@ -255,6 +257,7 @@ export function ImpactDetail({ impact }) {
         <a class="btn ghost" href={pr.url} target="_blank" rel="noreferrer">Open on GitHub ↗</a>
       </div>
 
+      {pid && <div class="pr-flow-review"><button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}/pull-requests/${encodeURIComponent(pr.repo_id)}/${pr.number}/flows`)}>Open full flow review →</button><FlowReview pid={pid} pr={pr} onPrepared={onPrepared} /></div>}
       <section class="pr-impact-section">
         <SectionTitle title="Codebase impact" subtitle="Evidence from the PR file list and available diff patches" />
         <div class="pr-mini-kpis">
@@ -421,7 +424,7 @@ function SectionTitle({ title, subtitle }) {
 }
 
 function LoadingBlock({ label }) {
-  return <div class="pr-state"><div class="activity-spinner" /><p>{label}</p></div>
+  return <LoadingState label={label} />
 }
 
 function EmptyBlock({ label }) {

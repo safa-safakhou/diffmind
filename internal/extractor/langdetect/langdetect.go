@@ -63,7 +63,16 @@ type Fact struct {
 	// Sources is the list of marker files that contributed to
 	// this fact. Surfaced in the indexer.build event so the user
 	// can see why we picked Java 21 vs 17.
-	Sources []string `json:"sources,omitempty"`
+	Sources           []string             `json:"sources,omitempty"`
+	VersionConstraint string               `json:"version_constraint,omitempty"`
+	VersionConflict   bool                 `json:"version_conflict,omitempty"`
+	Declarations      []VersionDeclaration `json:"version_declarations,omitempty"`
+}
+
+type VersionDeclaration struct {
+	Source     string `json:"source"`
+	Value      string `json:"value"`
+	Constraint bool   `json:"constraint,omitempty"`
 }
 
 // Inspect walks `root` and returns one Fact per detected language.
@@ -88,29 +97,94 @@ func Inspect(ctx context.Context, root string) ([]Fact, error) {
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
 		}
-		f := detectFromMarker(m)
-		if f == nil {
-			continue
+		detected := []*Fact{detectFromMarker(m)}
+		if m.Base == ".tool-versions" {
+			body, _ := readBounded(m.Path)
+			detected = detectToolVersionFacts(m.Path, body)
 		}
-		// Merge: keep the most specific version seen and union
-		// the Sources list. The order of marker files within a
-		// language is not stable across operating systems, so
-		// "most specific" means "non-empty wins".
-		if existing, ok := facts[f.Language]; ok {
-			if existing.Version == "" && f.Version != "" {
-				existing.Version = f.Version
+		for _, f := range detected {
+			if f == nil {
+				continue
 			}
-			if existing.BuildTool == "" && f.BuildTool != "" {
-				existing.BuildTool = f.BuildTool
-				existing.BuildToolVersion = f.BuildToolVersion
+			if f.Version != "" || f.VersionConstraint != "" {
+				value := f.Version
+				if f.VersionConstraint != "" {
+					value = f.VersionConstraint
+				}
+				f.Declarations = []VersionDeclaration{{Source: m.Path, Value: value, Constraint: f.VersionConstraint != ""}}
 			}
-			existing.Sources = append(existing.Sources, f.Sources...)
-		} else {
-			facts[f.Language] = f
+			// Merge: keep the most specific version seen and union
+			// the Sources list. The order of marker files within a
+			// language is not stable across operating systems, so
+			// "most specific" means "non-empty wins".
+			if existing, ok := facts[f.Language]; ok {
+				if existing.Version == "" && f.Version != "" {
+					existing.Version = f.Version
+				}
+				if existing.BuildTool == "" && f.BuildTool != "" {
+					existing.BuildTool = f.BuildTool
+					existing.BuildToolVersion = f.BuildToolVersion
+				}
+				if existing.BuildToolVersion == "" && existing.BuildTool == f.BuildTool {
+					existing.BuildToolVersion = f.BuildToolVersion
+				}
+				existing.Declarations = append(existing.Declarations, f.Declarations...)
+				if existing.VersionConstraint == "" {
+					existing.VersionConstraint = f.VersionConstraint
+				}
+				existing.Sources = append(existing.Sources, f.Sources...)
+			} else {
+				facts[f.Language] = f
+			}
+		}
+	}
+	// A Node pin applies to TypeScript packages in the same directory scope.
+	if ts, ok := facts[LangTypeScript]; ok {
+		for _, m := range markers {
+			if m.Base != ".tool-versions" && m.Base != ".nvmrc" && m.Base != ".node-version" {
+				continue
+			}
+			body, _ := readBounded(m.Path)
+			pins := []*Fact{detectFromMarker(m)}
+			if m.Base == ".tool-versions" {
+				pins = detectToolVersionFacts(m.Path, body)
+			}
+			for _, pin := range pins {
+				if pin == nil || pin.Language != LangJavaScript {
+					continue
+				}
+				for _, source := range ts.Sources {
+					relative, err := filepath.Rel(filepath.Dir(m.Path), source)
+					if err == nil && relative != ".." && !strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
+						ts.Version = pin.Version
+						if pin.BuildTool != "" {
+							ts.BuildTool, ts.BuildToolVersion = pin.BuildTool, pin.BuildToolVersion
+						}
+						ts.Declarations = append(ts.Declarations, VersionDeclaration{Source: m.Path, Value: pin.Version})
+						break
+					}
+				}
+			}
 		}
 	}
 	out := make([]Fact, 0, len(facts))
 	for _, v := range facts {
+		versions := map[string]bool{}
+		for _, declaration := range v.Declarations {
+			if declaration.Constraint {
+				continue
+			}
+			numbers := regexp.MustCompile(`[0-9]+`).FindAllString(declaration.Value, -1)
+			if len(numbers) == 0 {
+				continue
+			}
+			key := numbers[0]
+			if (v.Language == LangPython || v.Language == LangGo) && len(numbers) > 1 {
+				key += "." + numbers[1]
+			}
+			versions[key] = true
+		}
+		v.VersionConflict = len(versions) > 1
 		// Dedupe sources for clean output.
 		v.Sources = uniq(v.Sources)
 		sort.Strings(v.Sources)
@@ -190,7 +264,7 @@ func isMarkerName(name string) bool {
 	switch name {
 	case "pom.xml",
 		"build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts",
-		"package.json", ".nvmrc", ".node-version",
+		"package.json", ".nvmrc", ".node-version", "gradle-wrapper.properties",
 		"go.mod",
 		"pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".python-version",
 		"Gemfile", ".ruby-version",
@@ -218,7 +292,7 @@ func detectFromMarker(m markerFile) *Fact {
 	switch m.Base {
 	case "pom.xml":
 		return detectMaven(m.Path, content)
-	case "build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts":
+	case "build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts", "gradle-wrapper.properties":
 		return detectGradle(m.Path, m.Base, content)
 	case "package.json":
 		return detectPackageJSON(m.Path, content)
@@ -298,7 +372,7 @@ func detectMaven(path string, content []byte) *Fact {
 func detectGradle(path, base string, content []byte) *Fact {
 	// Could be Kotlin (.kts) or pure Java. We pick the language
 	// based on file naming AND keyword presence.
-	isKotlin := strings.HasSuffix(base, ".kts") || bytesContainsAny(content, []string{"kotlin(\"jvm\")", "kotlinOptions", "id(\"org.jetbrains.kotlin"})
+	isKotlin := bytesContainsAny(content, []string{"kotlin(\"jvm\")", "kotlin('jvm')", "kotlinOptions", "org.jetbrains.kotlin.jvm"})
 	if isKotlin {
 		f := &Fact{Language: LangKotlin, BuildTool: "gradle", Sources: []string{path}}
 		if m := gradleKotlinRe.FindSubmatch(content); m != nil {
@@ -325,6 +399,7 @@ func detectPackageJSON(path string, content []byte) *Fact {
 		} `json:"engines"`
 		Dependencies    map[string]string `json:"dependencies"`
 		DevDependencies map[string]string `json:"devDependencies"`
+		PackageManager  string            `json:"packageManager"`
 		TypeScript      bool              `json:"typescript,omitempty"`
 		Type            string            `json:"type,omitempty"`
 	}
@@ -340,7 +415,14 @@ func detectPackageJSON(path string, content []byte) *Fact {
 	}
 	f := &Fact{Language: lang, BuildTool: "npm", Sources: []string{path}}
 	if p.Engines.Node != "" {
-		f.Version = cleanSemver(p.Engines.Node)
+		f.VersionConstraint = p.Engines.Node
+		if !strings.HasPrefix(strings.TrimSpace(p.Engines.Node), "<") && !strings.Contains(p.Engines.Node, "||") {
+			f.Version = cleanSemver(strings.Fields(p.Engines.Node)[0])
+		}
+	}
+	if parts := strings.SplitN(p.PackageManager, "@", 2); len(parts) == 2 && (parts[0] == "npm" || parts[0] == "pnpm" || parts[0] == "yarn") {
+		f.BuildTool = parts[0]
+		f.BuildToolVersion = strings.Split(parts[1], "+")[0]
 	}
 	return f
 }
@@ -361,11 +443,22 @@ func detectGoMod(path string, content []byte) *Fact {
 func detectPyProject(path string, content []byte) *Fact {
 	f := &Fact{Language: LangPython, BuildTool: "pip", Sources: []string{path}}
 	if m := pythonReq.FindSubmatch(content); m != nil {
+		f.VersionConstraint = string(m[1])
 		f.Version = extractMinPythonVersion(string(m[1]))
 	}
 	// Detect poetry vs setuptools vs hatch by section presence.
 	if bytesContainsAny(content, []string{"[tool.poetry]"}) {
 		f.BuildTool = "poetry"
+		if f.Version == "" {
+			re := regexp.MustCompile(`(?ms)\[tool\.poetry\.dependencies\]([^\[]*)`)
+			if section := re.FindSubmatch(content); section != nil {
+				re = regexp.MustCompile(`(?m)^python\s*=\s*['"]([^'"]+)['"]`)
+				if m := re.FindSubmatch(section[1]); m != nil {
+					f.VersionConstraint = string(m[1])
+					f.Version = extractMinPythonVersion(string(m[1]))
+				}
+			}
+		}
 	} else if bytesContainsAny(content, []string{"[tool.hatch"}) {
 		f.BuildTool = "hatch"
 	}
@@ -406,35 +499,70 @@ func detectGlobalJSON(path string, content []byte) *Fact {
 }
 
 func detectToolVersions(path string, content []byte) *Fact {
-	// .tool-versions lines look like: "java 21.0.2" or "nodejs 20.10.0".
-	// We extract every line and emit one Fact per recognised language.
-	// To stay compatible with the per-marker API, we merge later in
-	// Inspect via the Sources field; here we return only the first
-	// recognised tool. A future iteration could split into multiple
-	// markerFile entries; for now we pick whichever line appears first.
+	facts := detectToolVersionFacts(path, content)
+	if len(facts) == 0 {
+		return nil
+	}
+	return facts[0]
+}
+
+func detectToolVersionFacts(path string, content []byte) []*Fact {
+	tools := map[string]string{}
+	for _, line := range strings.Split(string(content), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) >= 2 && !strings.HasPrefix(fields[0], "#") {
+			tools[strings.ToLower(fields[0])] = fields[1]
+		}
+	}
+	var out []*Fact
 	for _, line := range strings.Split(string(content), "\n") {
 		fields := strings.Fields(line)
 		if len(fields) < 2 {
 			continue
 		}
+		f := &Fact{Version: fields[1], Sources: []string{path}}
 		switch strings.ToLower(fields[0]) {
 		case "java":
-			return &Fact{Language: LangJava, Version: normalizeJava(fields[1]), Sources: []string{path}}
+			f.Language = LangJava
+			f.Version = normalizeJava(fields[1])
+			if v := tools["maven"]; v != "" {
+				f.BuildTool, f.BuildToolVersion = "maven", v
+			} else if v := tools["gradle"]; v != "" {
+				f.BuildTool, f.BuildToolVersion = "gradle", v
+			}
 		case "kotlin":
-			return &Fact{Language: LangKotlin, Version: fields[1], Sources: []string{path}}
+			f.Language = LangKotlin
 		case "nodejs", "node":
-			return &Fact{Language: LangJavaScript, Version: fields[1], Sources: []string{path}}
+			f.Language = LangJavaScript
+			for _, tool := range []string{"pnpm", "yarn", "npm"} {
+				if v := tools[tool]; v != "" {
+					f.BuildTool = tool
+					f.BuildToolVersion = v
+					break
+				}
+			}
 		case "python":
-			return &Fact{Language: LangPython, Version: fields[1], Sources: []string{path}}
+			f.Language = LangPython
+			for _, tool := range []string{"uv", "poetry"} {
+				if v := tools[tool]; v != "" {
+					f.BuildTool = tool
+					f.BuildToolVersion = v
+					break
+				}
+			}
 		case "ruby":
-			return &Fact{Language: LangRuby, Version: fields[1], Sources: []string{path}}
+			f.Language = LangRuby
 		case "golang", "go":
-			return &Fact{Language: LangGo, Version: fields[1], Sources: []string{path}}
+			f.Language = LangGo
 		case "dotnet":
-			return &Fact{Language: LangCSharp, Version: majorMinor(fields[1]), Sources: []string{path}}
+			f.Language = LangCSharp
+			f.Version = majorMinor(fields[1])
+		default:
+			continue
 		}
+		out = append(out, f)
 	}
-	return nil
+	return out
 }
 
 func detectCsproj(path, base string, content []byte) *Fact {
@@ -482,7 +610,7 @@ func extractMinPythonVersion(constraint string) string {
 	}
 	// Sometimes pyproject just has "3.10" without an operator.
 	if !strings.ContainsAny(c, "<>=") {
-		return c
+		return strings.TrimLeft(c, "^~")
 	}
 	return ""
 }

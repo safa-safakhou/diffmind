@@ -1,7 +1,9 @@
+import { LoadingState } from '../components/LoadingState.jsx'
 import { useEffect, useState } from 'preact/hooks'
 import { getRunArchGraphFlow, getRunArchGraphImpact } from '../lib/api.js'
 import { navigate } from '../lib/router.js'
 import { FlowRibbon } from './FlowRibbon.jsx'
+import { FlowReview } from './FlowReview.jsx'
 import { TracePicker } from '../components/TracePicker.jsx'
 
 export function TraceView({ pid, rid, params = {} }) {
@@ -15,7 +17,7 @@ export function TraceView({ pid, rid, params = {} }) {
   const isImpact = Boolean(impactNode)
 
   useEffect(() => {
-    if (!service) return
+    if (!service || (!isImpact && !objectID)) return
     let cancelled = false
     setFlow(null)
     setError('')
@@ -55,10 +57,11 @@ export function TraceView({ pid, rid, params = {} }) {
         </div>
         {service && (
           <div class="trace-controls">
-            <label class="muted small">depth</label>
+            {(isImpact || objectID) && <><label class="muted small">depth</label>
             <select value={depth} onChange={(e) => (isImpact ? openImpact(impactNode, e.target.value) : openTrace({ service, id: objectID }, e.target.value))}>
               {['2', '3', '4', '6', '8', '12'].map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
+            </select></>}
+            {!isImpact && objectID && <button class="btn ghost tiny" onClick={() => openTrace({ service, id: '' })}>Browse service flows</button>}
             {!isImpact && <button class="btn ghost tiny" onClick={() => openImpact(service)}>Impact of {service}</button>}
             {isImpact && <button class="btn ghost tiny" onClick={() => openTrace({ service: impactNode, id: '' })}>Trace from {impactNode}</button>}
             <button class="btn ghost tiny" onClick={() => navigate(`/projects/${pid}/runs/${rid}/trace`)}>New trace</button>
@@ -77,8 +80,9 @@ export function TraceView({ pid, rid, params = {} }) {
       )}
 
       {error && <div class="banner error">{error}</div>}
-      {service && !flow && !error && <div class="graph-empty muted">Walking the flow…</div>}
-      {service && flow && (
+      {service && !objectID && !isImpact && <div class="trace-service-flows"><FlowReview pid={pid} from={rid} to={rid} service={service} /></div>}
+      {service && (objectID || isImpact) && !flow && !error && <LoadingState label={isImpact ? "Loading impact…" : "Loading flow…"} detail="Following the saved connections and source evidence." />}
+      {service && (objectID || isImpact) && flow && (
         <FlowBody
           flow={flow}
           selectedNode={selectedNode}

@@ -1,3 +1,4 @@
+import { LoadingState } from '../components/LoadingState.jsx'
 import { useEffect, useState } from 'preact/hooks'
 import { listProjects, createProject, deleteProject, getSession } from '../lib/api.js'
 import { canCreateProject } from '../lib/access.js'
@@ -50,7 +51,7 @@ export function Projects() {
       {error && <div class="banner error" role="alert">{error}</div>}
 
       <div class="content">
-        {projects === null && !error && <p class="muted" role="status">Loading projects…</p>}
+        {projects === null && !error && <LoadingState label="Loading projects…" detail="Finding your accessible workspaces." />}
         {error && <button class="btn ghost" onClick={refresh}>Retry loading projects</button>}
         {projects && projects.length === 0 && !showCreate && (
           <p class="muted">{canCreate ? 'No projects yet.' : 'No accessible projects. Ask an administrator to grant your user access.'}</p>

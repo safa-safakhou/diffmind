@@ -3,6 +3,7 @@ package ast
 import (
 	"context"
 	"fmt"
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,6 +28,9 @@ func ParseFile(ctx context.Context, repoRoot, relPath string) (*FileAST, error) 
 	src, err := os.ReadFile(abs)
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", relPath, err)
+	}
+	if sourcefilter.SkipFileContent(src) {
+		return nil, fmt.Errorf("skipped binary or non-UTF-8 source %s", relPath)
 	}
 	return parseSource(ctx, src, lang, sitterLang, relPath)
 }

@@ -607,3 +607,48 @@ def endpoint(): return "ok"
 		}
 	}
 }
+
+func TestSpringGeneratedOpenAPIControllerRecovery(t *testing.T) {
+	for _, tc := range []struct {
+		name, version                   string
+		controller, ambiguous, disabled bool
+		want                            int
+	}{
+		{name: "configured interface", version: "3.0.3", controller: true, want: 1},
+		{name: "plain service is not inbound", version: "3.0.3"},
+		{name: "unsupported contract version", version: "3.1.0", controller: true},
+		{name: "ambiguous controllers", version: "3.0.3", controller: true, ambiguous: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			writeFile(t, dir, "pom.xml", `<project><build><plugins><plugin><groupId>org.openapitools</groupId><artifactId>openapi-generator-maven-plugin</artifactId><executions><execution><configuration><inputSpec>${project.basedir}/api/catalog-spec.yaml</inputSpec><generatorName>spring</generatorName><apiPackage>example.api</apiPackage><configOptions><interfaceOnly>true</interfaceOnly></configOptions></configuration></execution></executions></plugin></plugins></build></project>`)
+			if err := os.MkdirAll(filepath.Join(dir, "api"), 0755); err != nil {
+				t.Fatal(err)
+			}
+			writeFile(t, dir, "api/catalog-spec.yaml", "openapi: "+tc.version+"\npaths:\n  /catalog/{id}:\n    parameters: []\n    get:\n      operationId: getCatalog\n")
+			annotation := ""
+			if tc.controller {
+				annotation = "@RestController"
+			}
+			code := `package example; import example.api.CatalogApi; import org.springframework.web.bind.annotation.RestController;
+   ` + annotation + ` public class CatalogController implements CatalogApi { public String getCatalog(String id) { return store.read(id); } }`
+			writeFile(t, dir, "CatalogController.java", code)
+			if tc.ambiguous {
+				writeFile(t, dir, "OtherController.java", strings.ReplaceAll(code, "CatalogController", "OtherController"))
+			}
+			idx := buildIndex(t, dir)
+			count := 0
+			for _, b := range idx.Frameworks {
+				if b.Kind == "http_handler" && b.Trigger == "GET /catalog/{id}" {
+					count++
+					if b.Symbol != "example.CatalogController.getCatalog" && !strings.HasSuffix(b.Symbol, "CatalogController.getCatalog") {
+						t.Fatalf("implementation symbol lost: %+v", b)
+					}
+				}
+			}
+			if count != tc.want {
+				t.Fatalf("routes=%d want=%d: %+v", count, tc.want, idx.Frameworks)
+			}
+		})
+	}
+}

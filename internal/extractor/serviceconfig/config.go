@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/mohammad-safakhou/diffmind/internal/extractor/dependencies"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/detectors"
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/sourcefilter"
 	"gopkg.in/yaml.v3"
@@ -18,16 +19,24 @@ const FileName = "diffmind-configuration.yaml"
 const Schema = "diffmind.config.v1"
 
 type Config struct {
-	Schema           string                  `yaml:"schema" json:"schema"`
-	Service          ServiceConfig           `yaml:"service" json:"service"`
-	Paths            PathConfig              `yaml:"paths" json:"paths"`
-	Aliases          AliasConfig             `yaml:"aliases" json:"aliases"`
-	HTTPTargets      []HTTPTargetConfig      `yaml:"http_targets" json:"http_targets"`
-	ResourcePatterns []ResourcePatternConfig `yaml:"resource_patterns" json:"resource_patterns"`
-	Config           ConfigPathConfig        `yaml:"config" json:"config"`
-	Conventions      ConventionConfig        `yaml:"conventions" json:"conventions"`
-	Detectors        DetectorConfig          `yaml:"detectors" json:"detectors"`
-	Patterns         []CustomPattern         `yaml:"patterns" json:"patterns"`
+	Schema             string                  `yaml:"schema" json:"schema"`
+	Service            ServiceConfig           `yaml:"service" json:"service"`
+	Paths              PathConfig              `yaml:"paths" json:"paths"`
+	Aliases            AliasConfig             `yaml:"aliases" json:"aliases"`
+	HTTPTargets        []HTTPTargetConfig      `yaml:"http_targets" json:"http_targets"`
+	ResourcePatterns   []ResourcePatternConfig `yaml:"resource_patterns" json:"resource_patterns"`
+	Config             ConfigPathConfig        `yaml:"config" json:"config"`
+	Conventions        ConventionConfig        `yaml:"conventions" json:"conventions"`
+	Detectors          DetectorConfig          `yaml:"detectors" json:"detectors"`
+	Patterns           []CustomPattern         `yaml:"patterns" json:"patterns"`
+	DependencyVersions []DependencyVersion     `yaml:"dependency_versions" json:"dependency_versions"`
+}
+
+type DependencyVersion struct {
+	Ecosystem string `yaml:"ecosystem" json:"ecosystem"`
+	Name      string `yaml:"name" json:"name"`
+	Module    string `yaml:"module" json:"module"`
+	Version   string `yaml:"version" json:"version"`
 }
 
 type ServiceConfig struct {
@@ -106,13 +115,14 @@ type DetectorConfig struct {
 }
 
 type CustomPattern struct {
-	ID          string            `yaml:"id" json:"id"`
-	Kind        string            `yaml:"kind" json:"kind"`
-	Language    string            `yaml:"language" json:"language"`
-	FileGlob    string            `yaml:"file_glob" json:"file_glob"`
-	Regex       string            `yaml:"regex" json:"regex"`
-	Fields      map[string]string `yaml:"fields" json:"fields"`
-	Description string            `yaml:"description" json:"description"`
+	ID          string                  `yaml:"id" json:"id"`
+	Kind        string                  `yaml:"kind" json:"kind"`
+	Language    string                  `yaml:"language" json:"language"`
+	FileGlob    string                  `yaml:"file_glob" json:"file_glob"`
+	Regex       string                  `yaml:"regex" json:"regex"`
+	Fields      map[string]string       `yaml:"fields" json:"fields"`
+	Description string                  `yaml:"description" json:"description"`
+	Requires    []detectors.Requirement `yaml:"requires" json:"requires"`
 }
 
 func Path(repoPath string) string {
@@ -210,6 +220,7 @@ func mergeConfig(dst *Config, src Config) {
 	dst.Detectors.Disabled = append(dst.Detectors.Disabled, src.Detectors.Disabled...)
 	mergeStringMap(&dst.Detectors.Options, src.Detectors.Options)
 	dst.Patterns = append(dst.Patterns, src.Patterns...)
+	dst.DependencyVersions = append(dst.DependencyVersions, src.DependencyVersions...)
 }
 
 func mergeService(dst *ServiceConfig, src ServiceConfig) {
@@ -262,6 +273,15 @@ func (c Config) Validate() error {
 		return fmt.Errorf("schema %q is unsupported; expected %s", c.Schema, Schema)
 	}
 	for _, id := range c.Detectors.Disabled {
+		custom := false
+		for _, p := range c.Patterns {
+			if id == "custom:"+p.ID {
+				custom = true
+			}
+		}
+		if custom {
+			continue
+		}
 		if err := detectors.ValidateID(strings.TrimSpace(id)); err != nil {
 			return err
 		}
@@ -288,6 +308,22 @@ func (c Config) Validate() error {
 		}
 		if _, err := regexp.Compile(p.Regex); err != nil {
 			return fmt.Errorf("patterns[%d].regex: %w", i, err)
+		}
+		if _, err := sourcefilter.NewPolicy([]string{p.FileGlob}, nil); p.FileGlob != "" && err != nil {
+			return fmt.Errorf("patterns[%d].file_glob: %w", i, err)
+		}
+		for _, r := range p.Requires {
+			if err := r.Validate(); err != nil {
+				return fmt.Errorf("patterns[%d].requires: %w", i, err)
+			}
+		}
+	}
+	for i, v := range c.DependencyVersions {
+		if strings.TrimSpace(v.Ecosystem) == "" || strings.TrimSpace(v.Name) == "" || dependencies.ExactVersion(v.Version) == "" {
+			return fmt.Errorf("dependency_versions[%d]: ecosystem, name and an exact semantic version are required", i)
+		}
+		if filepath.IsAbs(v.Module) || strings.HasPrefix(filepath.Clean(v.Module), "..") {
+			return fmt.Errorf("dependency_versions[%d].module must be inside the repository", i)
 		}
 	}
 	for i, target := range c.HTTPTargets {

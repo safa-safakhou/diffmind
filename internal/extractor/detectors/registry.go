@@ -3,6 +3,11 @@ package detectors
 import "sort"
 
 var descriptors = []Descriptor{
+	{ID: "golang.db.gorm", Language: LanguageGo, Category: CategoryDB, Tool: "gorm", ObjectTypes: []string{"db_query", "db_resource"}, Description: "GORM operations"},
+	{ID: "python.db.django", Language: LanguagePython, Category: CategoryDB, Tool: "django", ObjectTypes: []string{"db_query", "db_resource"}, Description: "Django ORM operations"},
+	{ID: "javascript.db.prisma", Language: LanguageJavaScript, Category: CategoryDB, Tool: "prisma", ObjectTypes: []string{"db_query", "db_resource"}, Description: "Prisma operations"},
+	{ID: "javascript.db.sequelize", Language: LanguageJavaScript, Category: CategoryDB, Tool: "sequelize", ObjectTypes: []string{"db_query", "db_resource"}, Description: "Sequelize operations"},
+	{ID: "ruby.db.activerecord", Language: LanguageRuby, Category: CategoryDB, Tool: "activerecord", ObjectTypes: []string{"db_query", "db_resource"}, Description: "ActiveRecord operations"},
 	{ID: "golang.http.fiber", Language: LanguageGo, Category: CategoryHTTP, Tool: "fiber", ObjectTypes: []string{"http_endpoint"}, Description: "Go Fiber route registrations"},
 	{ID: "golang.http.echo", Language: LanguageGo, Category: CategoryHTTP, Tool: "echo", ObjectTypes: []string{"http_endpoint"}, Description: "Go Echo route registrations"},
 	{ID: "golang.http.gin", Language: LanguageGo, Category: CategoryHTTP, Tool: "gin", ObjectTypes: []string{"http_endpoint"}, Description: "Go Gin route registrations"},
@@ -43,6 +48,9 @@ var descriptors = []Descriptor{
 
 func All() []Descriptor {
 	out := append([]Descriptor(nil), descriptors...)
+	for i := range out {
+		out[i].VersionRules = VersionRules(out[i].ID)
+	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out
 }
@@ -55,6 +63,7 @@ func Exists(id string) bool {
 func ByID(id string) (Descriptor, bool) {
 	for _, d := range descriptors {
 		if d.ID == id {
+			d.VersionRules = VersionRules(d.ID)
 			return d, true
 		}
 	}

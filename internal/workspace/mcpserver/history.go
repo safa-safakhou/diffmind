@@ -35,7 +35,25 @@ type traceInput struct {
 	ObjectID string `json:"object_id" jsonschema:"Exact object or flow ID from get_service. Names and fuzzy matches are not accepted."`
 }
 
+type compareFlowsInput struct {
+	Project string `json:"project,omitempty" jsonschema:"Project ID. Both snapshots must belong to this project."`
+	From    string `json:"from" jsonschema:"Exact baseline completed run ID. Use the same run as to to browse current service flows."`
+	To      string `json:"to" jsonschema:"Exact comparison completed run ID."`
+	Service string `json:"service" jsonschema:"Exact service name from list_services."`
+	Offset  int    `json:"offset,omitempty" jsonschema:"Nonnegative entrypoint offset."`
+	Limit   int    `json:"limit,omitempty" jsonschema:"Entrypoints per page, 1 to 50, default 10."`
+}
+
 func (s *Server) addHistoryTools(server *mcp.Server) {
+	mcp.AddTool(server, tool("compare_flows", "Compare entrypoint flows", "Browse or compare each service entrypoint between pinned snapshots. Includes before/after flow diagrams, added/removed/modified evidence, data operations, external dependencies and exact one-hop callers. Use from=to to browse a service. Follow next_offset; partial flows and missing snapshots do not prove safety. This does not establish PR revision eligibility; use pull_request_flows for that."),
+		func(ctx context.Context, _ *mcp.CallToolRequest, in compareFlowsInput) (*mcp.CallToolResult, any, error) {
+			project, err := s.project(in.Project)
+			if err != nil {
+				return nil, nil, err
+			}
+			out, err := s.query.CompareFlows(ctx, project, in.From, in.To, in.Service, in.Offset, in.Limit)
+			return nil, out, err
+		})
 	mcp.AddTool(server, tool("list_graph_runs", "List graph runs", "Discover saved graph runs, timestamps, availability and knowledge-pack digests. Use exact completed IDs for comparison. graph_available checks artifact presence; reading validates content."),
 		func(_ context.Context, _ *mcp.CallToolRequest, in graphRunsInput) (*mcp.CallToolResult, any, error) {
 			project, err := s.project(in.Project)

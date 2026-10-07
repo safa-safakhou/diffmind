@@ -39,8 +39,8 @@ func extractCalls(root *sitter.Node, src []byte, lang string, sitterLang *sitter
 	for m, ok := cursor.NextMatch(); ok; m, ok = cursor.NextMatch() {
 		var calleeRaw, receiverRaw, argsText string
 		var callNode *sitter.Node
+		var invocation *sitter.Node
 		var isMethodRef bool
-		var methodRefNode *sitter.Node
 
 		for _, c := range m.Captures {
 			capName := query.CaptureNameForId(c.Index)
@@ -53,13 +53,15 @@ func extractCalls(root *sitter.Node, src []byte, lang string, sitterLang *sitter
 				receiverRaw = text
 			case "args":
 				argsText = text
+			case "call":
+				invocation = c.Node
 			case "method_ref":
-				// Java/Kotlin method reference: extract the method name after "::"
+				// Preserve the receiver of Java/Kotlin callbacks.
 				isMethodRef = true
-				methodRefNode = c.Node
 				full := text // e.g. "service::processItem" or "CampaignMapper::map"
 				if idx := strings.LastIndex(full, "::"); idx >= 0 {
-					calleeRaw = full[idx+2:]
+					receiverRaw = strings.TrimSpace(full[:idx])
+					calleeRaw = strings.TrimSpace(full[idx+2:])
 				} else {
 					calleeRaw = full
 				}
@@ -70,11 +72,19 @@ func extractCalls(root *sitter.Node, src []byte, lang string, sitterLang *sitter
 		if calleeRaw == "" || callNode == nil {
 			continue
 		}
+		// The Java query's general invocation pattern also matches receiver
+		// calls. Recover its object so both query matches deduplicate identically.
+		if lang == "java" && invocation != nil && invocation.Type() == "method_invocation" {
+			if object := invocation.ChildByFieldName("object"); object != nil {
+				receiverRaw = object.Content(src)
+			}
+		}
+		if isMethodRef && (calleeRaw == "new" || (lang == "java" && receiverRaw == "")) {
+			continue
+		}
 		if receiverRaw != "" && !strings.Contains(calleeRaw, ".") {
 			calleeRaw = strings.TrimSpace(receiverRaw) + "." + strings.TrimSpace(calleeRaw)
 		}
-		_ = isMethodRef
-		_ = methodRefNode
 
 		r := nodeRange(callNode)
 
@@ -104,6 +114,7 @@ func extractCalls(root *sitter.Node, src []byte, lang string, sitterLang *sitter
 			Range:         r,
 			Arguments:     args,
 			EnclosingPath: enclosing,
+			IsImplicit:    isMethodRef,
 		})
 	}
 
@@ -115,7 +126,12 @@ func extractCalls(root *sitter.Node, src []byte, lang string, sitterLang *sitter
 	// the actual callable passed as an argument is `service::processItem`.
 	// We synthesise a CallSite for the method reference so the walker can
 	// follow that edge.
-	out = appendMethodRefArgCalls(out, src, relPath, symbolsInFile, seen, deupKey)
+	// Java and Kotlin queries already capture the reference node itself,
+	// including multiple callbacks in one invocation. Do not synthesize a
+	// second site at the enclosing call's range.
+	if lang != "java" && lang != "kotlin" {
+		out = appendMethodRefArgCalls(out, src, relPath, symbolsInFile, seen, deupKey)
+	}
 
 	return out
 }
@@ -171,17 +187,19 @@ func appendMethodRefArgCalls(
 				continue
 			}
 			methodName := strings.TrimSpace(s[idx+2:])
-			if methodName == "" || methodName == "new" {
+			receiver := strings.TrimSpace(s[:idx])
+			if methodName == "" || methodName == "new" || receiver == "" || strings.ContainsAny(receiver+methodName, "(){};\"\n") {
 				continue
 			}
-			key := deupKey(methodName, cs.Range.StartByte+uint32(arg.Index)+0xdeadbeef)
+			callee := receiver + "." + methodName
+			key := deupKey(callee, cs.Range.StartByte+uint32(arg.Index)+0xdeadbeef)
 			if _, dup := seen[key]; dup {
 				continue
 			}
 			seen[key] = struct{}{}
 			extra = append(extra, CallSite{
 				Caller:        cs.Caller,
-				CalleeRaw:     methodName,
+				CalleeRaw:     callee,
 				File:          relPath,
 				Range:         cs.Range,
 				Arguments:     nil,

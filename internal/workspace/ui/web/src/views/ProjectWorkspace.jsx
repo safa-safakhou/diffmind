@@ -1,3 +1,5 @@
+import { LoadingState } from '../components/LoadingState.jsx'
+import DependencyEvidence from '../components/DependencyEvidence.jsx'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { navigate } from '../lib/router.js'
 import { createRepo, createRun, deleteRepo, getDiffMindConfigurationYaml, getIngestion, getRunArchGraph, getRunArchGraphResource, getRunArchGraphService, getRunArchGraphTrace, getWorkspace, importRepos, putDiffMindConfigurationYaml, startDiffMindBatch, startIngestion, startRepoDiffMind, syncRepo } from '../lib/api.js'
@@ -35,6 +37,7 @@ export function ProjectWorkspace({ pid }) {
   const [graphRunID, setGraphRunID] = useState('')
   const [graphDetailLoaded, setGraphDetailLoaded] = useState(false)
   const [graphLoading, setGraphLoading] = useState(false)
+  const [workspaceRefreshing, setWorkspaceRefreshing] = useState(false)
   const [graphError, setGraphError] = useState('')
   const [addOpen, setAddOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
@@ -44,7 +47,8 @@ export function ProjectWorkspace({ pid }) {
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [packsOpen, setPacksOpen] = useState(false)
 
-  const refresh = async () => {
+  const refresh = async (showProgress = false) => {
+    if (showProgress) setWorkspaceRefreshing(true)
     const sequence = ++refreshSequence.current
     const isCurrent = () => currentProject.current === pid && refreshSequence.current === sequence
     try {
@@ -88,11 +92,13 @@ export function ProjectWorkspace({ pid }) {
       setError(''); setConnectionError(''); setConnectionDenied(false)
     }
     catch (e) { if (isCurrent()) { setError(e.message); setConnectionError(e.message); setConnectionDenied([401, 403, 404].includes(e.status)) } }
+    finally { if (isCurrent()) setWorkspaceRefreshing(false) }
   }
-  useEffect(() => { setWorkspace(null); setIngestion(null); setSelected(null); setGraphData(null); setGraphRunID(''); setError(''); setConnectionError(''); setConnectionDenied(false); refresh(); return () => { refreshSequence.current++ } }, [pid])
+  useEffect(() => { setWorkspace(null); setIngestion(null); setSelected(null); setGraphData(null); setGraphRunID(''); setGraphLoading(false); setWorkspaceRefreshing(false); setGraphError(''); setError(''); setConnectionError(''); setConnectionDenied(false); refresh(); return () => { refreshSequence.current++ } }, [pid])
   useEffect(() => {
     const run = workspace?.latest_run
     if (!run?.id || run.status !== 'completed') {
+      setGraphLoading(false)
       setGraphData(null)
       setGraphRunID('')
       setGraphDetailLoaded(false)
@@ -269,7 +275,7 @@ export function ProjectWorkspace({ pid }) {
           <button class="btn ghost" onClick={() => navigate(`/projects/${encodeURIComponent(pid)}/pull-requests`)}>
             PR impact{sumOpenPRs(live) > 0 ? ` · ${sumOpenPRs(live)}` : ''}
           </button>
-          <button class="btn ghost" onClick={refresh}>Reload view</button>
+          <button class="btn ghost" disabled={workspaceRefreshing} onClick={() => refresh(true)}>{workspaceRefreshing ? 'Reloading…' : 'Reload view'}</button>
           {ingestionIsRunning && caps?.can_refresh && <button class="btn danger" disabled={busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { await cancelIngestion(pid); await refresh() })}>Cancel ingestion</button>}
           {caps?.can_configure && ingestionCanResume(ingestion) && <button class="btn" disabled={!readiness?.actions?.configure || busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { await resumeIngestion(pid); await refresh() })}>Resume / retry</button>}
           {caps?.can_refresh && <button class="btn" disabled={!readiness?.actions?.refresh || !repos.length || ingestionIsRunning || hasRunningDiffMind || graphIsRunning || busy === 'ingestion'} onClick={() => runAction('ingestion', async () => { if (caps?.mode === 'scoped') { await enqueueRefresh(pid); await refresh(); setNotice('Refresh queued. Open Operations to follow it.') } else { await startIngestion(pid); await refresh() } })}>Update context</button>}
@@ -285,7 +291,7 @@ export function ProjectWorkspace({ pid }) {
 
       <section class="workspace-alerts" aria-live="polite">
         <ReadinessNotice readiness={readiness} />
-        {!workspace && !error && <p role="status">Loading workspace…</p>}
+        {workspace && workspaceRefreshing && <LoadingState compact label="Refreshing workspace…" />}
         {!workspace && error && <button class="btn ghost" onClick={refresh}>Retry loading workspace</button>}
         {workspace?.evidence && <p class="muted small">Repository analyses: {workspace.evidence.fresh} fresh, {workspace.evidence.stale} stale, {workspace.evidence.dirty} with local changes, {workspace.evidence.unknown} unknown. Static source evidence; coverage remains unverified.</p>}
         {caps && !caps.can_refresh && <p class="muted small">You have read-only access. Ask a project editor to update context.</p>}
@@ -325,12 +331,15 @@ export function ProjectWorkspace({ pid }) {
         ))}
       </aside>
 
-      <main class="workspace-board">
-        {graph
-          ? <GraphCanvas graph={graph} onSelect={handleGraphSelect} detailLoaded={graphDetailLoaded} onRequestFullDetail={loadFullGraph} />
-          : graphLoading
-            ? <GraphLoading run={workspace?.latest_run} />
+      <main class="workspace-board" aria-busy={!workspace && !error || graphLoading}>
+        {!workspace
+          ? !error && <LoadingState label="Loading workspace…" detail="Fetching your project and repositories." />
+          : graph ? <><GraphCanvas graph={graph} onSelect={handleGraphSelect} detailLoaded={graphDetailLoaded} onRequestFullDetail={loadFullGraph} />{graphLoading && <LoadingState overlay label="Loading graph details…" detail="Keeping your current graph visible while the new view loads." />}</>
+          : graphLoading || workspace?.latest_run?.status === 'completed' && !graphError
+            ? <LoadingState label="Loading graph…" detail="Preparing services and their connections. Large graphs may take a moment." />
+            : graphError ? <div class="workspace-empty"><p>Could not load the saved graph.</p><button class="btn ghost" onClick={() => loadFullGraph().catch(() => {})}>Retry loading graph</button></div>
             : <EmptyBoard repos={repos} busy={ingestionIsRunning} canConfigure={caps?.can_configure} onImport={() => setImportOpen(true)} onAdd={() => setAddOpen(true)} />}
+
       </main>
 
       <aside class="workspace-right">
@@ -349,7 +358,7 @@ export function ProjectWorkspace({ pid }) {
       <footer class="workspace-status" tabIndex={0} aria-label="Workspace status">
         <span>{repos.length} repos</span>
         <span>{(workspace?.teams || []).length} teams</span>
-        <span>{graph ? `${(graph.services || []).length} services` : 'no graph yet'}</span>
+        <span>{graph ? `${(graph.services || []).length} services` : !workspace || graphLoading ? 'loading…' : graphError ? 'graph unavailable' : 'no graph yet'}</span>
         <span>{currentGraphRun ? `graph ${currentGraphRun.status}` : 'graph idle'}</span>
         <span>{ingestion?.status && ingestion.status !== 'not_started' ? `ingestion ${ingestion.status}` : 'ingestion idle'}</span>
         <span>{repos.filter((r) => r.freshness === 'stale').length} stale</span>
@@ -498,16 +507,6 @@ function EmptyBoard({ repos, busy, canConfigure, onImport, onAdd }) {
   )
 }
 
-function GraphLoading({ run }) {
-  return (
-    <div class="workspace-empty graph-loading-panel">
-      <div class="activity-spinner" />
-      <h2>Loading graph</h2>
-      <p>Opening project metadata first. The large graph loads separately so the workspace stays responsive.</p>
-      {run?.id && <code>{run.id}</code>}
-    </div>
-  )
-}
 
 function Inspector({ selection, live, onSync, onDiffMind, onYaml, onDelete, busy, locked }) {
   if (!selection) return <div class="inspector-empty">Select a repo, service, resource, or edge.</div>
@@ -550,10 +549,13 @@ function Inspector({ selection, live, onSync, onDiffMind, onYaml, onDelete, busy
           ['Status', repo.sync_status || '-'],
           ['Error', repo.sync_error || '-'],
           ['LOC', metrics?.total_loc || 0],
+          ...(metrics?.toolchain || []).map((fact) => [fact.language + ' runtime / tool', `${fact.version || 'unknown'} · ${fact.build_tool || 'unknown'} ${fact.build_tool_version || ''}${fact.version_conflict ? ' · conflicting declarations' : ''}`]),
           ['Open PRs', live?.pull_requests ?? '-'],
           ['Open issues', live?.issues ?? '-'],
           ['Actions', live?.actions_state || '-'],
         ]} />
+        {!!metrics?.toolchain?.length && <details><summary>Version declarations</summary>{metrics.toolchain.map((fact) => <div key={fact.language}><strong>{fact.language}</strong><ul>{(fact.version_declarations || []).map((declaration) => <li>{declaration.source}: {declaration.value}{declaration.constraint ? ' (constraint)' : ''}</li>)}</ul></div>)}</details>}
+        <DependencyEvidence metrics={metrics} />
       </div>
     )
   }

@@ -62,3 +62,18 @@ func (s *Server) handleV1ObjectTrace(w http.ResponseWriter, r *http.Request) {
 	out, err := s.query.TraceObject(r.Context(), r.PathValue("pid"), r.URL.Query().Get("run"), r.URL.Query().Get("service"), r.URL.Query().Get("object_id"))
 	writeV1Result(w, out, err)
 }
+
+func (s *Server) handleV1FlowCompare(w http.ResponseWriter, r *http.Request) {
+	offset, err := queryInteger(r, "offset", 0)
+	if err != nil {
+		writeV1Result(w, nil, err)
+		return
+	}
+	limit, err := queryInteger(r, "limit", 10)
+	if err != nil {
+		writeV1Result(w, nil, err)
+		return
+	}
+	out, err := s.query.CompareFlows(r.Context(), r.PathValue("pid"), r.URL.Query().Get("from"), r.URL.Query().Get("to"), r.URL.Query().Get("service"), offset, limit)
+	writeV1Result(w, out, err)
+}

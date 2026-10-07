@@ -1,8 +1,10 @@
+import { LoadingState } from '../components/LoadingState.jsx'
 import { useEffect, useState } from 'preact/hooks'
 import { listGraphRuns, compareGraphs, compareContracts } from '../lib/api.js'
 import { navigate } from '../lib/router.js'
 import { comparisonDefaults, comparisonKeyLabel } from '../lib/comparison.js'
 import './GraphCompare.css'
+import { FlowReview } from './FlowReview.jsx'
 
 export function GraphCompare({ pid, params }) {
   const [runs, setRuns] = useState([])
@@ -15,6 +17,7 @@ export function GraphCompare({ pid, params }) {
   const [to, setTo] = useState(params.to || '')
   const [page, setPage] = useState({ pair: '', offset: 0 })
   const [result, setResult] = useState(null)
+  const [flowService, setFlowService] = useState(params.service || '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [reload, setReload] = useState(0)
@@ -35,8 +38,8 @@ export function GraphCompare({ pid, params }) {
 
   useEffect(() => {
     const defaults = comparisonDefaults(runs, params)
-    setFrom(defaults.from); setTo(defaults.to)
-  }, [params.from, params.to])
+    setFrom(defaults.from); setTo(defaults.to); setFlowService(params.service || '')
+  }, [params.from, params.to, params.service])
 
   useEffect(() => {
     const defaults = comparisonDefaults(runs, params)
@@ -80,11 +83,11 @@ export function GraphCompare({ pid, params }) {
       <button class="btn" disabled={!from || !to}>Compare</button>
       <button type="button" class="btn ghost" disabled={!from || !to} onClick={() => { setFrom(to); setTo(from) }}>Swap</button>
     </form>
-    {runsLoading && <p role="status">Loading graph history…</p>}
+    {runsLoading && <LoadingState compact label="Loading graph history…" />}
     {runsError && <p class="banner error" role="alert">Graph history: {runsError} <button class="btn ghost" onClick={() => setHistoryReload((value) => value + 1)}>Retry history</button></p>}
     {nextRuns !== null && <button class="btn ghost" disabled={runsLoading} onClick={() => setRunsOffset(nextRuns)}>Load older runs</button>}
     {!runsLoading && !runsError && runs.filter((run) => run.graph_available).length < 2 && !params.from && <p class="banner">Build at least two completed graphs to compare changes. You can also compare a snapshot with itself.</p>}
-    {loading && <p role="status">Comparing saved snapshots…</p>}
+    {loading && <LoadingState label="Comparing saved snapshots…" detail="Checking services, dependencies, and entry points for changes." />}
     {error && <p class="banner error" role="alert">Comparison failed: {error}</p>}
     {result && <section aria-label="Comparison result" class="comparison-result">
       <div class="comparison-summary">
@@ -114,6 +117,7 @@ export function GraphCompare({ pid, params }) {
         <button class="btn ghost" disabled={result.next_offset == null} onClick={() => setPage({ pair, offset: result.next_offset })}>Next</button>
       </nav>}
     </section>}
+    {result && <section class="comparison-flow-picker"><label>Explore entry-point flows <select value={flowService} onChange={(e) => setFlowService(e.currentTarget.value)}><option value="">Choose a service…</option>{Array.from(new Set([...(result.inputs_before || []), ...(result.inputs_after || [])].map((input) => input.service).filter(Boolean))).sort().map((name) => <option key={name} value={name}>{name}</option>)}</select></label>{flowService && <FlowReview key={JSON.stringify([pid, params.from, params.to, flowService])} pid={pid} from={params.from} to={params.to} service={flowService} />}</section>}
     {params.from && params.to && <ContractComparison key={JSON.stringify([pid, params.from, params.to, reload])} pid={pid} from={params.from} to={params.to} />}
   </main>
 }
@@ -131,7 +135,7 @@ export function ContractComparison({ pid, from, to }) {
   return <section aria-label="Contract comparison" class="comparison-result">
     <h2>Request contract compatibility</h2>
     <p class="muted">Compares extracted request fields in these saved snapshots. Unsupported schemas, response contracts and runtime behavior may be missing; no differences is not proof of compatibility.</p>
-    {state.loading && <p role="status">Comparing extracted contracts…</p>}
+    {state.loading && <LoadingState compact label="Comparing extracted contracts…" />}
     {state.error && <p role="alert" class="banner error">{state.error} <button class="btn ghost" onClick={() => setRetry(retry + 1)}>Retry contracts</button></p>}
     {state.result && <>
       <p>{state.result.changes?.length || 0} extracted field changes · {from} → {to}</p>

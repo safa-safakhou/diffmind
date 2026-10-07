@@ -20,9 +20,8 @@ func DeterministicDynamoDBOperations(idx *astpkg.ProjectIndex) []candidate {
 		return nil
 	}
 	type agg struct {
-		opKind string
-		loc    candidateLocation
-		hits   int
+		opKind    string
+		locations map[candidateLocation]bool
 	}
 	seen := map[string]*agg{}
 	var order []string
@@ -38,18 +37,11 @@ func DeterministicDynamoDBOperations(idx *astpkg.ProjectIndex) []candidate {
 			key := table + "|" + opKind
 			a := seen[key]
 			if a == nil {
-				a = &agg{
-					opKind: opKind,
-					loc: candidateLocation{
-						File:      cs.File,
-						StartLine: int(cs.Range.StartLine) + 1,
-						EndLine:   int(cs.Range.EndLine) + 1,
-					},
-				}
+				a = &agg{opKind: opKind, locations: map[candidateLocation]bool{}}
 				seen[key] = a
 				order = append(order, key)
 			}
-			a.hits++
+			a.locations[candidateLocation{File: cs.File, StartLine: int(cs.Range.StartLine) + 1, EndLine: int(cs.Range.EndLine) + 1}] = true
 		}
 	}
 	sort.Strings(order)
@@ -57,6 +49,25 @@ func DeterministicDynamoDBOperations(idx *astpkg.ProjectIndex) []candidate {
 	for _, key := range order {
 		a := seen[key]
 		operation := a.opKind + " " + table
+		locations := make([]candidateLocation, 0, len(a.locations))
+		for loc := range a.locations {
+			locations = append(locations, loc)
+		}
+		sort.Slice(locations, func(i, j int) bool {
+			a, b := locations[i], locations[j]
+			if a.File != b.File {
+				return a.File < b.File
+			}
+			if a.StartLine != b.StartLine {
+				return a.StartLine < b.StartLine
+			}
+			return a.EndLine < b.EndLine
+		})
+		evidence := make([]candidateEvidence, 0, len(locations))
+		for _, loc := range locations {
+			evidence = append(evidence, candidateEvidence{File: loc.File, StartLine: loc.StartLine, EndLine: loc.EndLine, Snippet: "DynamoDbTemplate " + a.opKind + " call resolved to " + table, Source: "deterministic_ast_dynamodb"})
+		}
+
 		out = append(out, candidate{
 			Type:       "db_operation",
 			Name:       operation,
@@ -73,14 +84,8 @@ func DeterministicDynamoDBOperations(idx *astpkg.ProjectIndex) []candidate {
 				"table_property":  tableKey,
 				"discovered_by":   "ast_dynamodb_template_call",
 			},
-			Locations: []candidateLocation{a.loc},
-			Evidence: []candidateEvidence{{
-				File:      a.loc.File,
-				StartLine: a.loc.StartLine,
-				EndLine:   a.loc.EndLine,
-				Snippet:   "DynamoDbTemplate " + a.opKind + " call resolved to " + table,
-				Source:    "deterministic_ast_dynamodb",
-			}},
+			Locations: locations,
+			Evidence:  evidence,
 		})
 	}
 	return out
