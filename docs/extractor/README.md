@@ -29,7 +29,7 @@ objects, observations, evidence, and flows.
 
 ## Requirements
 
-- Go 1.26.6 or newer compatible toolchain.
+- Go 1.26.9 or newer compatible toolchain.
 - Node.js and npm only if you want to rebuild the optional DiffMind dashboard.
 - Docker is useful for SCIP/indexer paths used by some repositories.
 - A source repository to analyze.

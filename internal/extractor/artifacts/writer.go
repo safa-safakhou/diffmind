@@ -34,7 +34,7 @@ var DiffMindVersion = "dev"
 // gitHeadSHA returns the HEAD commit of the repo at path, or "" if it is not a
 // git working tree. Used to pin a run to the exact analyzed revision.
 func gitHeadSHA(path string) string {
-	cmd := exec.Command("git", "-C", path, "rev-parse", "HEAD")
+	cmd := exec.Command("git", "--no-optional-locks", "-C", path, "rev-parse", "HEAD")
 	out, err := cmd.Output()
 	if err != nil {
 		return ""
@@ -43,7 +43,7 @@ func gitHeadSHA(path string) string {
 }
 
 func gitOutput(path string, args ...string) string {
-	cmdArgs := append([]string{"-C", path}, args...)
+	cmdArgs := append([]string{"--no-optional-locks", "-C", path}, args...)
 	out, err := exec.Command("git", cmdArgs...).Output()
 	if err != nil {
 		return ""

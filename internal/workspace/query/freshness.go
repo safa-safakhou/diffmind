@@ -23,7 +23,9 @@ func RepositoryFreshness(repo store.Repo, latest *artifacts.DiffMindRunInfo) str
 	if repo.SourceType == "local" || (repo.GitURL == "" && repo.Path != "") {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer cancel()
-		cmd := exec.CommandContext(ctx, "git", "-C", repo.Path, "status", "--porcelain=v2", "--branch")
+		// Background reads must not refresh the index: cancellation can leave
+		// an abandoned index.lock when Git is killed during that refresh.
+		cmd := exec.CommandContext(ctx, "git", "--no-optional-locks", "-C", repo.Path, "status", "--porcelain=v2", "--branch")
 		output, err := cmd.Output()
 		if err != nil {
 			return "unknown"

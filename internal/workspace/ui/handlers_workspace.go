@@ -499,7 +499,8 @@ func applyGitInfo(repo *store.Repo, info gitInfo) {
 }
 
 func gitOutput(ctx context.Context, dir string, args ...string) string {
-	cmd := exec.CommandContext(ctx, "git", args...)
+	// Inspection must not contend with the user's index or leave a lock on cancellation.
+	cmd := exec.CommandContext(ctx, "git", append([]string{"--no-optional-locks"}, args...)...)
 	if dir != "" {
 		cmd.Dir = dir
 	}
