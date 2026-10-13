@@ -1,8 +1,10 @@
 package artifacts
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
@@ -11,6 +13,49 @@ import (
 	"github.com/mohammad-safakhou/diffmind/internal/extractor/model"
 	"github.com/mohammad-safakhou/diffmind/protocol"
 )
+
+func TestGitDirtyPreservesIndex(t *testing.T) {
+	root := t.TempDir()
+	git := func(args ...string) {
+		t.Helper()
+		output, err := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput()
+		if err != nil {
+			t.Fatalf("git: %s %v", output, err)
+		}
+	}
+	git("init", "-q")
+	file := filepath.Join(root, "source.go")
+	if err := os.WriteFile(file, []byte("package source\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	git("add", ".")
+	git("-c", "user.name=Test", "-c", "user.email=test@example.test", "commit", "-qm", "source")
+	indexPath := filepath.Join(root, ".git", "index")
+	before, err := os.ReadFile(indexPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	oldTime := time.Unix(946684800, 0)
+	if err := os.Chtimes(file, oldTime, oldTime); err != nil {
+		t.Fatal(err)
+	}
+	if gitDirty(root, false) {
+		t.Fatal("timestamp-only change reported dirty")
+	}
+	after, err := os.ReadFile(indexPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(before, after) {
+		t.Fatal("extractor Git read rewrote the index")
+	}
+	if err := os.WriteFile(file, []byte("package changed\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if !gitDirty(root, false) {
+		t.Fatal("content change was not reported dirty")
+	}
+}
 
 func TestNormalizeBackstageOwner(t *testing.T) {
 	tests := map[string]string{

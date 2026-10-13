@@ -37,6 +37,8 @@ Manual analyzer and graph controls are under **Advanced actions**.
 
 Graph summaries distinguish a saved run, repository analysis freshness and
 unverified static coverage. `freshness_basis: live_checkout_status` uses the same read-only check as the dashboard; `freshness_reference: latest_repository_analysis` compares current source against the latest repository analysis, not the selected graph snapshot. Missing or inaccessible local checkouts report unknown.
+Background Git inspection uses `--no-optional-locks` so status reads do not
+refresh the user's index or leave an `index.lock` when a check is cancelled.
 These states do not assert that the chosen graph incorporates a newer analysis
 or that PR-head evidence is eligible.
 

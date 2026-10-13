@@ -30,7 +30,7 @@ func (s *Server) analysisFingerprint(ctx context.Context, pid string, repo store
 	}
 	root := firstNonEmpty(repo.Path, repo.ClonePath)
 	git := func(args ...string) (string, error) {
-		cmd := exec.CommandContext(ctx, "git", append([]string{"-C", root}, args...)...)
+		cmd := exec.CommandContext(ctx, "git", append([]string{"--no-optional-locks", "-C", root}, args...)...)
 		b, err := cmd.Output()
 		return strings.TrimSpace(string(b)), err
 	}

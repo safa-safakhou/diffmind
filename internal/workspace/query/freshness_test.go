@@ -1,6 +1,7 @@
 package query
 
 import (
+	"bytes"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/artifacts"
 	"github.com/mohammad-safakhou/diffmind/internal/workspace/store"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestRepositoryFreshnessReadsLocalCheckoutAndFailsUnknown(t *testing.T) {
@@ -31,8 +33,26 @@ func TestRepositoryFreshnessReadsLocalCheckoutAndFailsUnknown(t *testing.T) {
 	head := git("rev-parse", "HEAD")
 	repo := store.Repo{Path: root, SourceType: "local", HeadSHA: head, DiffMindFreshness: "fresh"}
 	latest := &artifacts.DiffMindRunInfo{RepoGitSHA: head}
+	indexPath := filepath.Join(root, ".git", "index")
+	indexBefore, err := os.ReadFile(indexPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Changed timestamps with identical content normally cause status to
+	// refresh the index. A background freshness read must leave it untouched.
+	oldTime := time.Unix(946684800, 0)
+	if err := os.Chtimes(file, oldTime, oldTime); err != nil {
+		t.Fatal(err)
+	}
 	if got := RepositoryFreshness(repo, latest); got != "fresh" {
 		t.Fatalf("fresh=%s", got)
+	}
+	indexAfter, err := os.ReadFile(indexPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(indexBefore, indexAfter) {
+		t.Fatal("background freshness check rewrote the Git index")
 	}
 	os.WriteFile(file, []byte("package changed\n"), 0600)
 	if got := RepositoryFreshness(repo, latest); got != "dirty" {
