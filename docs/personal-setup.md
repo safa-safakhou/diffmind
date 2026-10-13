@@ -34,7 +34,7 @@ Homebrew development formula.
 
 ## Install from source
 
-Build the committed source with Go 1.26.6 or newer, Git and a C compiler (CGO
+Build the committed source with Go 1.26.9 or newer, Git and a C compiler (CGO
 enabled). On macOS, run `xcode-select --install` if the Command Line Tools are
 missing. On Linux, install Git and your distribution's C build tools. Node is
 unnecessary unless you are changing the embedded web interfaces.

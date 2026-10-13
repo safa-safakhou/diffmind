@@ -133,7 +133,7 @@ func setup(opts setupOptions, diagnostics io.Writer) (setupResult, error) {
 	build.Stdout = diagnostics
 	build.Stderr = diagnostics
 	if err = build.Run(); err != nil {
-		return empty, fmt.Errorf("build failed (Go >=1.26.6, Git and C/CGO compiler required): %w", err)
+		return empty, fmt.Errorf("build failed (Go >=1.26.9, Git and C/CGO compiler required): %w", err)
 	}
 	// Probe in installer-owned temporary state, never modify the user's workspace
 	// before the candidate is known to start successfully.
